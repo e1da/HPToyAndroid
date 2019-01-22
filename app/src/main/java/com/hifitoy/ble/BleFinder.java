@@ -1,70 +1,60 @@
+/*
+ *   BleFinder.java
+ *
+ *   Created by Artem Khlyupin on 13/11/2018.
+ *   Copyright © 2019 Artem Khlyupin. All rights reserved.
+ */
+
 package com.hifitoy.ble;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
-import android.content.Context;
-import android.content.pm.PackageManager;
 import android.util.Log;
-import android.widget.Toast;
-import com.hifitoy.R;
 import java.util.LinkedList;
 import java.util.List;
 
 public class BleFinder {
-    private String TAG = "BleFinder";
+    private static final String TAG = "HiFiToy";
 
-    private IBleFinderDelegate delegate = null;
-
-    private List<BluetoothDevice> devices = new LinkedList<>();
     private BluetoothAdapter mBluetoothAdapter;
+    private IBleFinderDelegate delegate = null;
+    private List<String> deviceAddressList = new LinkedList<>();
 
-    public BleFinder(Context context) {
-        if (!context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(context, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
-            return;
-        }
 
-        final BluetoothManager bluetoothManager =
-                (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
-        mBluetoothAdapter = bluetoothManager.getAdapter();
-
+    public interface IBleFinderDelegate {
+        void didFindNewPeripheral(String macAddress);
     }
 
-    public static BleFinder BleFinder(Context context, IBleFinderDelegate delegate) {
-        BleFinder finder = new BleFinder(context);
-        finder.setBleFinderDelegate(delegate);
-
-        return finder;
+    public BleFinder(BluetoothAdapter bluetoothAdapter) {
+        mBluetoothAdapter = bluetoothAdapter;
+        this.delegate = null;
     }
-
-
 
     public void setBleFinderDelegate(IBleFinderDelegate delegate) {
         this.delegate = delegate;
     }
 
-    public List<BluetoothDevice> getDevices() {
-        return devices;
+    public List<String> getDeviceAddressList() {
+        return deviceAddressList;
     }
 
     public void clear() {
-        devices.clear();
+        deviceAddressList.clear();
     }
 
     public void startDiscovery() {
-        devices.clear();
+        clear();
 
-        if (mBluetoothAdapter == null) return;
+        if ((mBluetoothAdapter == null) || (!mBluetoothAdapter.isEnabled()) ) return;
 
         mBluetoothAdapter.getBluetoothLeScanner().startScan(new BleScanCallBack());
         Log.d(TAG, "BLE Scanning...");
     }
 
     public void stopDiscovery() {
-        if (mBluetoothAdapter == null) return;
+        if ((mBluetoothAdapter == null) || (!mBluetoothAdapter.isEnabled()) ) return;
 
         mBluetoothAdapter.getBluetoothLeScanner().stopScan(new BleScanCallBack());
         Log.d(TAG, "BLE Stop Scanning");
@@ -75,17 +65,18 @@ public class BleFinder {
         public void onScanResult(int callbackType, ScanResult result) {
             BluetoothDevice device = result.getDevice();
 
-            if ((!devices.contains(device)) &&
-                    (device.getName() != null) &&
-                    (device.getName().equals("HiFiToy"))) {
+            if (    (device.getName() != null) &&
+                    (device.getName().equals("HiFiToyPeripheral")) &&
+                    (!deviceAddressList.contains(device.getAddress()))) {
 
-                devices.add(device);
+                deviceAddressList.add(device.getAddress());
 
                 if (delegate != null) {
-                    delegate.didFindNewPeripheral(device);
+                    delegate.didFindNewPeripheral(device.getAddress());
                 }
 
-                Log.d(TAG, "Find ble device: " + device.getName());
+                Log.d(TAG, "Find ble device: " + device.getName() + " " + device.getAddress());
+
             }
         }
 
@@ -98,10 +89,6 @@ public class BleFinder {
         public void onScanFailed(int errorCode) {
             Log.d(TAG, "onScanFailed");
         }
-    }
-
-    public interface IBleFinderDelegate {
-        void didFindNewPeripheral(BluetoothDevice device);
     }
 
 }
