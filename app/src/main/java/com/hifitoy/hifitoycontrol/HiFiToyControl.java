@@ -25,6 +25,8 @@ import com.hifitoy.ble.BlePacket;
 import com.hifitoy.ble.BlePacketQueue;
 import com.hifitoy.ble.BleFinder;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
+import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.List;
@@ -36,7 +38,8 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
     private static HiFiToyControl instance;
     private Context context;
-    private IHiFiToyDelegate delegate = null;
+    private DiscoveryDelegate   discoveryDelegate = null;
+    private ConnectionDelegate  connectionDelegate = null;
 
     private BluetoothAdapter    mBluetoothAdapter = null;
     private boolean             blePermissionGranted = false;
@@ -70,7 +73,10 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     private BlePacketQueue packets = new BlePacketQueue();
     private Queue<BluetoothGattCharacteristic> descriptorPackets = null;
 
-    public interface IHiFiToyDelegate {
+    public interface DiscoveryDelegate {
+        void didFindPeripheral(HiFiToyDevice device);
+    }
+    public interface ConnectionDelegate {
         void didError(String error);
 
         void didConnect();
@@ -121,21 +127,24 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         return true;
     }
 
-    public void startDiscovery(BleFinder.IBleFinderDelegate delegate) {
+    public void startDiscovery(DiscoveryDelegate discoveryDelegate) {
+        bleFinder.setBleFinderDelegate(this);
+        this.discoveryDelegate = discoveryDelegate;
+
         if ( (blePermissionGranted) && (isBleEnabled()) ) {
             bleFinder.startDiscovery();
         }
-        bleFinder.setBleFinderDelegate(delegate);
+
 
     }
-    public void startDiscovery() {
-        startDiscovery(this);
-    }
     public void stopDiscovery() {
+        bleFinder.setBleFinderDelegate(null);
+        this.discoveryDelegate = null;
+
         if ( (blePermissionGranted) && (isBleEnabled()) ) {
             bleFinder.stopDiscovery();
         }
-        bleFinder.setBleFinderDelegate(null);
+
     }
 
     public boolean isConnected() {
@@ -144,7 +153,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     public boolean connect(HiFiToyDevice activeDevice) {
         this.activeDevice = activeDevice;
 
-        if ( (!blePermissionGranted) || (!isBleEnabled()) ) return false;
+        if ( (!blePermissionGranted) || (!isBleEnabled()) || (activeDevice == null)) return false;
 
         if (activeDevice.getMac().equals("Demo")) {
             return true;
@@ -210,7 +219,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
                 connect(); // auto re-connect
 
-                if (delegate != null) delegate.didDisconnect();
+                if (connectionDelegate != null) connectionDelegate.didDisconnect();
             }
         }
 
@@ -266,7 +275,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                 packets.remove();
 
                 Log.d(TAG, String.format("left pack count = %d", packets.size()));
-                if (delegate != null) delegate.didWriteData(packets.size());
+                if (connectionDelegate != null) connectionDelegate.didWriteData(packets.size());
 
                 if (packets.size() > 0) {
                     BlePacket packet = packets.element();
@@ -277,7 +286,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                         Log.d(TAG, "Write characteristic is unsuccesful!");
                     }
                 } else {
-                    if (delegate != null) delegate.didWriteAllData();
+                    if (connectionDelegate != null) connectionDelegate.didWriteAllData();
                 }
             }
         }
@@ -309,7 +318,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                     case CommonCommand.ESTABLISH_PAIR:
                         if (status != 0) {
                             Log.d(TAG, "PAIR_YES");
-                            checkFirmareWriteFlag();
+                            checkWriteFlag();
 
                         } else {
                             Log.d(TAG, "PAIR_NO");
@@ -344,8 +353,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
                         if (version == HiFiToyConfig.getInstance().version) {
                             Log.d(TAG, "GET_VERSION_OK");
-                            AudioSource.getInstance().updateAudioSource();
-
+                            activeDevice.getAudioSource().readFromDsp();
                         } else {
                             Log.d(TAG, "GET_VERSION_FAIL" + version);
                             //[self restoreFactorySettings];
@@ -357,13 +365,13 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                         Log.d(TAG, "GET_CHECKSUM " + checksum);
 
                         //[self comparePreset:checksum];
-                        if (delegate != null) delegate.didConnect();
+                        if (connectionDelegate != null) connectionDelegate.didConnect();
                         break;
 
                     case CommonCommand.GET_AUDIO_SOURCE:
                         Log.d(TAG, "GET_AUDIO_SOURCE " + status);
 
-                        AudioSource.getInstance().setSource(data[1]);
+                        activeDevice.getAudioSource().setSource(data[1]);
                         getChecksumParamData();
                         break;
 
@@ -388,7 +396,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                 }
             }
             if (characteristic.getUuid().equals(FFF4_UUID)){
-                if (delegate != null) delegate.didGetParamData(data);
+                if (connectionDelegate != null) connectionDelegate.didGetParamData(data);
             }
         }
 
@@ -480,10 +488,9 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     }
     private void sendWriteFlag(byte writeFlag) {
         byte[] d = { CommonCommand.SET_WRITE_FLAG, writeFlag, 0, 0, 0 };
-
         sendDataToDsp(d, true);
     }
-    private void checkFirmareWriteFlag() {
+    private void checkWriteFlag() {
         byte[] d = { CommonCommand.GET_WRITE_FLAG, 0, 0, 0, 0 };
         sendDataToDsp(d, true);
     }
@@ -500,43 +507,37 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         sendDataToDsp(d, true);
     }
 
+
     //adv command (save/restore to/from storage)
    /* - (void) restoreFactorySettings;
     - (void) storePresetToDSP:(HiFiToyPreset *) preset;*/
 
     //get 20 bytes from DSP_Data[offset]
-    public void getDspDataWithOffset(int offset) {
-        if (offset < 0) return;
+    public void getDspDataWithOffset(short offset) {
+        //if (offset < 0) return;
 
         ByteBuffer b = ByteBuffer.allocate(2);
-        b.putInt(offset);
+        b.putShort(offset);
         sendDataToDsp(b.array(), true);
     }
 
     /* ------------------------- IBleFinderDelegate ----------------------------*/
     public void didFindNewPeripheral(String deviceAddress) {
         Log.d(TAG, deviceAddress);
+
+        HiFiToyDevice device = HiFiToyDeviceManager.getInstance().getDevice(deviceAddress);
+        if (device == null) {
+            device = new HiFiToyDevice();
+            device.setMac(deviceAddress);
+            device.setName(deviceAddress);
+            HiFiToyDeviceManager.getInstance().setDevice(deviceAddress, device);
+        }
+
+        if (discoveryDelegate != null) discoveryDelegate.didFindPeripheral(device);
+
         //bleFinder.stopDiscovery();
         //connect(device);
     }
 
-    /* ------------------------- IBleDeviceDelegate ----------------------------*/
-    public void didError(String error) {
-        Log.d(TAG, "BleDeviceError " + error);
-    }
-    public void didConnect() {
-        Log.d(TAG, "DidConnect");
-    }
-    public void didDisconnect() {
-        Log.d(TAG, "DidDisconnect");
-    }
-    public void didWriteData(int remainPackets) {
-        Log.d(TAG, "DidWriteData");
-    }
-    public void didWriteAllData() {
-        Log.d(TAG, "DidWriteAllData");
-    }
-    public void didGetParamData(byte[] data) {
-        Log.d(TAG, "DidGetParamData");
-    }
+
 }

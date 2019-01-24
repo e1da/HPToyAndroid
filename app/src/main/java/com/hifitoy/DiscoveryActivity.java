@@ -20,8 +20,9 @@ import android.util.Log;
 
 import com.hifitoy.ble.BleFinder;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoydevice.HiFiToyDevice;
 
-public class DiscoveryActivity extends AppCompatActivity implements BleFinder.IBleFinderDelegate {
+public class DiscoveryActivity extends AppCompatActivity implements HiFiToyControl.DiscoveryDelegate {
     private static final String TAG = "HiFiToy";
 
     @Override
@@ -126,10 +127,8 @@ public class DiscoveryActivity extends AppCompatActivity implements BleFinder.IB
     }
 
     /* ------------------------- IBleFinderDelegate ----------------------------*/
-    public void didFindNewPeripheral(String macAddress) {
-        Log.d(TAG, macAddress);
-        //bleFinder.stopDiscovery();
-        //connect(device);
+    public void didFindPeripheral(HiFiToyDevice device) {
+        Log.d(TAG, device.getMac());
     }
 
 

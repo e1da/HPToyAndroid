@@ -5,29 +5,23 @@
  *   Copyright © 2019 Artem Khlyupin. All rights reserved.
  */
 
-package com.hifitoy.hifitoycontrol;
+package com.hifitoy.hifitoydevice;
+
+import com.hifitoy.hifitoycontrol.CommonCommand;
+import com.hifitoy.hifitoycontrol.HiFiToyControl;
 
 public class AudioSource {
-    private static AudioSource instance;
-
     public static final byte SPDIF_SOURCE = 0;
     public static final byte USB_SOURCE = 1;
     public static final byte BT_SOURCE = 2;
 
     private byte source;
 
-    public static synchronized AudioSource getInstance() {
-        if (instance == null){
-            instance = new AudioSource(); //auto - default
-        }
-        return instance;
-    }
-
     public AudioSource() {
-        setDefaultValue();
+        setDefault();
     }
 
-    public void setDefaultValue() {
+    public void setDefault() {
         setSource(USB_SOURCE);
     }
     public void setSource(byte source) {
@@ -51,7 +45,7 @@ public class AudioSource {
         HiFiToyControl.getInstance().sendDataToDsp(d, true);
     }
 
-    public void updateAudioSource() {
+    public void readFromDsp() {
         byte[] d = {CommonCommand.GET_AUDIO_SOURCE, 0, 0, 0, 0};
         HiFiToyControl.getInstance().sendDataToDsp(d, true);
     }

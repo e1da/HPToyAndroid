@@ -4,26 +4,19 @@
  *   Created by Artem Khlyupin on 23/01/2019.
  *   Copyright © 2019 Artem Khlyupin. All rights reserved.
  */
-package com.hifitoy.hifitoycontrol;
+package com.hifitoy.hifitoydevice;
 
+import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import java.nio.ByteBuffer;
 
 public class EnergyConfig {
-    private static EnergyConfig instance;
 
     private float   highThresholdDb;
     private float   lowThresholdDb;
     private int     auxTimeout120ms;
     private int     usbTimeout120ms;
 
-    private final int offset = 0x0C;
-
-    public static synchronized EnergyConfig getInstance() {
-        if (instance == null){
-            instance = new EnergyConfig();
-        }
-        return instance;
-    }
+    private final short offset = 0x0C;
 
     public EnergyConfig() {
         setDefault();

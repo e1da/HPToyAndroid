@@ -10,9 +10,7 @@ package com.hifitoy.hifitoydevice;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
-
 import com.hifitoy.ApplicationContext;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,8 +18,7 @@ public class HiFiToyDeviceManager {
     private static final String TAG = "HiFiToy";
     private static HiFiToyDeviceManager instance;
 
-    private Map<String, HiFiToyDevice> deviceMap = new HashMap<String, HiFiToyDevice>();
-    private String keyActiveDevice;
+    private Map<String, HiFiToyDevice> deviceMap = new HashMap<>();
 
     public static synchronized HiFiToyDeviceManager getInstance(){
         if (instance == null){
@@ -31,18 +28,13 @@ public class HiFiToyDeviceManager {
     }
 
     private HiFiToyDeviceManager(){
-        keyActiveDevice = "demo";
-        restoreDspDeviceList();
-    }
-
-    public void setKeyActiveDevice(String keyActiveDevice){
-        this.keyActiveDevice = keyActiveDevice;
+        restore();
     }
 
     public void setDevice(String key, HiFiToyDevice device){
         deviceMap.put(key, device);
 
-        storeDspDeviceList();
+        store();
         description();
     }
 
@@ -53,22 +45,15 @@ public class HiFiToyDeviceManager {
         return null;
     }
 
-    public HiFiToyDevice getActiveDevice(){
-        if (deviceMap != null){
-            return deviceMap.get(keyActiveDevice);
-        }
-        return null;
-    }
-
     public void description(){
-        Log.d(TAG, "=============== <dspDeviceMap> ======================");
+        Log.d(TAG, "=============== <DeviceMap> ======================");
         for (Map.Entry<String,HiFiToyDevice> entry: deviceMap.entrySet()) {
             entry.getValue().description();
         }
-        Log.d(TAG, "================</dspDeviceMap>======================");
+        Log.d(TAG, "================</DeviceMap>======================");
     }
 
-    private boolean restoreDspDeviceList(){
+    private boolean restore(){
         Context context = ApplicationContext.getInstance().getContext();
         SharedPreferences sharedPref = context.getSharedPreferences("HiFiToyDeviceManager", Context.MODE_PRIVATE);
 
@@ -96,7 +81,7 @@ public class HiFiToyDeviceManager {
         return true;
     }
 
-    public boolean storeDspDeviceList(){
+    public boolean store(){
         Context context = ApplicationContext.getInstance().getContext();
         SharedPreferences sharedPref = context.getSharedPreferences("HiFiToyDeviceManager", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();

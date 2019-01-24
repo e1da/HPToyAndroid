@@ -10,16 +10,18 @@ package com.hifitoy.hifitoydevice;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
-
 import com.hifitoy.ApplicationContext;
 
-public class HiFiToyDevice implements StoreInterface{
+public class HiFiToyDevice implements StoreInterface {
     private static final String TAG = "HiFiToy";
 
     private String  mac;
     private String  name;
     private int     pairingCode;
     private String  activeKeyPreset;
+
+    private AudioSource     audioSource;
+    private EnergyConfig    energyConfig;
 
     public HiFiToyDevice() {
         setDefault();
@@ -30,6 +32,9 @@ public class HiFiToyDevice implements StoreInterface{
         name = "Demo";
         pairingCode = 0;
         activeKeyPreset = "DefaultPreset";
+
+        audioSource = new AudioSource();
+        energyConfig = new EnergyConfig();
     }
 
     //setters/getters
@@ -62,10 +67,28 @@ public class HiFiToyDevice implements StoreInterface{
         }*/
         return false;
     }
+    public HiFiToyPreset getActivePreset() {
+        return new HiFiToyPreset();
+    }
 
+    public AudioSource  getAudioSource() {
+        return audioSource;
+    }
+    public void         setAudioSource(AudioSource audioSource) {
+        this.audioSource = audioSource;
+    }
+    public EnergyConfig getEnergyConfig() {
+        return energyConfig;
+    }
+    public void         setEnergyConfig(EnergyConfig energyConfig) {
+        this.energyConfig = energyConfig;
+    }
 
     @Override
     public boolean restore(String filename, String key) {
+        audioSource = new AudioSource();
+        energyConfig = new EnergyConfig();
+
         Context context = ApplicationContext.getInstance().getContext();
         SharedPreferences pref = context.getSharedPreferences(filename, Context.MODE_PRIVATE);
 
