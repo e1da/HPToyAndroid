@@ -13,17 +13,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
+import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 
@@ -104,9 +101,10 @@ public class OptionsActivity extends Activity implements View.OnClickListener {
         switch (v.getId()) {
             case R.id.deviceNameLayout_outl:
                 //showChangeDeviceNameDialog();
+
                 break;
             case R.id.restoreFactorySettings_outl:
-                //DialogSystem.getInstance().showFactoryResetDialog();
+                DialogSystem.getInstance().showFactoryResetDialog();
                 break;
             case R.id.changePairingCode_outl:
                 //showChangePairingCodeDialog();

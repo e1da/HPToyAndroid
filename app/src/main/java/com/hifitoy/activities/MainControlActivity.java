@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
 import com.hifitoy.activities.options.OptionsActivity;
+import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 
@@ -28,6 +29,8 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
     private static final String TAG = "HiFiToy";
 
     private HiFiToyDevice hifiToyDevice;
+
+    AppCompatImageView audioSourceInfo_outl;
 
     AppCompatImageView volumeInfo_outl;
     TextView volumeLabel_outl;
@@ -101,7 +104,9 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
     }
 
     private void initOutlets() {
-        volumeInfo_outl     = findViewById(R.id.volume_control_info);
+        audioSourceInfo_outl     = findViewById(R.id.audio_source_info);
+
+        //volumeInfo_outl     = findViewById(R.id.volume_control_info);
         volumeLabel_outl    = findViewById(R.id.volumeLabel_outl);
         volumeSeekBar_outl  = findViewById(R.id.volumeSeekBar_outl);
 
@@ -123,7 +128,8 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
         compressorActivity_outl = findViewById(R.id.compressorActivity_outl);
         optionsActivity_outl    = findViewById(R.id.optionsActivity_outl);
 
-        volumeInfo_outl.setOnClickListener(this);
+        audioSourceInfo_outl.setOnClickListener(this);
+        //volumeInfo_outl.setOnClickListener(this);
         bassTrebleInfo_outl.setOnClickListener(this);
         loudnessInfo_outl.setOnClickListener(this);
         filtersInfo_outl.setOnClickListener(this);
@@ -141,17 +147,25 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
         Intent intent;
 
         switch (v.getId()) {
-            case R.id.volume_control_info:
+            case R.id.audio_source_info:
+                DialogSystem.getInstance().showDialog("Info", getString(R.string.audio_source_info), "Close");
                 break;
+            /*case R.id.volume_control_info:
+                DialogSystem.getInstance().showDialog("Info", getString(R.string.volume_info), "Close");
+                break;*/
             case R.id.bass_treble_info:
+                DialogSystem.getInstance().showDialog("Info", getString(R.string.bass_treble_info), "Close");
                 break;
             case R.id.loudness_info:
+                DialogSystem.getInstance().showDialog("Info", getString(R.string.loudness_info), "Close");
                 break;
             case R.id.filters_control_info:
+                DialogSystem.getInstance().showDialog("Info", getString(R.string.filters_info), "Close");
                 break;
             case R.id.filtersActivity_outl:
                 break;
             case R.id.compressor_control_info:
+                DialogSystem.getInstance().showDialog("Info", getString(R.string.compressor_info), "Close");
                 break;
             case R.id.compressorActivity_outl:
                 break;

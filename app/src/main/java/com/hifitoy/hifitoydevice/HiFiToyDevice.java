@@ -84,6 +84,10 @@ public class HiFiToyDevice implements StoreInterface {
         this.energyConfig = energyConfig;
     }
 
+    public void restoreFactorySettings() {
+
+    }
+
     @Override
     public boolean restore(String filename, String key) {
         audioSource = new AudioSource();

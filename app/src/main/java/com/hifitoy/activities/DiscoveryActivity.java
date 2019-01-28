@@ -9,6 +9,7 @@ package com.hifitoy.activities;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
@@ -27,6 +28,7 @@ import android.widget.Toast;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
+import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
@@ -151,10 +153,8 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
             case R.id.discovery_info:
-                /*DialogSystem.getInstance().showDialog("Info",
-                        "This window shows all available online iWoofer devices, which you may choose to control." +
-                                " Also you can rename UUID number for any simple name in the Options/Name menu.", "Close");*/
-                Log.d(TAG, "Info handler.");
+                DialogSystem.getInstance().showDialog("Info",
+                        getString(R.string.discovery_info), "Close");
                 break;
             default:
                 return super.onOptionsItemSelected(item);

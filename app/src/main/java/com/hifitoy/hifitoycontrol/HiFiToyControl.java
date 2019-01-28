@@ -337,7 +337,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
                         } else {
                             Log.d(TAG, "CHECK_FIRMWARE_FAIL");
-                            //[self restoreFactorySettings];
+                            activeDevice.restoreFactorySettings();
                         }
                         break;
 
@@ -350,7 +350,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                             activeDevice.getAudioSource().readFromDsp();
                         } else {
                             Log.d(TAG, "GET_VERSION_FAIL" + version);
-                            //[self restoreFactorySettings];
+                            activeDevice.restoreFactorySettings();
                         }
                         break;
                     }

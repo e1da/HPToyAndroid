@@ -4,4 +4,30 @@
 
     <string name="demo_mode">Demo mode!</string>
     <string name="unknown_device">Unknown device</string>
+
+    <string name="discovery_info">
+        This window shows all available online HiFi Toy devices, which you may choose to control.
+        Also you can rename UUID number for any simple name in the Options/Name menu.
+    </string>
+    <string name="audio_source_info">
+        If the USB input selected, the amp is ready for 16-24/44.1-192 USB high-res audio,
+        and after USB-host is off, it will be auto-switched to standby.
+        If selected AUTO, after USB-host is off, the amp will be auto-switched to AUX input.
+        AUX input could be either optical SPDIF or BT aptx stream, depends on which option is installed.
+        After 5 minutes AUX input level less than Auto-Off threshold, the amp goes to standby.
+        The wakeup event could be smartphone app connecting or USB-host On.
+    </string>
+    <string name="volume_info">Volume info</string>>
+    <string name="bass_treble_info">Classical HiFi knobs implemented with shelving filters</string>
+    <string name="loudness_info">
+        Fletcher-Munson loudness curves are implemented.
+        You can control the Loudness boost frequency and Dry/Wet slider position defines less/more effect.
+    </string>
+    <string name="filters_info">Filters let you fully control up to 7 Biquads:
+        Parametric EQs, All-pass Filters, Text biquad mode, LPF and HPF, both are Butterworth 2 or 4 order.
+        PEQ On/Off button bypassing PEQ's and All-pass Filters.
+    </string>
+    <string name="compressor_info">Flexible Compressor/Expander dynamic range control.
+        Required some basic understanding to modify parameters successfully.
+    </string>
 </resources>

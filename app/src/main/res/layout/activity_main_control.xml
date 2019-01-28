@@ -116,13 +116,13 @@
                         android:paddingRight="10dp"
                         android:text="Volume Control" />
 
-                    <android.support.v7.widget.AppCompatImageView
+                    <!--<android.support.v7.widget.AppCompatImageView
                         android:id="@+id/volume_control_info"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
                         android:layout_marginRight="20dp"
-                        app:srcCompat="@android:drawable/ic_menu_info_details" />
+                        app:srcCompat="@android:drawable/ic_menu_info_details" />-->
                 </RelativeLayout>
 
             </LinearLayout>
