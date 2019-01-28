@@ -176,8 +176,8 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
 
         HiFiToyControl.getInstance().connect(device);
 
-        //Intent intentActivity = new Intent(this, DeviceControlActivity.class);
-        //startActivity(intentActivity);
+        Intent intentActivity = new Intent(this, MainControlActivity.class);
+        startActivity(intentActivity);
     }
 
     // Adapter for holding devices found through scanning.

@@ -123,6 +123,10 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         return true;
     }
 
+    public HiFiToyDevice getActiveDevice() {
+        return activeDevice;
+    }
+
     public void startDiscovery(DiscoveryDelegate discoveryDelegate) {
         bleFinder.setBleFinderDelegate(this);
         this.discoveryDelegate = discoveryDelegate;
