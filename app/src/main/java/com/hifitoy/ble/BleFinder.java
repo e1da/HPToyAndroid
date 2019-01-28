@@ -74,9 +74,7 @@ public class BleFinder {
                 if (delegate != null) {
                     delegate.didFindNewPeripheral(device.getAddress());
                 }
-
                 Log.d(TAG, "Find ble device: " + device.getName() + " " + device.getAddress());
-
             }
         }
 

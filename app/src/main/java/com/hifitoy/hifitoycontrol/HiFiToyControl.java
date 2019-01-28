@@ -47,16 +47,12 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     private HiFiToyDevice       activeDevice = null;
     private BluetoothGatt       mBluetoothGatt = null;
 
-    private final static UUID FFF0_UUID =
-            UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb");
     private final static UUID FFF1_UUID =
             UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb");
     private final static UUID FFF2_UUID =
             UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb");
     private final static UUID FFF3_UUID =
             UUID.fromString("0000fff3-0000-1000-8000-00805f9b34fb");
-    private final static UUID FFF4_UUID =
-            UUID.fromString("0000fff4-0000-1000-8000-00805f9b34fb");
     private final static UUID CLIENT_CHAR_CFG =
             UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
@@ -150,18 +146,20 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     public boolean isConnected() {
         return ( (activeDevice != null) && (deviceState == DeviceState.CONNECTION_READY) );
     }
-    public boolean connect(HiFiToyDevice activeDevice) {
-        this.activeDevice = activeDevice;
+    public boolean connect(HiFiToyDevice device) {
+        this.activeDevice = device;
 
-        if ( (!blePermissionGranted) || (!isBleEnabled()) || (activeDevice == null)) return false;
+        if ( (!blePermissionGranted) || (!isBleEnabled()) || (device == null)) return false;
 
-        if (activeDevice.getMac().equals("Demo")) {
+        if (device.getMac().equals("demo")) {
+            disconnect();
+            this.activeDevice = device;
             return true;
         }
 
         //get device from macAddress
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(activeDevice.getMac());
-        if (device == null) {
+        BluetoothDevice d = mBluetoothAdapter.getRemoteDevice(activeDevice.getMac());
+        if (d == null) {
             Log.d(TAG, "Device not found.  Unable to connect.");
             return false;
         }
@@ -176,7 +174,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         }
 
         // we want to directly connect to the device, because it is fast method
-        mBluetoothGatt = device.connectGatt(context, false, mGattCallback);
+        mBluetoothGatt = d.connectGatt(context, false, mGattCallback);
 
         deviceState = DeviceState.CONNECTING;
         Log.d(TAG, "Trying to create a new connection.");
@@ -189,7 +187,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     public void disconnect() {
         deviceState = DeviceState.DISCONNECTED;
 
-        if ( (!blePermissionGranted) || (!isBleEnabled()) ) return;
+        if ( (!blePermissionGranted) || (!isBleEnabled()) || (mBluetoothGatt == null)) return;
 
         mBluetoothGatt.disconnect();
         mBluetoothGatt = null;
@@ -247,10 +245,6 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                             FFF3_Char = gattCharacteristic;
                             Log.d(TAG, "FFF3 Characteristic find complete");
                         }
-                        if (FFF4_UUID.equals(gattCharacteristic.getUuid())) {
-                            FFF4_Char = gattCharacteristic;
-                            Log.d(TAG, "FFF4 Characteristic find complete");
-                        }
 
                     }
 
@@ -260,7 +254,6 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                 descriptorPackets = new ArrayDeque<BluetoothGattCharacteristic>();
                 descriptorPackets.add(FFF2_Char);
                 descriptorPackets.add(FFF3_Char);
-                descriptorPackets.add(FFF4_Char);
 
                 setCharacteristicNotification(descriptorPackets.poll(), true);
             } else {
@@ -306,9 +299,6 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
             byte[] data = characteristic.getValue();
 
             if (characteristic.getUuid().equals(FFF2_UUID)){
-
-            }
-            if (characteristic.getUuid().equals(FFF3_UUID)){
                 if (data.length != 9) return;
 
                 byte cmd = data[0];
@@ -383,7 +373,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                         break;
 
                     case CommonCommand.OTW_DETECTION:
-                        Log.d(TAG, "OTW_DETECTION");
+                        //Log.d(TAG, "OTW_DETECTION");
                         break;
 
                     case CommonCommand.PARAM_CONNECTION_ENABLED:
@@ -395,7 +385,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                         break;
                 }
             }
-            if (characteristic.getUuid().equals(FFF4_UUID)){
+            if (characteristic.getUuid().equals(FFF3_UUID)){
                 if (connectionDelegate != null) connectionDelegate.didGetParamData(data);
             }
         }
@@ -523,7 +513,6 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
     /* ------------------------- IBleFinderDelegate ----------------------------*/
     public void didFindNewPeripheral(String deviceAddress) {
-        Log.d(TAG, deviceAddress);
 
         HiFiToyDevice device = HiFiToyDeviceManager.getInstance().getDevice(deviceAddress);
         if (device == null) {
@@ -534,9 +523,6 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         }
 
         if (discoveryDelegate != null) discoveryDelegate.didFindPeripheral(device);
-
-        //bleFinder.stopDiscovery();
-        //connect(device);
     }
 
 
