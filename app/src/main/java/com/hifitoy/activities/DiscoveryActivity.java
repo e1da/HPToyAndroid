@@ -135,6 +135,8 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
     protected void onResume() {
         super.onResume();
 
+        ApplicationContext.getInstance().setContext(this);
+
         setListAdapter(mLeDeviceListAdapter);
         mLeDeviceListAdapter.clear();
         mLeDeviceListAdapter.notifyDataSetChanged();

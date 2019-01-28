@@ -24,6 +24,7 @@ import com.hifitoy.R;
 import com.hifitoy.ble.BlePacket;
 import com.hifitoy.ble.BlePacketQueue;
 import com.hifitoy.ble.BleFinder;
+import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
 
@@ -59,12 +60,62 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     private static BluetoothGattCharacteristic FFF1_Char = null;
     private static BluetoothGattCharacteristic FFF2_Char = null;
     private static BluetoothGattCharacteristic FFF3_Char = null;
-    private static BluetoothGattCharacteristic FFF4_Char = null;
 
-    private enum DeviceState {
-        DISCONNECTED, CONNECTING, CONNECTED, CONNECTION_READY;
+    private class ConnectionState {
+        private final static int    DISCONNECTED = 0;
+        private final static int    CONNECTING = 1;
+        private final static int    CONNECTED = 2;
+        private final static int    CONNECTION_READY = 3;
+
+        private int state;
+
+        ConnectionState() {
+            state = DISCONNECTED;
+        }
+
+        int getState() {
+            return state;
+        }
+        void setState(int state) {
+            if (state < DISCONNECTED) state = DISCONNECTED;
+            if (state > CONNECTION_READY) state = CONNECTION_READY;
+
+            this.state = state;
+
+            switch (state) {
+                case DISCONNECTED:
+                    Log.d(TAG, "Disconnected from GATT server.");
+                    packets.clear();
+
+                    DialogSystem.getInstance().showDialog("Warning", "Disconnected!", "Ok");
+
+                    connect(); // auto re-connect
+
+                    if (connectionDelegate != null) connectionDelegate.didDisconnect();
+
+                    break;
+                case CONNECTING:
+                    Log.d(TAG, "Trying to create a new connection.");
+
+                    break;
+                case CONNECTED:
+                    Log.d(TAG, "Connected to GATT server.");
+
+                    // Attempts to discover services after successful connection.
+                    Log.d(TAG, "Attempting to start service discovery:" +
+                            mBluetoothGatt.discoverServices());
+                    break;
+                case CONNECTION_READY:
+                    String dialogMessage = DialogSystem.getInstance().getDialogMessage();
+                    if ( (dialogMessage != null) && (dialogMessage.equals("Disconnected!")) ) {
+                        DialogSystem.getInstance().closeDialog();
+                    }
+                    if (connectionDelegate != null) connectionDelegate.didConnect();
+                    break;
+            }
+        }
     };
-    private DeviceState deviceState = DeviceState.DISCONNECTED;
+    private ConnectionState state = new ConnectionState();
 
     private BlePacketQueue packets = new BlePacketQueue();
     private Queue<BluetoothGattCharacteristic> descriptorPackets = null;
@@ -73,8 +124,6 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         void didFindPeripheral(HiFiToyDevice device);
     }
     public interface ConnectionDelegate {
-        void didError(String error);
-
         void didConnect();
         void didDisconnect();
 
@@ -90,7 +139,6 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         }
         return instance;
     }
-
 
     public void init(Context context) {
         this.context = context;
@@ -132,6 +180,10 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         this.discoveryDelegate = discoveryDelegate;
 
         if ( (blePermissionGranted) && (isBleEnabled()) ) {
+            if ((isConnected()) && (discoveryDelegate != null)) {
+                discoveryDelegate.didFindPeripheral(activeDevice);
+            }
+
             bleFinder.startDiscovery();
         }
 
@@ -148,16 +200,19 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     }
 
     public boolean isConnected() {
-        return ( (activeDevice != null) && (deviceState == DeviceState.CONNECTION_READY) );
+        return ( (activeDevice != null) && (state.getState() == ConnectionState.CONNECTION_READY) );
     }
     public boolean connect(HiFiToyDevice device) {
         this.activeDevice = device;
 
         if ( (!blePermissionGranted) || (!isBleEnabled()) || (device == null)) return false;
 
-        if (device.getMac().equals("demo")) {
+        if ((device.getMac().equals("demo")) || (state.getState() == ConnectionState.CONNECTED) ) {
             disconnect();
-            this.activeDevice = device;
+            return true;
+        }
+        if (state.getState() == ConnectionState.CONNECTION_READY) {
+            Log.d(TAG, "Already connection complete.");
             return true;
         }
 
@@ -168,29 +223,17 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
             return false;
         }
 
-        if (deviceState == DeviceState.CONNECTION_READY) {
-            Log.d(TAG, "Already connection complete.");
-            return true;
-        }
-        if (deviceState == DeviceState.CONNECTED){
-            disconnect();
-            return true;
-        }
 
         // we want to directly connect to the device, because it is fast method
         mBluetoothGatt = d.connectGatt(context, false, mGattCallback);
 
-        deviceState = DeviceState.CONNECTING;
-        Log.d(TAG, "Trying to create a new connection.");
-
+        state.setState(ConnectionState.CONNECTING);
         return true;
     }
     public boolean connect() {
         return connect(activeDevice);
     }
     public void disconnect() {
-        deviceState = DeviceState.DISCONNECTED;
-
         if ( (!blePermissionGranted) || (!isBleEnabled()) || (mBluetoothGatt == null)) return;
 
         mBluetoothGatt.disconnect();
@@ -201,28 +244,17 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     private BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            if (status != 0){
-                Log.d(TAG, "Connection state status = " + status);
 
+            if (status != BluetoothGatt.GATT_SUCCESS){
+                Log.d(TAG, "Error connection state status = " + status);
             }
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                Log.d(TAG, "Connected to GATT server.");
-                deviceState = DeviceState.CONNECTED;
-
-                // Attempts to discover services after successful connection.
-                Log.d(TAG, "Attempting to start service discovery:" +
-                        mBluetoothGatt.discoverServices());
-
+                state.setState(ConnectionState.CONNECTED);
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                Log.i(TAG, "Disconnected from GATT server.");
-                deviceState = DeviceState.DISCONNECTED;
-                packets.clear();
-
-                connect(); // auto re-connect
-
-                if (connectionDelegate != null) connectionDelegate.didDisconnect();
+                state.setState(ConnectionState.DISCONNECTED);
             }
+
         }
 
         @Override
@@ -359,7 +391,8 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                         Log.d(TAG, "GET_CHECKSUM " + checksum);
 
                         //[self comparePreset:checksum];
-                        if (connectionDelegate != null) connectionDelegate.didConnect();
+
+                        state.setState(ConnectionState.CONNECTION_READY);
                         break;
 
                     case CommonCommand.GET_AUDIO_SOURCE:
@@ -409,8 +442,8 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     private void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
                                                boolean enabled) {
         if ((mBluetoothGatt == null) ||
-                (deviceState == DeviceState.DISCONNECTED) ||
-                (deviceState == DeviceState.CONNECTING)) return;
+                (state.getState() == ConnectionState.DISCONNECTED) ||
+                (state.getState() == ConnectionState.CONNECTING)) return;
 
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
@@ -422,8 +455,8 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     }
     private void writeFFF1Characterstic(BlePacket packet) {
         if ((mBluetoothGatt == null) ||
-                (deviceState == DeviceState.DISCONNECTED) ||
-                (deviceState == DeviceState.CONNECTING)) return;
+                (state.getState() == ConnectionState.DISCONNECTED) ||
+                (state.getState() == ConnectionState.CONNECTING)) return;
 
         packets.add(packet); // with response
 
@@ -437,8 +470,8 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     }
     private void writeCharacterstic(BluetoothGattCharacteristic characteristic) {
         if ((mBluetoothGatt == null) ||
-                (deviceState == DeviceState.DISCONNECTED) ||
-                (deviceState == DeviceState.CONNECTING)) return;
+                (state.getState() == ConnectionState.DISCONNECTED) ||
+                (state.getState() == ConnectionState.CONNECTING)) return;
 
         if (!mBluetoothGatt.writeCharacteristic(characteristic)){
             Log.d(TAG, "Write characteristic is unsuccesful!");
@@ -446,8 +479,8 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     }
     private void readCharacteristic(BluetoothGattCharacteristic characteristic) {
         if ((mBluetoothGatt == null) ||
-                (deviceState == DeviceState.DISCONNECTED) ||
-                (deviceState == DeviceState.CONNECTING)) return;
+                (state.getState() == ConnectionState.DISCONNECTED) ||
+                (state.getState() == ConnectionState.CONNECTING)) return;
 
         mBluetoothGatt.readCharacteristic(characteristic);
     }
