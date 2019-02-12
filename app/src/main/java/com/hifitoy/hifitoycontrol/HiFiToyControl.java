@@ -18,8 +18,12 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
 import com.hifitoy.ble.BlePacket;
 import com.hifitoy.ble.BlePacketQueue;
@@ -30,6 +34,7 @@ import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
@@ -334,13 +339,20 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                                             BluetoothGattCharacteristic characteristic) {
             byte[] data = characteristic.getValue();
 
-            if (characteristic.getUuid().equals(FFF2_UUID)){
-                if (data.length != 9) return;
+            if ( (data.length == 13) && (data[0] == CommonCommand.GET_ENERGY_CONFIG) ) { // get energy config
+                Log.d(TAG, "GET_ENERGY_CONFIG");
 
-                byte cmd = data[0];
+                data = Arrays.copyOfRange(data, 1, data.length - 1);
+                activeDevice.getEnergyConfig().setValues(data);
+                //[[NSNotificationCenter defaultCenter] postNotificationName:@"UpdateEnergyConfigNotification" object:nil];
+            }
+
+            if (data.length == 4) {
+
+                byte feedbackMsg = data[0];
                 byte status = data[1];
 
-                switch (cmd) {
+                switch (feedbackMsg) {
                     case CommonCommand.ESTABLISH_PAIR:
                         if (status != 0) {
                             Log.d(TAG, "PAIR_YES");
@@ -422,7 +434,8 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                         break;
                 }
             }
-            if (characteristic.getUuid().equals(FFF3_UUID)){
+
+            if (data.length == 20){ // Get data from storage
                 if (connectionDelegate != null) connectionDelegate.didGetParamData(data);
             }
         }

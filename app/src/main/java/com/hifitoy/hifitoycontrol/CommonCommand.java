@@ -18,6 +18,7 @@ public class CommonCommand {
     public static final byte INIT_DSP            = 0x06;
     public static final byte SET_AUDIO_SOURCE    = 0x07;
     public static final byte GET_AUDIO_SOURCE    = 0x08;
+    public static final byte GET_ENERGY_CONFIG   = 0x09;
 
     //feedback msg
     public static final byte CLIP_DETECTION              = (byte)0xFD;

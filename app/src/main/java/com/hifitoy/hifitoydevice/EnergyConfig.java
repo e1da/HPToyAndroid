@@ -8,6 +8,7 @@ package com.hifitoy.hifitoydevice;
 
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class EnergyConfig {
 
@@ -38,6 +39,15 @@ public class EnergyConfig {
         b.putInt(10, usbTimeout120ms);
 
         return b.array();
+    }
+
+    public void setValues(byte[] data) {
+        if (data.length == 12) {
+            highThresholdDb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+            lowThresholdDb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+            auxTimeout120ms = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getShort();
+            usbTimeout120ms = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getShort();
+        }
     }
 
     public void sendToDsp(){
