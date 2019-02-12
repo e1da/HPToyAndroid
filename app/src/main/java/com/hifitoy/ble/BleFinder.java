@@ -18,9 +18,10 @@ import java.util.List;
 public class BleFinder {
     private static final String TAG = "HiFiToy";
 
-    private BluetoothAdapter mBluetoothAdapter;
-    private IBleFinderDelegate delegate = null;
-    private List<String> deviceAddressList = new LinkedList<>();
+    private BluetoothAdapter    mBluetoothAdapter;
+    private IBleFinderDelegate  delegate;
+    private List<String>        deviceAddressList;
+    private boolean             discovering;
 
 
     public interface IBleFinderDelegate {
@@ -28,8 +29,10 @@ public class BleFinder {
     }
 
     public BleFinder(BluetoothAdapter bluetoothAdapter) {
+        deviceAddressList = new LinkedList<>();
         mBluetoothAdapter = bluetoothAdapter;
         this.delegate = null;
+        this.discovering = false;
     }
 
     public void setBleFinderDelegate(IBleFinderDelegate delegate) {
@@ -44,12 +47,17 @@ public class BleFinder {
         deviceAddressList.clear();
     }
 
+    public boolean isDiscovering() {
+        return discovering;
+    }
+
     public void startDiscovery() {
         clear();
 
         if ((mBluetoothAdapter == null) || (!mBluetoothAdapter.isEnabled()) ) return;
 
         mBluetoothAdapter.getBluetoothLeScanner().startScan(new BleScanCallBack());
+        discovering = true;
         Log.d(TAG, "BLE Scanning...");
     }
 
@@ -57,6 +65,7 @@ public class BleFinder {
         if ((mBluetoothAdapter == null) || (!mBluetoothAdapter.isEnabled()) ) return;
 
         mBluetoothAdapter.getBluetoothLeScanner().stopScan(new BleScanCallBack());
+        discovering = false;
         Log.d(TAG, "BLE Stop Scanning");
     }
 
@@ -71,10 +80,11 @@ public class BleFinder {
 
                 deviceAddressList.add(device.getAddress());
 
+                Log.d(TAG, "Find ble device: " + device.getName() + " " + device.getAddress());
+
                 if (delegate != null) {
                     delegate.didFindNewPeripheral(device.getAddress());
                 }
-                Log.d(TAG, "Find ble device: " + device.getName() + " " + device.getAddress());
             }
         }
 

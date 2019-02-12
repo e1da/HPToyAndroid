@@ -45,8 +45,6 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
 
         ApplicationContext.getInstance().setContext(this);
 
-        HiFiToyControl.getInstance().init(this);
-
         requestPermissions(new String[]{Manifest.permission.BLUETOOTH,
                             Manifest.permission.BLUETOOTH_ADMIN,
                             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -108,13 +106,18 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
             }
 
             if (blePermission) {
-                HiFiToyControl.getInstance().setBlePermissionGranted(true);
-
-                if (!HiFiToyControl.getInstance().isBleEnabled()) {
-                    //show ble enable request dialog
-                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    startActivityForResult(enableBtIntent, 1);
+                if (HiFiToyControl.getInstance().init()) {
+                    if (!HiFiToyControl.getInstance().isBleEnabled()) {
+                        //show ble enable request dialog
+                        Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                        startActivityForResult(enableBtIntent, 1);
+                    } else {
+                        HiFiToyControl.getInstance().startDiscovery(this);
+                    }
+                } else {
+                    finish();
                 }
+
             } else {
                 finish();
             }
@@ -124,7 +127,9 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) { // ble enabled dialog result
-            if (resultCode != Activity.RESULT_OK) {
+            if (resultCode == Activity.RESULT_OK) {
+                HiFiToyControl.getInstance().startDiscovery(this);
+            } else {
                 finish();
             }
         }
@@ -171,11 +176,6 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
         if (device == null) return;
 
         HiFiToyControl.getInstance().stopDiscovery();
-
-        if (device.getMac().equals("demo")){
-            Toast.makeText(getApplicationContext(), R.string.demo_mode, Toast.LENGTH_SHORT).show();
-        }
-
         HiFiToyControl.getInstance().connect(device);
 
         Intent intentActivity = new Intent(this, MainControlActivity.class);
