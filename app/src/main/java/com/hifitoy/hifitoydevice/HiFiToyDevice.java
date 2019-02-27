@@ -22,6 +22,7 @@ public class HiFiToyDevice implements StoreInterface {
 
     private AudioSource     audioSource;
     private EnergyConfig    energyConfig;
+    private AdvertiseMode   advertiseMode;
 
     public HiFiToyDevice() {
         setDefault();
@@ -35,6 +36,7 @@ public class HiFiToyDevice implements StoreInterface {
 
         audioSource = new AudioSource();
         energyConfig = new EnergyConfig();
+        advertiseMode = new AdvertiseMode();
     }
 
     //setters/getters
@@ -71,17 +73,23 @@ public class HiFiToyDevice implements StoreInterface {
         return new HiFiToyPreset();
     }
 
-    public AudioSource  getAudioSource() {
+    public AudioSource      getAudioSource() {
         return audioSource;
     }
-    public void         setAudioSource(AudioSource audioSource) {
+    public void             setAudioSource(AudioSource audioSource) {
         this.audioSource = audioSource;
     }
-    public EnergyConfig getEnergyConfig() {
+    public EnergyConfig     getEnergyConfig() {
         return energyConfig;
     }
-    public void         setEnergyConfig(EnergyConfig energyConfig) {
+    public void             setEnergyConfig(EnergyConfig energyConfig) {
         this.energyConfig = energyConfig;
+    }
+    public AdvertiseMode    getAdvertiseMode() {
+        return advertiseMode;
+    }
+    public void             setAdvertiseMode(AdvertiseMode advertiseMode) {
+        this.advertiseMode = advertiseMode;
     }
 
     public void restoreFactorySettings() {

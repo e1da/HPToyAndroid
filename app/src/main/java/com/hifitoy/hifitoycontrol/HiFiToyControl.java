@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
 
+import static com.hifitoy.hifitoycontrol.CommonCommand.GET_ADVERTISE_MODE;
+
 public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     private static final String TAG = "HiFiToy";
 
@@ -447,7 +449,11 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                         activeDevice.getAudioSource().setSource(data[1]);
                         getChecksumParamData();
                         break;
-
+                    case GET_ADVERTISE_MODE:
+                        Log.d(TAG, "GET_ADVERTISE_MODE " + status);
+                        activeDevice.getAdvertiseMode().setMode(status);
+                        //[[NSNotificationCenter defaultCenter] postNotificationName:@"UpdateAdvertiseModeNotification" object:nil];
+                        break;
                     case CommonCommand.CLIP_DETECTION:
                         Log.d(TAG, "CLIP_DETECTION " + status);
 
