@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -185,14 +186,11 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
     // Adapter for holding devices found through scanning.
     private class LeDeviceListAdapter extends BaseAdapter {
         private ArrayList<HiFiToyDevice> devices;
-        private LayoutInflater mInflator;
 
         private LeDeviceListAdapter() {
             super();
             devices = new ArrayList<>();
             addDemoDevice();
-
-            mInflator = DiscoveryActivity.this.getLayoutInflater();
         }
 
         private void addDevice(HiFiToyDevice device) {
@@ -239,29 +237,30 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
             ViewHolder viewHolder;
 
             if (view == null) {
-                view = mInflator.inflate(R.layout.list_item, null);
+                view = getLayoutInflater().inflate(R.layout.list_item, null);
                 viewHolder = new ViewHolder();
-                viewHolder.deviceBorder_outl = (TextView) view.findViewById(R.id.device_border);
-                viewHolder.deviceName_outl = (TextView) view.findViewById(R.id.device_name);
+                viewHolder.deviceBorder_outl = view.findViewById(R.id.device_border);
+                viewHolder.deviceName_outl = view.findViewById(R.id.device_name);
                 view.setTag(viewHolder);
             } else {
                 viewHolder= (ViewHolder) view.getTag();
             }
 
             HiFiToyDevice device = devices.get(i);
+            String name;
+
             if (device.getMac().equals("demo")){
                 viewHolder.deviceBorder_outl.setVisibility(View.VISIBLE);
+                name = "Demo";
             } else {
                 viewHolder.deviceBorder_outl.setVisibility(View.INVISIBLE);
+                name = device.getName();
+                if ((name == null) || (name.length() == 0)) {
+                    name = getString(R.string.unknown_device);
+                }
             }
 
-            String name = device.getName();
-            if ((name != null) && (name.length() > 0)) {
-                viewHolder.deviceName_outl.setText(name);
-            } else {
-                viewHolder.deviceName_outl.setText(R.string.unknown_device);
-            }
-
+            viewHolder.deviceName_outl.setText(name);
             return view;
         }
 

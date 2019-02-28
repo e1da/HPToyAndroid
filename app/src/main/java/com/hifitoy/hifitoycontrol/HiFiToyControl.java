@@ -53,6 +53,9 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     private HiFiToyDevice       activeDevice = null;
     private BluetoothGatt       mBluetoothGatt = null;
 
+    public final static String ENERGY_UPDATE = "com.hifitoy.ENERGY_UPDATE";
+    public final static String ADVERTISE_MODE_UPDATE = "com.hifitoy.ADVERTISE_MODE_UPDATE";
+
     private final static UUID FFF1_UUID =
             UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb");
     private final static UUID FFF2_UUID =
@@ -378,9 +381,10 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
             if ( (data.length == 13) && (data[0] == CommonCommand.GET_ENERGY_CONFIG) ) { // get energy config
                 Log.d(TAG, "GET_ENERGY_CONFIG");
 
-                data = Arrays.copyOfRange(data, 1, data.length - 1);
+                data = Arrays.copyOfRange(data, 1, data.length);
                 activeDevice.getEnergyConfig().setValues(data);
-                //[[NSNotificationCenter defaultCenter] postNotificationName:@"UpdateEnergyConfigNotification" object:nil];
+
+                ApplicationContext.getInstance().broadcastUpdate(ENERGY_UPDATE);
             }
 
             if (data.length == 4) {
@@ -449,11 +453,14 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                         activeDevice.getAudioSource().setSource(data[1]);
                         getChecksumParamData();
                         break;
+
                     case GET_ADVERTISE_MODE:
                         Log.d(TAG, "GET_ADVERTISE_MODE " + status);
                         activeDevice.getAdvertiseMode().setMode(status);
-                        //[[NSNotificationCenter defaultCenter] postNotificationName:@"UpdateAdvertiseModeNotification" object:nil];
+
+                        ApplicationContext.getInstance().broadcastUpdate(ADVERTISE_MODE_UPDATE);
                         break;
+
                     case CommonCommand.CLIP_DETECTION:
                         Log.d(TAG, "CLIP_DETECTION " + status);
 

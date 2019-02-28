@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 import com.hifitoy.ApplicationContext;
+import com.hifitoy.hifitoycontrol.CommonCommand;
 
 public class HiFiToyDevice implements StoreInterface {
     private static final String TAG = "HiFiToy";

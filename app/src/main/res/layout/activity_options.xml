@@ -201,6 +201,7 @@
                 android:paddingRight="10dp" />
 
             <LinearLayout
+                android:id="@+id/autoOff_outl"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_weight="1"
@@ -212,7 +213,6 @@
                     android:layout_weight="1">
 
                     <TextView
-                        android:id="@+id/autoOff_outl"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_centerHorizontal="false"
@@ -220,6 +220,39 @@
                         android:layout_marginLeft="20dp"
                         android:layout_weight="1"
                         android:text="Auto Off and Clipping"
+                        android:textSize="20sp" />
+                </RelativeLayout>
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="#444444"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp" />
+
+            <LinearLayout
+                android:id="@+id/advertiseMode_outl"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="false"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="20dp"
+                        android:layout_weight="1"
+                        android:text="Advertise mode"
                         android:textSize="20sp" />
                 </RelativeLayout>
 

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="#444444"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp" />
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="30dp"
+        android:layout_weight="1" >
+
+        <RadioButton
+            android:id="@+id/alwaysAdvertButton_outl"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:button="@null"
+            android:drawableEnd="@android:drawable/btn_radio"
+            android:text="Always on"
+            android:textSize="20sp"/>
+
+        <RadioButton
+            android:id="@+id/after1MinAdvertButton_outl"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:button="@null"
+            android:drawableEnd="@android:drawable/btn_radio"
+            android:text="After 1 minute off"
+            android:textSize="20sp"/>
+    </RadioGroup>
+</LinearLayout>

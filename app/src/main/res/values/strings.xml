@@ -6,6 +6,7 @@
     <string name="connecting">Connecting&#8230;</string>
     <string name="connected">Connected!</string>
     <string name="unknown_device">Unknown device</string>
+    <string name="energy_sync">Energy manager is syncronized.</string>
 
     <string name="discovery_info">
         This window shows all available online HiFi Toy devices, which you may choose to control.

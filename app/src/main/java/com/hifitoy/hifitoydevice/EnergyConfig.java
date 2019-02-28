@@ -6,16 +6,19 @@
  */
 package com.hifitoy.hifitoydevice;
 
+import com.hifitoy.hifitoycontrol.CommonCommand;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public class EnergyConfig {
+    private final float MAX_THRESHOLD_DB = 0.0f;
+    private final float MIN_THRESHOLD_DB = -120.0f;
 
     private float   highThresholdDb;
     private float   lowThresholdDb;
-    private int     auxTimeout120ms;
-    private int     usbTimeout120ms;
+    private short     auxTimeout120ms;
+    private short     usbTimeout120ms;
 
     private final short offset = 0x0C;
 
@@ -32,22 +35,64 @@ public class EnergyConfig {
 
     public byte[] getBinary() {
         ByteBuffer b = ByteBuffer.allocate(12);
+        b.order(ByteOrder.LITTLE_ENDIAN);
 
         b.putFloat(highThresholdDb);
         b.putFloat(lowThresholdDb);
-        b.putInt(auxTimeout120ms);
-        b.putInt(10, usbTimeout120ms);
+        b.putShort(auxTimeout120ms);
+        b.putShort(usbTimeout120ms);
 
         return b.array();
     }
 
     public void setValues(byte[] data) {
         if (data.length == 12) {
-            highThresholdDb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-            lowThresholdDb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-            auxTimeout120ms = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getShort();
-            usbTimeout120ms = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getShort();
+            ByteBuffer b = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
+
+            highThresholdDb = b.getFloat();
+            lowThresholdDb = b.getFloat();
+            auxTimeout120ms = b.getShort();
+            usbTimeout120ms = b.getShort();
         }
+    }
+
+    public void setLowThresholdDb(float lowThresholdDb) {
+        if (lowThresholdDb > MAX_THRESHOLD_DB) lowThresholdDb = MAX_THRESHOLD_DB;
+        if (lowThresholdDb < MIN_THRESHOLD_DB) lowThresholdDb = MIN_THRESHOLD_DB;
+
+        this.lowThresholdDb = lowThresholdDb;
+    }
+    public float getLowThresholdDb() {
+        return lowThresholdDb;
+    }
+    //percent = 0.0 .. 1.0
+    public void setLowThresholdDbPercent(float percent) {
+        if (percent > 1.0f) percent = 1.0f;
+        if (percent < 0.0f) percent = 0.0f;
+
+        this.lowThresholdDb = (MAX_THRESHOLD_DB - MIN_THRESHOLD_DB) * percent + MIN_THRESHOLD_DB;
+    }
+    public float getLowThresholdDbPercent() {
+        return (lowThresholdDb - MIN_THRESHOLD_DB) / (MAX_THRESHOLD_DB - MIN_THRESHOLD_DB);
+    }
+
+    public void setHighThresholdDb(float highThresholdDb) {
+        if (highThresholdDb > MAX_THRESHOLD_DB) highThresholdDb = MAX_THRESHOLD_DB;
+        if (highThresholdDb < MIN_THRESHOLD_DB) highThresholdDb = MIN_THRESHOLD_DB;
+
+        this.highThresholdDb = highThresholdDb;
+    }
+    public float getHighThresholdDb() {
+        return highThresholdDb;
+    }
+    public void setHighThresholdDbPercent(float percent) {
+        if (percent > 1.0f) percent = 1.0f;
+        if (percent < 0.0f) percent = 0.0f;
+
+        this.highThresholdDb = (MAX_THRESHOLD_DB - MIN_THRESHOLD_DB) * percent + MIN_THRESHOLD_DB;
+    }
+    public float getHighThresholdDbPercent() {
+        return (highThresholdDb - MIN_THRESHOLD_DB) / (MAX_THRESHOLD_DB - MIN_THRESHOLD_DB);
     }
 
     public void sendToDsp(){
@@ -55,6 +100,7 @@ public class EnergyConfig {
     }
 
     public void readFromDsp() {
-        HiFiToyControl.getInstance().getDspDataWithOffset(offset);
+        byte[] d = {CommonCommand.GET_ENERGY_CONFIG, 0, 0, 0, 0};
+        HiFiToyControl.getInstance().sendDataToDsp(d, true);
     }
 }

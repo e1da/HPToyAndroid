@@ -8,6 +8,7 @@
 package com.hifitoy;
 
 import android.content.Context;
+import android.content.Intent;
 
 public class ApplicationContext {
     private static ApplicationContext instance;
@@ -27,4 +28,10 @@ public class ApplicationContext {
     public Context getContext(){
         return context;
     }
+
+    public void broadcastUpdate(final String action) {
+        final Intent intent = new Intent(action);
+        context.sendBroadcast(intent);
+    }
+
 }

@@ -34,6 +34,14 @@
             android:name=".activities.options.OptionsActivity"
             android:label="Options"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.options.AutoOffActivity"
+            android:label="Auto Off and Clipping"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.options.AdvertiseActivity"
+            android:label="Advertise mode"
+            android:screenOrientation="portrait" />
 
     </application>
 

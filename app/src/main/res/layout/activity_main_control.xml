@@ -61,24 +61,25 @@
                 android:id="@+id/audio_source_outl"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:layout_weight="1"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
                 android:orientation="horizontal">
 
                 <RadioButton
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="SPDIF" />
 
                 <RadioButton
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="USB" />
 
                 <RadioButton
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="BT" />
 
