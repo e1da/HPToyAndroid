@@ -222,7 +222,7 @@ public class OptionsActivity extends Activity implements View.OnClickListener {
         };
 
         setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_LOCKED);
-        DialogSystem.getInstance().showTextDialog(dialogListener, "Enter new name", "Change", "Cancel", false);
+        DialogSystem.getInstance().showTextDialog(dialogListener, "Enter new name", "Change", "Cancel");
     }
 
     /*--------------------------- Broadcast receiver implementation ------------------------------*/

@@ -1,0 +1,5 @@
++reinput pairing code when peripheral!=app 
+
+-clip ui
+
+-audio source ui

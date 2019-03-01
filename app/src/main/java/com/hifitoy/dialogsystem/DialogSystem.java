@@ -15,14 +15,19 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
+import android.text.InputFilter;
 import android.text.InputType;
+import android.util.Log;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoydevice.HiFiToyDevice;
+import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
 
 public class DialogSystem {
 
@@ -134,7 +139,7 @@ public class DialogSystem {
     }
 
     public void showTextDialog(final OnClickTextDialog onClickDialog, String title,
-                               String posButton, String negButton, boolean onlyNumber){
+                               String posButton, String negButton){
         final Context context = ApplicationContext.getInstance().getContext();
 
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
@@ -145,10 +150,6 @@ public class DialogSystem {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
         input.setLayoutParams(lp);
-
-        if (onlyNumber) {
-            input.setInputType(InputType.TYPE_CLASS_NUMBER);
-        }
 
         alertDialog.setView(input);
 
@@ -169,6 +170,7 @@ public class DialogSystem {
                         dialog.cancel();
                     }
                 });
+
 
         Dialog dialog = alertDialog.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
@@ -245,9 +247,64 @@ public class DialogSystem {
                 "Ok", "Cancel");
     }
 
+
     /*public void showFactoryProgressDialog(int remainPackets){
         showProgressDialog("Send factory settings...", remainPackets);
     }*/
+
+    /*---------------------------- Show pairing code dialog -----------------------------*/
+    public void showPairingCodeDialog(){
+        final Activity activity = (Activity)ApplicationContext.getInstance().getContext();
+
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity);
+        alertDialog.setTitle("Enter pairing code");
+
+        final EditText input = new EditText(activity);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setFilters(new InputFilter[]{ new InputFilter.LengthFilter(4) });
+
+        alertDialog.setView(input);
+
+        alertDialog.setPositiveButton("Send",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int which) {
+                        try {
+                            int pair_code = Integer.parseInt(input.getText().toString());
+                            Log.d(TAG, String.format("Pair code = %d", pair_code));
+
+                            HiFiToyDevice d = HiFiToyControl.getInstance().getActiveDevice();
+                            d.setPairingCode(pair_code);
+                            HiFiToyDeviceManager.getInstance().store();
+
+                            //send pairing code to dsp
+                            HiFiToyControl.getInstance().startPairedProccess(pair_code);
+                        } catch (NumberFormatException e) {
+                            Toast.makeText(activity, "The value of a pair code is not allowed.",
+                                    Toast.LENGTH_SHORT).show();
+                        } finally {
+                            activity.setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+                        }
+                    }
+                });
+        alertDialog.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        HiFiToyControl.getInstance().disconnect();
+                        activity.setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+                        activity.finish();
+                    }
+                });
+
+
+        activity.setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+        Dialog dialog = alertDialog.create();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show();
+    }
 
     /*---------------------------- Show save preset progress dialog -----------------------------*/
     /*public void showSavePresetProgressDialog(){
@@ -273,54 +330,4 @@ public class DialogSystem {
         public void onNegativeClick(String text);
     }
 
-    /*====================== Broadcast receiver ===============================*/
-    /*private static IntentFilter makeGattUpdateIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BleService.BLE_DID_WRITE_DATA);
-        intentFilter.addAction(BleService.BLE_DID_WRITE_DATA_COMPLETE);
-
-        intentFilter.addAction(DspPreset.UPDATE_IMPORT_PRESET);
-        intentFilter.addAction(DspPreset.FINISHED_SUCCESS_IMPORT_PRESET);
-        intentFilter.addAction(DspPreset.FINISHED_UNSUCCESS_IMPORT_PRESET);
-
-        return intentFilter;
-    }
-    public final BroadcastReceiver mBleReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-
-            if (BleService.BLE_DID_WRITE_DATA.equals(action)){
-                updateProgressDialog(1);
-            }
-            if (BleService.BLE_DID_WRITE_DATA_COMPLETE.equals(action)){
-
-                String title = getProgressDialogTitle();
-                if (title != null) {
-                    if (title.equals("Send factory settings...") || title.equals("Save HW Controllers...")) {
-                        showDialog("Warning", "Please reboot dsp!", "Ok");
-                    }
-                }
-
-                closeProgressDialog();
-
-                Context receiverContext = ApplicationContext.getInstance().getContext();
-                receiverContext.unregisterReceiver(mBleReceiver);
-            }
-
-            if (DspPreset.UPDATE_IMPORT_PRESET.equals(action)){
-                int progressInc = intent.getIntExtra(DspPreset.EXTRA_DATA, 1);
-                updateProgressDialog(progressInc);
-            }
-            if ((DspPreset.FINISHED_SUCCESS_IMPORT_PRESET.equals(action)) ||
-                    (DspPreset.FINISHED_UNSUCCESS_IMPORT_PRESET.equals(action))){
-
-                closeProgressDialog();
-
-                Context receiverContext = ApplicationContext.getInstance().getContext();
-                receiverContext.unregisterReceiver(mBleReceiver);
-            }
-
-        }
-    };*/
 }

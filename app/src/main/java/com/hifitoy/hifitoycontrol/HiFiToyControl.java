@@ -401,14 +401,19 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                         } else {
                             Log.d(TAG, "PAIR_NO");
                             //show input pair alert
-                            //[[DialogSystem sharedInstance] showPairCodeInput];
+                            Handler mainHandler = new Handler(Looper.getMainLooper());
+                            Runnable myRunnable = new Runnable() {
+                                @Override
+                                public void run() {
+                                    DialogSystem.getInstance().showPairingCodeDialog();
+                                }
+                            };
+                            mainHandler.post(myRunnable);
                         }
                         break;
                     case CommonCommand.SET_PAIR_CODE:
                         if (status != 0) {
                             Log.d(TAG, "SET_PAIR_CODE_SUCCESS");
-
-                            //[[DialogSystem sharedInstance] showAlert:NSLocalizedString(@"Change Pairing code is successful!", @"")];
                         } else {
                             Log.d(TAG, "SET_PAIR_CODE_FAIL");
                         }
@@ -556,15 +561,15 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     public void sendNewPairingCode(int pairingCode) {
 
         byte[] d = {    CommonCommand.SET_PAIR_CODE,
-                (byte)(pairingCode >> 24),
-                (byte)(pairingCode >> 16),
+                (byte)(pairingCode),
                 (byte)(pairingCode >> 8),
-                (byte)(pairingCode) };
+                (byte)(pairingCode >> 16),
+                (byte)(pairingCode >> 24) };
 
         sendDataToDsp(d, true);
 
     }
-    private void startPairedProccess(int pairingCode) {
+    public void startPairedProccess(int pairingCode) {
         byte[] d = {    CommonCommand.ESTABLISH_PAIR,
                 (byte)(pairingCode >> 24),
                 (byte)(pairingCode >> 16),
