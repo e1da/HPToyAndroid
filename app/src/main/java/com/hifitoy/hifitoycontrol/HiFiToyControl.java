@@ -55,6 +55,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
     public final static String ENERGY_UPDATE = "com.hifitoy.ENERGY_UPDATE";
     public final static String ADVERTISE_MODE_UPDATE = "com.hifitoy.ADVERTISE_MODE_UPDATE";
+    public final static String AUDIO_SOURCE_UPDATE = "com.hifitoy.AUDIO_SOURCE_UPDATE";
 
     private final static UUID FFF1_UUID =
             UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb");
@@ -456,6 +457,8 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                         Log.d(TAG, "GET_AUDIO_SOURCE " + status);
 
                         activeDevice.getAudioSource().setSource(data[1]);
+                        ApplicationContext.getInstance().broadcastUpdate(AUDIO_SOURCE_UPDATE);
+
                         getChecksumParamData();
                         break;
 

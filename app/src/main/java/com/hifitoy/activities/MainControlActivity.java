@@ -9,12 +9,18 @@ package com.hifitoy.activities;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.widget.AppCompatImageView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import com.hifitoy.ApplicationContext;
@@ -22,15 +28,19 @@ import com.hifitoy.R;
 import com.hifitoy.activities.options.OptionsActivity;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoydevice.AudioSource;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 
 
-public class MainControlActivity extends Activity implements SeekBar.OnSeekBarChangeListener, View.OnClickListener {
+public class MainControlActivity extends Activity implements SeekBar.OnSeekBarChangeListener,
+                                                                View.OnClickListener,
+                                                                RadioGroup.OnCheckedChangeListener {
     private static final String TAG = "HiFiToy";
 
     private HiFiToyDevice hifiToyDevice;
 
     AppCompatImageView audioSourceInfo_outl;
+    RadioGroup audioSourceRadio_outl;
 
     AppCompatImageView volumeInfo_outl;
     TextView volumeLabel_outl;
@@ -96,6 +106,7 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
     protected void onResume() {
         super.onResume();
         ApplicationContext.getInstance().setContext(this);
+        registerReceiver(broadcastReceiver, makeIntentFilter());
 
         hifiToyDevice = HiFiToyControl.getInstance().getActiveDevice();
 
@@ -104,7 +115,8 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
     }
 
     private void initOutlets() {
-        audioSourceInfo_outl     = findViewById(R.id.audio_source_info);
+        audioSourceInfo_outl    = findViewById(R.id.audio_source_info);
+        audioSourceRadio_outl   = findViewById(R.id.audio_source_outl);
 
         //volumeInfo_outl     = findViewById(R.id.volume_control_info);
         volumeLabel_outl    = findViewById(R.id.volumeLabel_outl);
@@ -129,6 +141,7 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
         optionsActivity_outl    = findViewById(R.id.optionsActivity_outl);
 
         audioSourceInfo_outl.setOnClickListener(this);
+        audioSourceRadio_outl.setOnCheckedChangeListener(this);
         //volumeInfo_outl.setOnClickListener(this);
         bassTrebleInfo_outl.setOnClickListener(this);
         loudnessInfo_outl.setOnClickListener(this);
@@ -140,6 +153,16 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
     }
 
     private void setupOutlets() {
+        audioSourceRadio_outl.setOnCheckedChangeListener (null);
+        byte s = hifiToyDevice.getAudioSource().getSource();
+        if (s == AudioSource.SPDIF_SOURCE) {
+            audioSourceRadio_outl.check(R.id.spdif_source);
+        } else if (s == AudioSource.USB_SOURCE) {
+            audioSourceRadio_outl.check(R.id.usb_source);
+        } else if (s == AudioSource.BT_SOURCE) {
+            audioSourceRadio_outl.check(R.id.bt_source);
+        }
+        audioSourceRadio_outl.setOnCheckedChangeListener(this);
 
     }
 
@@ -174,6 +197,23 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
                 startActivity(intentActivity);
                 break;
 
+        }
+    }
+
+    public void onCheckedChanged(RadioGroup group, int checkedId) {
+        if (group.getId() == R.id.audio_source_outl) {
+            AudioSource audioSource = hifiToyDevice.getAudioSource();
+
+            if (checkedId == R.id.spdif_source) {
+                audioSource.setSource(AudioSource.SPDIF_SOURCE);
+                audioSource.sendToDsp();
+            } else if (checkedId == R.id.usb_source) {
+                audioSource.setSource(AudioSource.USB_SOURCE);
+                audioSource.sendToDsp();
+            } else if (checkedId == R.id.bt_source) {
+                audioSource.setSource(AudioSource.BT_SOURCE);
+                audioSource.sendToDsp();
+            }
         }
     }
 
@@ -216,6 +256,22 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
         return (double)seekBar.getProgress() / seekBar.getMax();
     }
 
+    private static IntentFilter makeIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(HiFiToyControl.AUDIO_SOURCE_UPDATE);
 
+        return intentFilter;
+    }
+
+    public final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+
+            if (HiFiToyControl.AUDIO_SOURCE_UPDATE.equals(action)) {
+                setupOutlets();
+            }
+        }
+    };
 
 }

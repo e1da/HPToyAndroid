@@ -66,18 +66,21 @@
                 android:orientation="horizontal">
 
                 <RadioButton
+                    android:id="@+id/spdif_source"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="SPDIF" />
 
                 <RadioButton
+                    android:id="@+id/usb_source"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="USB" />
 
                 <RadioButton
+                    android:id="@+id/bt_source"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
