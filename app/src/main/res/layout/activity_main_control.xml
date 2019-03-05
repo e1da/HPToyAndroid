@@ -57,36 +57,14 @@
 
             </LinearLayout>
 
-            <RadioGroup
-                android:id="@+id/audio_source_outl"
+            <com.hifitoy.widgets.AudioSourceWidget
+                android:id="@+id/audio_source1_outl"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
                 android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                android:orientation="horizontal">
-
-                <RadioButton
-                    android:id="@+id/spdif_source"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="SPDIF" />
-
-                <RadioButton
-                    android:id="@+id/usb_source"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="USB" />
-
-                <RadioButton
-                    android:id="@+id/bt_source"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="BT" />
-
-            </RadioGroup>
+                android:layout_marginEnd="20dp"/>
 
             <!-- Volume block -->
             <View
@@ -201,7 +179,9 @@
                         android:layout_marginLeft="30dp"
                         android:layout_marginRight="30dp"
                         android:layout_weight="1"
-                        android:max="1000" />
+                        android:max="1000"
+                        android:progressTint="@color/colorSeekBar"
+                        android:thumbTint="@color/colorSeekBar" />
                 </RelativeLayout>
 
             </LinearLayout>
@@ -319,7 +299,9 @@
                         android:layout_marginLeft="30dp"
                         android:layout_marginRight="30dp"
                         android:layout_weight="1"
-                        android:max="1000" />
+                        android:max="1000"
+                        android:progressTint="@color/colorSeekBar"
+                        android:thumbTint="@color/colorSeekBar"/>
                 </RelativeLayout>
 
             </LinearLayout>
@@ -395,7 +377,9 @@
                         android:layout_marginLeft="30dp"
                         android:layout_marginRight="30dp"
                         android:layout_weight="1"
-                        android:max="1000" />
+                        android:max="1000"
+                        android:progressTint="@color/colorSeekBar"
+                        android:thumbTint="@color/colorSeekBar"/>
                 </RelativeLayout>
 
             </LinearLayout>
@@ -513,7 +497,9 @@
                         android:layout_marginLeft="30dp"
                         android:layout_marginRight="30dp"
                         android:layout_weight="1"
-                        android:max="1000" />
+                        android:max="1000"
+                        android:progressTint="@color/colorSeekBar"
+                        android:thumbTint="@color/colorSeekBar"/>
                 </RelativeLayout>
 
             </LinearLayout>
@@ -588,7 +574,9 @@
                         android:layout_marginLeft="30dp"
                         android:layout_marginRight="30dp"
                         android:layout_weight="1"
-                        android:max="1000" />
+                        android:max="1000"
+                        android:progressTint="@color/colorSeekBar"
+                        android:thumbTint="@color/colorSeekBar"/>
                 </RelativeLayout>
 
             </LinearLayout>

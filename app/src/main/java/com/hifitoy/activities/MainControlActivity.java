@@ -14,13 +14,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v7.widget.AppCompatImageView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import com.hifitoy.ApplicationContext;
@@ -30,17 +27,18 @@ import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.AudioSource;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
+import com.hifitoy.widgets.AudioSourceWidget;
 
 
 public class MainControlActivity extends Activity implements SeekBar.OnSeekBarChangeListener,
                                                                 View.OnClickListener,
-                                                                RadioGroup.OnCheckedChangeListener {
+                                                                AudioSourceWidget.OnCheckedListener {
     private static final String TAG = "HiFiToy";
 
     private HiFiToyDevice hifiToyDevice;
 
     AppCompatImageView audioSourceInfo_outl;
-    RadioGroup audioSourceRadio_outl;
+    AudioSourceWidget audioSource_outl;
 
     AppCompatImageView volumeInfo_outl;
     TextView volumeLabel_outl;
@@ -116,7 +114,7 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
 
     private void initOutlets() {
         audioSourceInfo_outl    = findViewById(R.id.audio_source_info);
-        audioSourceRadio_outl   = findViewById(R.id.audio_source_outl);
+        audioSource_outl        = findViewById(R.id.audio_source1_outl);
 
         //volumeInfo_outl     = findViewById(R.id.volume_control_info);
         volumeLabel_outl    = findViewById(R.id.volumeLabel_outl);
@@ -141,7 +139,7 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
         optionsActivity_outl    = findViewById(R.id.optionsActivity_outl);
 
         audioSourceInfo_outl.setOnClickListener(this);
-        audioSourceRadio_outl.setOnCheckedChangeListener(this);
+        audioSource_outl.setOnCheckedListener(this);
         //volumeInfo_outl.setOnClickListener(this);
         bassTrebleInfo_outl.setOnClickListener(this);
         loudnessInfo_outl.setOnClickListener(this);
@@ -153,17 +151,7 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
     }
 
     private void setupOutlets() {
-        audioSourceRadio_outl.setOnCheckedChangeListener (null);
-        byte s = hifiToyDevice.getAudioSource().getSource();
-        if (s == AudioSource.SPDIF_SOURCE) {
-            audioSourceRadio_outl.check(R.id.spdif_source);
-        } else if (s == AudioSource.USB_SOURCE) {
-            audioSourceRadio_outl.check(R.id.usb_source);
-        } else if (s == AudioSource.BT_SOURCE) {
-            audioSourceRadio_outl.check(R.id.bt_source);
-        }
-        audioSourceRadio_outl.setOnCheckedChangeListener(this);
-
+        audioSource_outl.setState(hifiToyDevice.getAudioSource().getSource());
     }
 
     public void onClick(View v) {
@@ -200,21 +188,10 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
         }
     }
 
-    public void onCheckedChanged(RadioGroup group, int checkedId) {
-        if (group.getId() == R.id.audio_source_outl) {
-            AudioSource audioSource = hifiToyDevice.getAudioSource();
-
-            if (checkedId == R.id.spdif_source) {
-                audioSource.setSource(AudioSource.SPDIF_SOURCE);
-                audioSource.sendToDsp();
-            } else if (checkedId == R.id.usb_source) {
-                audioSource.setSource(AudioSource.USB_SOURCE);
-                audioSource.sendToDsp();
-            } else if (checkedId == R.id.bt_source) {
-                audioSource.setSource(AudioSource.BT_SOURCE);
-                audioSource.sendToDsp();
-            }
-        }
+    //audio source change hadler
+    public void onCheckedChanged(byte state) {
+        AudioSource audioSource = hifiToyDevice.getAudioSource();
+        audioSource.setSourceWithWriteToDsp(state);
     }
 
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
