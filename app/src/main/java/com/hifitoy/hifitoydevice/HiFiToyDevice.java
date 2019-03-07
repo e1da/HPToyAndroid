@@ -12,6 +12,10 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.hifitoycontrol.CommonCommand;
+import com.hifitoy.hifitoyobjects.Biquad;
+import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
+
+import java.util.ArrayList;
 
 public class HiFiToyDevice implements StoreInterface {
     private static final String TAG = "HiFiToy";
@@ -21,23 +25,17 @@ public class HiFiToyDevice implements StoreInterface {
     private String  activeKeyPreset;
 
     //peripheral structure                                  // offset
-    private final byte      i2cAddr = 0x34;                 // 0x00
-    private byte            successWriteFlag;               // 0x01
-    public final short      version = 11;                   // 0x02
-    private int             pairingCode;                    // 0x04
-    private AudioSource     audioSource;                    // 0x08
-    private EnergyConfig    energyConfig;
-    private AdvertiseMode   advertiseMode;
-
-    /*PCM9211Source_t     audioSource;        // 0x08
-    uint8_t             reserved[3];        // 0x09
-    EnergyConfig_t      energy;             // 0x0C
-    BiquadType_t        biquadTypes[7];     // 0x18
-    uint8_t             reserved1;          //
-
-    uint16_t            dataBufLength;      // 0x20
-    uint16_t            dataBytesLength;    // 0x22
-    DataBufHeader_t     firstDataBuf;       // 0x24*/
+    private final byte                  i2cAddr = 0x34;     // 0x00
+    private byte                        successWriteFlag;   // 0x01
+    public final short                  version = 11;       // 0x02
+    private int                         pairingCode;        // 0x04
+    private AudioSource                 audioSource;        // 0x08
+    private AdvertiseMode               advertiseMode;      // 0x09 0x01
+    private EnergyConfig                energyConfig;       // 0x0C
+    private Biquad.BiquadParam.Type[]   biquadTypes;        // 0x18 0x07
+    private short                       dataBufLength;      // 0x20
+    private short                       dataBytesLength;    // 0x22
+    private ArrayList<HiFiToyDataBuf>   dataBufs;           // 0x24
 
     public HiFiToyDevice() {
         setDefault();
@@ -46,12 +44,15 @@ public class HiFiToyDevice implements StoreInterface {
     public void setDefault() {
         mac = "demo";
         name = "Demo";
-        pairingCode = 0;
         activeKeyPreset = "DefaultPreset";
 
+        successWriteFlag = 1;
+        pairingCode = 0;
         audioSource = new AudioSource();
-        energyConfig = new EnergyConfig();
         advertiseMode = new AdvertiseMode();
+        energyConfig = new EnergyConfig();
+
+
     }
 
     //setters/getters
