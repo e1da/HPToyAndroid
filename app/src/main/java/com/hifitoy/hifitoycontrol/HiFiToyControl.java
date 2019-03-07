@@ -435,7 +435,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                     {
                         int version = ((int)data[2]) * 256 + (int)data[1];
 
-                        if (version == HiFiToyConfig.getInstance().version) {
+                        if (version == activeDevice.version) {
                             Log.d(TAG, "GET_VERSION_OK");
                             activeDevice.getAudioSource().readFromDsp();
                         } else {
