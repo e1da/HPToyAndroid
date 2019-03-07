@@ -6,17 +6,29 @@
  */
 package com.hifitoy.hifitoyobjects;
 
+import android.util.Log;
+
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoynumbers.Number523;
+import com.hifitoy.xml.XmlData;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 
-public class Biquad implements HiFiToyObject {
-    private final int FS = 96000;
+public class Biquad implements HiFiToyObject, Cloneable{
+    private static final String TAG = "HiFiToy";
+    private static final int FS = 96000;
 
     private boolean hiddenGui;
     private boolean enabled;
@@ -42,6 +54,26 @@ public class Biquad implements HiFiToyObject {
         this((byte)0, (byte)0);
     }
 
+    @Override
+    public Biquad clone() throws CloneNotSupportedException{
+        return (Biquad) super.clone();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Biquad biquad = (Biquad) o;
+        return address0 == biquad.address0 &&
+                address1 == biquad.address1 &&
+                Objects.equals(params, biquad.params);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(address0, address1, params);
+    }
+    
     //setters getters
     @Override
     public int getAddress() {
@@ -139,6 +171,133 @@ public class Biquad implements HiFiToyObject {
         return "Biquad disabled.";
     }
 
+    @Override
+    public XmlData toXmlData() {
+        XmlData xmlData = new XmlData();
+
+        xmlData.addXmlElement("HiddenGui", hiddenGui);
+        xmlData.addXmlElement("Order", params.order.value);
+        xmlData.addXmlElement("Type", params.type.value);
+
+        xmlData.addXmlElement("MaxFreq", params.maxFreq);
+        xmlData.addXmlElement("MinFreq", params.minFreq);
+        xmlData.addXmlElement("MaxQ", params.maxQ);
+        xmlData.addXmlElement("MinQ", params.minQ);
+        xmlData.addXmlElement("MaxDbVol", params.maxDbVolume);
+        xmlData.addXmlElement("MinDbVol", params.minDbVolume);
+
+        xmlData.addXmlElement("B0", params.b0);
+        xmlData.addXmlElement("B1", params.b1);
+        xmlData.addXmlElement("B2", params.b2);
+        xmlData.addXmlElement("A1", params.a1);
+        xmlData.addXmlElement("A2", params.a2);
+
+        XmlData biquadXmlData = new XmlData();
+        Map<String, String> attrib = new HashMap<>();
+        attrib.put("Address", Integer.toString(address0));
+        attrib.put("Address1", Integer.toString(address1));
+
+        biquadXmlData.addXmlElement("Biquad", xmlData, attrib);
+
+        return biquadXmlData;
+    }
+
+    @Override
+    public boolean importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
+        String elementName = null;
+        int count = 0;
+
+        float b0 = 1.0f, b1 = 0, b2 = 0, a1 = 0, a2 = 0;
+
+        do {
+            xmlParser.next();
+
+            if (xmlParser.getEventType() == XmlPullParser.START_TAG){
+                elementName = xmlParser.getName();
+            }
+            if (xmlParser.getEventType() == XmlPullParser.END_TAG){
+                if (xmlParser.getName().equals("Biquad")) break;
+
+                elementName = null;
+            }
+
+            if ((xmlParser.getEventType() == XmlPullParser.TEXT) && (elementName != null)){
+                String elementValue = xmlParser.getText();
+                if (elementValue == null) continue;
+
+                if (elementName.equals("HiddenGui")){
+                    hiddenGui = elementValue.equals("true");
+                    count++;
+                }
+                if (elementName.equals("Order")){
+                    params.setOrderValue(Byte.parseByte(elementValue));
+                    count++;
+                }
+                if (elementName.equals("Type")){
+                    params.setTypeValue(Byte.parseByte(elementValue));
+                    count++;
+                }
+
+                if (elementName.equals("MaxFreq")){
+                    params.maxFreq = Short.parseShort(elementValue);
+                    count++;
+                }
+                if (elementName.equals("MinFreq")){
+                    params.minFreq = Short.parseShort(elementValue);
+                    count++;
+                }
+                if (elementName.equals("MaxQfac")){
+                    params.maxQ = Float.parseFloat(elementValue);
+                    count++;
+                }
+                if (elementName.equals("MinQfac")){
+                    params.minQ = Float.parseFloat(elementValue);
+                    count++;
+                }
+                if (elementName.equals("MaxDbVolume")){
+                    params.maxDbVolume = Float.parseFloat(elementValue);
+                    count++;
+                }
+                if (elementName.equals("MinDbVolume")){
+                    params.minDbVolume = Float.parseFloat(elementValue);
+                    count++;
+                }
+
+                if (elementName.equals("B0")){
+                    b0 = Float.parseFloat(elementValue);
+                    count++;
+                }
+                if (elementName.equals("B1")){
+                    b1 = Float.parseFloat(elementValue);
+                    count++;
+                }
+                if (elementName.equals("B2")){
+                    b2 = Float.parseFloat(elementValue);
+                    count++;
+                }
+                if (elementName.equals("A1")){
+                    a1 = Float.parseFloat(elementValue);
+                    count++;
+                }
+                if (elementName.equals("A2")){
+                    a2 = Float.parseFloat(elementValue);
+                    count++;
+                }
+            }
+        } while (xmlParser.getEventType() != XmlPullParser.END_DOCUMENT);
+
+        //check import result
+        if (count != 12){
+            Log.d(TAG, "DspBiquad=" + Integer.toString(address0) +
+                    ". Import from xml is not success.");
+            return false;
+        }
+        params.setCoefs(b0, b1, b2 ,a1, a2);
+        Log.d(TAG, getInfo());
+
+        return true;
+    }
+
     public class BiquadParam implements Cloneable, Serializable {
         private Order order;
         private Type type;
@@ -203,6 +362,34 @@ public class Biquad implements HiFiToyObject {
         @Override
         public BiquadParam clone() throws CloneNotSupportedException{
             return (BiquadParam) super.clone();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            BiquadParam that = (BiquadParam) o;
+            return Float.compare(that.b0, b0) == 0 &&
+                    Float.compare(that.b1, b1) == 0 &&
+                    Float.compare(that.b2, b2) == 0 &&
+                    Float.compare(that.a1, a1) == 0 &&
+                    Float.compare(that.a2, a2) == 0 &&
+                    freq == that.freq &&
+                    Float.compare(that.qFac, qFac) == 0 &&
+                    Float.compare(that.dbVolume, dbVolume) == 0 &&
+                    maxFreq == that.maxFreq &&
+                    minFreq == that.minFreq &&
+                    Float.compare(that.maxQ, maxQ) == 0 &&
+                    Float.compare(that.minQ, minQ) == 0 &&
+                    Float.compare(that.maxDbVolume, maxDbVolume) == 0 &&
+                    Float.compare(that.minDbVolume, minDbVolume) == 0 &&
+                    Objects.equals(order, that.order) &&
+                    Objects.equals(type, that.type);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(order, type, b0, b1, b2, a1, a2, freq, qFac, dbVolume, maxFreq, minFreq, maxQ, minQ, maxDbVolume, minDbVolume);
         }
 
         //setters getters
@@ -600,6 +787,24 @@ public class Biquad implements HiFiToyObject {
             public byte getValue() {
                 return value;
             }
+
+            @Override
+            public Type clone() throws CloneNotSupportedException{
+                return (Type) super.clone();
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+                Type type = (Type) o;
+                return value == type.value;
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(value);
+            }
         }
 
         public class Order implements Cloneable, Serializable{
@@ -619,6 +824,24 @@ public class Biquad implements HiFiToyObject {
             }
             public byte getValue() {
                 return value;
+            }
+
+            @Override
+            public Order clone() throws CloneNotSupportedException{
+                return (Order) super.clone();
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+                Order order = (Order) o;
+                return value == order.value;
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(value);
             }
         }
     }
