@@ -32,7 +32,7 @@ public class HiFiToyDevice implements StoreInterface {
     private AudioSource                 audioSource;        // 0x08
     private AdvertiseMode               advertiseMode;      // 0x09 0x01
     private EnergyConfig                energyConfig;       // 0x0C
-    private Biquad.BiquadParam.Type[]   biquadTypes;        // 0x18 0x07
+    private byte[]                      biquadTypes;        // 0x18 0x07
     private short                       dataBufLength;      // 0x20
     private short                       dataBytesLength;    // 0x22
     private ArrayList<HiFiToyDataBuf>   dataBufs;           // 0x24

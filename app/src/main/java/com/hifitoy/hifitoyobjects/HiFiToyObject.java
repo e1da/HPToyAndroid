@@ -16,7 +16,7 @@ import java.io.IOException;
 
 public interface HiFiToyObject {
 
-    int getAddress();
+    byte getAddress();
     String getInfo();
 
     void sendToPeripheral(boolean response);

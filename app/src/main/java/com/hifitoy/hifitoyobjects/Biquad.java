@@ -56,7 +56,9 @@ public class Biquad implements HiFiToyObject, Cloneable{
 
     @Override
     public Biquad clone() throws CloneNotSupportedException{
-        return (Biquad) super.clone();
+        Biquad b = (Biquad) super.clone();
+        b.params = params.clone();
+        return b;
     }
 
     @Override
@@ -73,11 +75,22 @@ public class Biquad implements HiFiToyObject, Cloneable{
     public int hashCode() {
         return Objects.hash(address0, address1, params);
     }
-    
+
     //setters getters
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+    public boolean isEnabled() {
+        return enabled;
+    }
+
     @Override
-    public int getAddress() {
+    public byte getAddress() {
         return address0;
+    }
+
+    public byte getAddress1() {
+        return address1;
     }
 
     public BiquadParam getParams() {
@@ -287,8 +300,8 @@ public class Biquad implements HiFiToyObject, Cloneable{
         } while (xmlParser.getEventType() != XmlPullParser.END_DOCUMENT);
 
         //check import result
-        if (count != 12){
-            Log.d(TAG, "DspBiquad=" + Integer.toString(address0) +
+        if (count != 14){
+            Log.d(TAG, "Biquad=" + Integer.toString(address0) +
                     ". Import from xml is not success.");
             return false;
         }
@@ -361,7 +374,11 @@ public class Biquad implements HiFiToyObject, Cloneable{
 
         @Override
         public BiquadParam clone() throws CloneNotSupportedException{
-            return (BiquadParam) super.clone();
+            BiquadParam p = (BiquadParam) super.clone();
+            p.order = order.clone();
+            p.type = type.clone();
+
+            return p;
         }
 
         @Override
