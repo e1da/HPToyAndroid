@@ -13,17 +13,20 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_ALLPASS;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_HIGHPASS;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_LOWPASS;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_OFF;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC;
 
-public class Filters implements HiFiToyObject {
+public class Filters implements HiFiToyObject, Cloneable {
     private static final String TAG = "HiFiToy";
 
     private Biquad[] biquads; // 7 biquads
@@ -57,6 +60,34 @@ public class Filters implements HiFiToyObject {
     }
     public Filters() {
         this((byte)0x51, (byte)0x52);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Filters filters = (Filters) o;
+        return address0 == filters.address0 &&
+                address1 == filters.address1 &&
+                Arrays.equals(biquads, filters.biquads);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(address0, address1);
+        result = 31 * result + Arrays.hashCode(biquads);
+        return result;
+    }
+
+    @Override
+    public Filters clone() throws CloneNotSupportedException{
+        Filters p = (Filters) super.clone();
+        p.biquads = new Biquad[7];
+
+        for (int i = 0; i < 7; i++) {
+            p.biquads[i] = biquads[i].clone();
+        }
+        return p;
     }
 
     //getters / setters
