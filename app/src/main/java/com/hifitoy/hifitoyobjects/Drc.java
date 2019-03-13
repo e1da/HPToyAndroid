@@ -16,17 +16,296 @@ import com.hifitoy.xml.XmlData;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-public class Drc {
+public class Drc implements HiFiToyObject, Cloneable {
     private static final String TAG = "HiFiToy";
 
-    public class DrcCoef implements HiFiToyObject {
+    private float[]         enabledCh; // 0.0 .. 1.0, 8 channels
+    private byte[]          evaluationCh;
+
+    private DrcCoef         coef17;
+    private DrcCoef         coef8;
+    private DrcTimeConst    timeConst17;
+    private DrcTimeConst    timeConst8;
+
+    public Drc (DrcCoef coef17, DrcCoef coef8, DrcTimeConst timeConst17, DrcTimeConst timeConst8) {
+        this.coef17 = coef17;
+        this.coef8 = coef8;
+        this.timeConst17 = timeConst17;
+        this.timeConst8 = timeConst8;
+
+        enabledCh = new float[8];
+        evaluationCh = new byte[8];
+        for (int i = 0; i < 8; i++) {
+            enabledCh[i] = 0.0f;
+            evaluationCh[i] = DrcEvaluation.DISABLED_EVAL;
+        }
+
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Drc drc = (Drc) o;
+        return Arrays.equals(enabledCh, drc.enabledCh) &&
+                Arrays.equals(evaluationCh, drc.evaluationCh) &&
+                Objects.equals(coef17, drc.coef17) &&
+                Objects.equals(coef8, drc.coef8) &&
+                Objects.equals(timeConst17, drc.timeConst17) &&
+                Objects.equals(timeConst8, drc.timeConst8);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(coef17, coef8, timeConst17, timeConst8);
+        result = 31 * result + Arrays.hashCode(enabledCh);
+        result = 31 * result + Arrays.hashCode(evaluationCh);
+        return result;
+    }
+
+    @Override
+    public Drc clone() throws CloneNotSupportedException{
+        Drc drc = (Drc) super.clone();
+
+        drc.enabledCh = new float[8];
+        drc.evaluationCh = new byte[8];
+        for (int i = 0; i < 8; i++) {
+            drc.enabledCh[i] = enabledCh[i];
+            drc.evaluationCh[i] = evaluationCh[i];
+        }
+
+        drc.coef17      = null;
+        drc.coef8       = null;
+        drc.timeConst17 = null;
+        drc.timeConst8  = null;
+
+        if (coef17 != null)         drc.coef17 = coef17.clone();
+        if (coef8 != null)          drc.coef8 = coef8.clone();
+        if (timeConst17 != null)    drc.timeConst17 = timeConst17.clone();
+        if (timeConst8 != null)     drc.timeConst8 = timeConst8.clone();
+
+        return drc;
+    }
+
+    //setters / getters
+    public void setEnabled(float enabled, byte channel) {
+        if ((channel >= 0) && (channel < 8)) {
+            enabledCh[channel] = enabled;
+        }
+    }
+    public float getEnabledChannel(byte channel) {
+        if ((channel >= 0) && (channel < 8)) {
+            return enabledCh[channel];
+        }
+        return 0.0f;
+    }
+    public void setEvaluation(byte evaluation, byte channel) {
+        if ((channel >= 0) && (channel < 8)) {
+            if (evaluation < DrcEvaluation.DISABLED_EVAL) evaluation = DrcEvaluation.DISABLED_EVAL;
+            if (evaluation > DrcEvaluation.POST_VOLUME_EVAL) evaluation = DrcEvaluation.POST_VOLUME_EVAL;
+
+            evaluationCh[channel] = evaluation;
+        }
+    }
+    public byte getEvaluation(byte channel) {
+        if ((channel >= 0) && (channel < 8)) {
+            return evaluationCh[channel];
+        }
+        return DrcEvaluation.DISABLED_EVAL;
+    }
+
+    @Override
+    public byte getAddress() {
+        return TAS5558.DRC1_CONTROL_REG;
+    }
+
+    @Override
+    public String getInfo() {
+        return "Drc info";
+    }
+
+    public void sendEvaluationToPeripheral(boolean response) {
+        HiFiToyControl.getInstance().sendDataToDsp(getEvaluationBinary(), response);
+    }
+
+    public void sendEnabledToPeripheral(byte channel, boolean response) {
+        byte[] d = getEnabledBinary(channel);
+
+        if (d != null) HiFiToyControl.getInstance().sendDataToDsp(d, response);
+    }
+
+    @Override
+    public void sendToPeripheral(boolean response) {
+        coef17.sendToPeripheral(response);
+        coef8.sendToPeripheral(response);
+        timeConst17.sendToPeripheral(response);
+        timeConst8.sendToPeripheral(response);
+        sendEvaluationToPeripheral(response);
+
+        for (byte i = 0; i < 8; i++) {
+            sendEnabledToPeripheral(i, response);
+        }
+    }
+
+    private byte[] getEvaluationBinary() {
+        int d = 0;
+        for (int i = 7; i >= 0; i--){
+            d <<= 2;
+            d |= evaluationCh[i] & 0x03;
+        }
+
+        ByteBuffer b = ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
+        b.putInt(d);
+        b.putInt((int)(evaluationCh[7] & 0x03));
+
+        HiFiToyDataBuf data = new HiFiToyDataBuf(getAddress(), b);
+        return data.getBinary().array();
+    }
+
+    private byte[] getEnabledBinary(byte channel) {
+        if ( (channel < 0) || (channel > 7) ) return null;
+
+        ByteBuffer b = ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
+        b.putInt(0x800000 - (int)(0x800000 * enabledCh[channel]));
+        b.putInt((int)(0x800000 * enabledCh[channel]));
+
+        HiFiToyDataBuf data = new HiFiToyDataBuf((byte)(TAS5558.DRC_BYPASS1_REG + channel), b);
+        return data.getBinary().array();
+    }
+
+    @Override
+    public byte[] getBinary() {
+        byte[] data = BinaryOperation.concatData(coef17.getBinary(), coef8.getBinary());
+        data = BinaryOperation.concatData(data, timeConst17.getBinary());
+        data = BinaryOperation.concatData(data, timeConst8.getBinary());
+        data = BinaryOperation.concatData(data, getEvaluationBinary());
+
+        for (byte i = 0; i < 8; i++) {
+            byte[] d = getEnabledBinary(i);
+            if (d != null) data = BinaryOperation.concatData(data, d);
+        }
+
+        return data;
+    }
+
+    @Override
+    public boolean importData(byte[] data) {
+        return false;
+    }
+
+    @Override
+    public XmlData toXmlData() {
+        XmlData xmlData = new XmlData();
+
+        for (int i = 0; i < 8; i++){
+            String keyStr = String.format(Locale.getDefault(), "enabledCh%d", i);
+            xmlData.addXmlElement(keyStr, enabledCh[i]);
+        }
+        for (int i = 0; i < 8; i++){
+            String keyStr = String.format(Locale.getDefault(), "evaluationCh%d", i);
+            xmlData.addXmlElement(keyStr, evaluationCh[i]);
+        }
+        xmlData.addXmlData(coef17.toXmlData());
+        xmlData.addXmlData(coef8.toXmlData());
+        xmlData.addXmlData(timeConst17.toXmlData());
+        xmlData.addXmlData(timeConst8.toXmlData());
+
+        XmlData drcXmlData = new XmlData();
+        Map<String, String> attrib = new HashMap<>();
+        attrib.put("Address", Integer.toString(getAddress()));
+
+        drcXmlData.addXmlElement("Drc", xmlData, attrib);
+        return drcXmlData;
+    }
+
+    @Override
+    public boolean importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
+        String elementName = null;
+        int count = 0;
+
+        do {
+            xmlParser.next();
+
+            if (xmlParser.getEventType() == XmlPullParser.START_TAG){
+                elementName = xmlParser.getName();
+
+                if (elementName.equals("DrcCoef")){
+                    String channelStr = xmlParser.getAttributeValue("Channel", null);
+                    if (channelStr == null) continue;
+                    byte channel = Byte.parseByte(channelStr);
+
+                    if ((coef17 != null) && (coef17.channel == channel)){
+                        coef17.importFromXml(xmlParser);
+                        count++;
+                    }
+                    if ((coef8 != null) && (coef8.channel == channel)){
+                        coef8.importFromXml(xmlParser);
+                        count++;
+                    }
+                }
+                if (elementName.equals("DrcTimeConst")){
+                    String channelStr = xmlParser.getAttributeValue("Channel", null);
+                    if (channelStr == null) continue;
+                    byte channel = Byte.parseByte(channelStr);
+
+                    if ((timeConst17 != null) && (timeConst17.channel == channel)){
+                        timeConst17.importFromXml(xmlParser);
+                        count++;
+                    }
+                    if ((timeConst8 != null) && (timeConst8.channel == channel)){
+                        timeConst8.importFromXml(xmlParser);
+                        count++;
+                    }
+                }
+            }
+            if (xmlParser.getEventType() == XmlPullParser.END_TAG){
+                if (xmlParser.getName().equals("Drc")) break;
+
+                elementName = null;
+            }
+
+            if ((xmlParser.getEventType() == XmlPullParser.TEXT) && (elementName != null)){
+                String elementValue = xmlParser.getText();
+                if (elementValue == null) continue;
+
+                for (int i = 0; i < 8; i++){
+                    String keyStr = String.format(Locale.getDefault(), "enabledCh%d", i);
+                    if (elementName.equals(keyStr)){
+                        enabledCh[i] = Float.parseFloat(elementValue);
+                        count++;
+                    }
+                }
+                for (int i = 0; i < 8; i++){
+                    String keyStr = String.format(Locale.getDefault(), "evaluationCh%d", i);
+                    if (elementName.equals(keyStr)){
+                        evaluationCh[i] = Byte.parseByte(elementValue);
+                        count++;
+                    }
+                }
+            }
+        } while (xmlParser.getEventType() != XmlPullParser.END_DOCUMENT);
+
+        //check import result
+        if (count != 20){
+            Log.d(TAG, "Drc. Import from xml is not success.");
+            return false;
+        }
+        Log.d(TAG, getInfo());
+
+        return true;
+    }
+
+
+    public class DrcCoef implements HiFiToyObject, Cloneable {
         private byte        channel;
 
         private DrcPoint    point0;
@@ -43,6 +322,33 @@ public class Drc {
             setPoint1(p1);
             setPoint2(p2);
             setPoint3(p3);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            DrcCoef drcCoef = (DrcCoef) o;
+            return channel == drcCoef.channel &&
+                    Objects.equals(point0, drcCoef.point0) &&
+                    Objects.equals(point1, drcCoef.point1) &&
+                    Objects.equals(point2, drcCoef.point2) &&
+                    Objects.equals(point3, drcCoef.point3);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(channel, point0, point1, point2, point3);
+        }
+
+        @Override
+        public DrcCoef clone() throws CloneNotSupportedException{
+            DrcCoef dc =  (DrcCoef) super.clone();
+            dc.point0  = point0.clone();
+            dc.point1  = point1.clone();
+            dc.point2  = point2.clone();
+            dc.point3  = point3.clone();
+            return dc;
         }
 
         //setters / getters
@@ -229,7 +535,7 @@ public class Drc {
         }
 
 
-        public class DrcPoint {
+        public class DrcPoint implements Cloneable{
             private float inputDb;
             private float outputDb;
 
@@ -242,6 +548,11 @@ public class Drc {
                 b.put(Number88.get88BigEnd(inputDb));
                 b.put(Number88.get88BigEnd(outputDb));
                 return b;
+            }
+
+            @Override
+            public DrcPoint clone() throws CloneNotSupportedException{
+                return (DrcPoint) super.clone();
             }
         }
 
@@ -478,4 +789,11 @@ public class Drc {
         public final static byte DRC_CH_1_7     = 0;
         public final static byte DRC_CH_8       = 1;
     }
+
+    public class DrcEvaluation {
+        public final static byte DISABLED_EVAL      = 0;
+        public final static byte PRE_VOLUME_EVAL    = 1;
+        public final static byte POST_VOLUME_EVAL   = 2;
+    }
+
 }
