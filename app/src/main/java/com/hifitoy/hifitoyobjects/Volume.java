@@ -24,7 +24,7 @@ public class Volume implements HiFiToyObject, Cloneable {
 
     private final static float HW_MAX_DB    = 18.0f;
     private final static float HW_MIN_DB    = -127.0f;
-    private final static float HW_MUTE_DB   = -81.0f;
+    public final static float HW_MUTE_DB    = -81.0f;
 
     private byte    address;
     private float   db;

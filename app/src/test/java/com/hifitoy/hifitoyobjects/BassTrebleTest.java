@@ -1,5 +1,7 @@
 package com.hifitoy.hifitoyobjects;
 
+import com.hifitoy.hifitoyobjects.basstreble.BassTreble;
+
 import org.junit.Before;
 import org.junit.Test;
 import java.util.Locale;

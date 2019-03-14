@@ -165,12 +165,11 @@ public class Loudness implements HiFiToyObject, Cloneable {
                 elementName = xmlParser.getName();
 
                 if (elementName.equals("Biquad")){
-                    String addrStr = xmlParser.getAttributeValue("Address", null);
+                    String addrStr = xmlParser.getAttributeValue(null, "Address");
                     if (addrStr == null) continue;
                     byte address = Byte.parseByte(addrStr);
 
-                    if (biquad.getAddress() == address){
-                        biquad.importFromXml(xmlParser);
+                    if ( (biquad.getAddress() == address) && (biquad.importFromXml(xmlParser)) ){
                         count++;
                     }
                 }

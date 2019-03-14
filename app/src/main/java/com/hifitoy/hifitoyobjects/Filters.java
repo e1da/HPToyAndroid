@@ -518,13 +518,23 @@ public class Filters implements HiFiToyObject, Cloneable {
         String elementName = null;
         int count = 0;
 
-        float b0 = 1.0f, b1 = 0, b2 = 0, a1 = 0, a2 = 0;
-
         do {
             xmlParser.next();
 
             if (xmlParser.getEventType() == XmlPullParser.START_TAG){
                 elementName = xmlParser.getName();
+
+                if (elementName.equals("Biquad")) {
+                    String addrStr = xmlParser.getAttributeValue(null, "Address");
+                    if (addrStr == null) continue;
+                    byte addr = Byte.parseByte(addrStr);
+
+                    for (int i = 0; i < 7; i++) {
+                        if ( (biquads[i].getAddress() == addr) && (biquads[i].importFromXml(xmlParser)) ) {
+                            count++;
+                        }
+                    }
+                }
             }
             if (xmlParser.getEventType() == XmlPullParser.END_TAG){
                 if (xmlParser.getName().equals("Filters")) break;
@@ -533,17 +543,7 @@ public class Filters implements HiFiToyObject, Cloneable {
             }
 
             if ((xmlParser.getEventType() == XmlPullParser.TEXT) && (elementName != null)){
-                String elementValue = xmlParser.getText();
-                if (elementValue == null) continue;
-                String addrStr = xmlParser.getAttributeValue("Address", null);
-                if (addrStr == null) continue;
-                byte addr = Byte.parseByte(addrStr);
 
-                for (int i = 0; i < 7; i++) {
-                    if ( (biquads[i].getAddress() == addr) && (biquads[i].importFromXml(xmlParser)) ) {
-                        count++;
-                    }
-                }
             }
         } while (xmlParser.getEventType() != XmlPullParser.END_DOCUMENT);
 

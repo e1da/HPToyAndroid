@@ -143,8 +143,8 @@ public class HiFiToyPresetManager {
     public void description() {
         Log.d(TAG, "=============== <PresetMap> ======================");
         for (Map.Entry<String, HiFiToyPreset> entry: presetMap.entrySet()) {
-            Log.d(TAG, "key=" + entry.getKey());
-            entry.getValue().description();
+            Log.d(TAG, "key=" + entry.getKey() +
+                            " name=" + entry.getValue().getInfo());
         }
         Log.d(TAG, "================</PresetMap>======================");
     }
