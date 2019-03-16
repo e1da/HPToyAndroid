@@ -21,7 +21,9 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -111,7 +113,7 @@ public class Biquad implements HiFiToyObject, Cloneable{
             b.putFloat(params.a1);
             b.putFloat(params.a2);
 
-            HiFiToyControl.getInstance().sendDataToDsp(b.array(), true);
+            HiFiToyControl.getInstance().sendDataToDsp(b, true);
 
         } else {
 
@@ -130,27 +132,17 @@ public class Biquad implements HiFiToyObject, Cloneable{
             b.putFloat(params.qFac);
             b.putFloat(params.dbVolume);
 
-            HiFiToyControl.getInstance().sendDataToDsp(b.array(), response);
+            HiFiToyControl.getInstance().sendDataToDsp(b, response);
         }
     }
 
     @Override
-    public byte[] getBinary() {
-
+    public List<HiFiToyDataBuf> getDataBufs() {
         ByteBuffer data = params.getBinary();
-        HiFiToyDataBuf dataBuf = new HiFiToyDataBuf(address0, data);
+        HiFiToyDataBuf dataBuf0 = new HiFiToyDataBuf(address0, data);
+        HiFiToyDataBuf dataBuf1 = (address1 != 0) ? new HiFiToyDataBuf(address1, data) : null;
 
-        ByteBuffer b;
-
-        if (address1 != 0) {
-            b = ByteBuffer.allocate(2 * dataBuf.getBinary().capacity());
-            b.put(dataBuf.getBinary());
-            b.put(new HiFiToyDataBuf(address1, data).getBinary());
-        } else {
-            b = dataBuf.getBinary();
-        }
-
-        return b.array();
+        return new ArrayList<>(Arrays.asList(dataBuf0, dataBuf1));
     }
 
     //we get data with length==20

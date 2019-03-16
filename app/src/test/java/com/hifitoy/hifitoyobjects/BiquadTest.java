@@ -31,7 +31,7 @@ public class BiquadTest {
     @Test
     public void testGetBinary() {
         System.out.println("testGetBinary");
-        System.out.println(String.format(Locale.getDefault(), "%d", b0.getBinary().length));
+        System.out.println(String.format(Locale.getDefault(), "%d", b0.getDataBufs().size()));
     }
 
     @Test

@@ -51,4 +51,19 @@ public class VolumeTest {
 
     }
 
+    @Test
+    public void testGetDataBufs() {
+        List<HiFiToyDataBuf> l = v0.getDataBufs();
+        System.out.println(String.format(Locale.getDefault(), "%d", l.size()));
+        assertTrue(l.size() == 1);
+
+        HiFiToyDataBuf b = l.get(0);
+        assertTrue(b.getLength() == 4);
+
+        System.out.println(String.format(Locale.getDefault(), "%d", b.getData().getInt(0)));
+        assertTrue(b.getData().getInt(0) == 72);
+
+
+    }
+
 }

@@ -19,6 +19,7 @@ import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoynumbers.Checksummer;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
+import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import com.hifitoy.hifitoyobjects.basstreble.BassTreble;
 import com.hifitoy.hifitoyobjects.drc.Drc;
 import com.hifitoy.hifitoyobjects.Filters;
@@ -38,6 +39,8 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -119,8 +122,16 @@ public class HiFiToyPreset implements HiFiToyObject {
         updateChecksum();
     }
 
+    //setters / getters
+    public short getChecksum() {
+        return checkSum;
+    }
+    public Filters getFilters() {
+        return filters;
+    }
+
     public void updateChecksum() {
-        checkSum = Checksummer.calc(getBinary());
+        checkSum = Checksummer.calc(BinaryOperation.getBinary(getDataBufs()));
     }
 
 
@@ -147,13 +158,14 @@ public class HiFiToyPreset implements HiFiToyObject {
     }
 
     @Override
-    public byte[] getBinary() {
-        byte[] data = new byte[0];
+    public List<HiFiToyDataBuf> getDataBufs() {
+        List<HiFiToyDataBuf> l = new ArrayList<>();
 
         for (int i = 0; i < characteristics.size(); i++){
-            data = BinaryOperation.concatData(data, characteristics.get(i).getBinary());
+            l.addAll(characteristics.get(i).getDataBufs());
         }
-        return data;
+
+        return l;
     }
 
     @Override

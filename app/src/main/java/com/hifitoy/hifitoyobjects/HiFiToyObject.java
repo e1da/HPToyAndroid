@@ -13,6 +13,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface HiFiToyObject {
 
@@ -21,7 +22,7 @@ public interface HiFiToyObject {
 
     void sendToPeripheral(boolean response);
 
-    byte[] getBinary();
+    List<HiFiToyDataBuf> getDataBufs();
     boolean importData(byte[] data);
 
     XmlData toXmlData();

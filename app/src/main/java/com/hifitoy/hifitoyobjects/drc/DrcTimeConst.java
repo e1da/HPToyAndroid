@@ -18,7 +18,10 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -110,11 +113,11 @@ public class DrcTimeConst implements HiFiToyObject, Cloneable {
     }
 
     public void sendEnergyToPeripheral(boolean response) {
-        HiFiToyControl.getInstance().sendDataToDsp(getEnergyBinary(), response);
+        HiFiToyControl.getInstance().sendDataToDsp(getEnergyDataBuf().getBinary(), response);
     }
 
     public void sendAttackDecayToPeripheral(boolean response) {
-        HiFiToyControl.getInstance().sendDataToDsp(getAttackDecayBinary(), response);
+        HiFiToyControl.getInstance().sendDataToDsp(getAttackDecayDataBuf().getBinary(), response);
     }
 
     @Override
@@ -127,29 +130,27 @@ public class DrcTimeConst implements HiFiToyObject, Cloneable {
         return (int)(Math.pow(Math.E, -2000.0f / time_ms / TAS5558.TAS5558_FS) * 0x800000) & 0x007FFFFF;
     }
 
-    private byte[] getEnergyBinary() {
+    private HiFiToyDataBuf getEnergyDataBuf() {
         ByteBuffer b = ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
         b.putInt(0x800000 - timeToInt(energyMS));
         b.putInt(timeToInt(energyMS));
 
-        HiFiToyDataBuf data = new HiFiToyDataBuf(getAddress(), b);
-        return data.getBinary().array();
+        return new HiFiToyDataBuf(getAddress(), b);
     }
 
-    private byte[] getAttackDecayBinary() {
+    private HiFiToyDataBuf getAttackDecayDataBuf() {
         ByteBuffer b = ByteBuffer.allocate(16).order(ByteOrder.BIG_ENDIAN);
         b.putInt(0x800000 - timeToInt(attackMS));
         b.putInt(timeToInt(attackMS));
         b.putInt(0x800000 - timeToInt(decayMS));
         b.putInt(timeToInt(decayMS));
 
-        HiFiToyDataBuf data = new HiFiToyDataBuf((byte)(getAddress() + 4), b);
-        return data.getBinary().array();
+        return new HiFiToyDataBuf((byte)(getAddress() + 4), b);
     }
 
     @Override
-    public byte[] getBinary() {
-        return BinaryOperation.concatData(getEnergyBinary(), getAttackDecayBinary());
+    public List<HiFiToyDataBuf> getDataBufs() {
+        return new ArrayList<>(Arrays.asList(getEnergyDataBuf(), getAttackDecayDataBuf()));
     }
 
     @Override

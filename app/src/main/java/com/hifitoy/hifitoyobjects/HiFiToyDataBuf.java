@@ -16,6 +16,10 @@ public class HiFiToyDataBuf {
         this.addr = addr;
         this.data = data;
     }
+    public HiFiToyDataBuf(ByteBuffer b) {
+        parseBinary(b);
+    }
+
 
     // setters getters
     public void setAddr(byte addr) {
@@ -45,5 +49,15 @@ public class HiFiToyDataBuf {
             return b;
         }
         return null;
+    }
+
+    public void parseBinary(ByteBuffer b) {
+        addr = b.get();
+
+        byte length = b.get();
+        byte[] d = new byte[length];
+
+        b.get(d, 0, length);
+        data = ByteBuffer.wrap(d);
     }
 }

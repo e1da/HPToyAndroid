@@ -472,14 +472,15 @@ public class Filters implements HiFiToyObject, Cloneable {
     }
 
     @Override
-    public byte[] getBinary() {
-        byte[] data = new byte[0];
+    public List<HiFiToyDataBuf> getDataBufs() {
+        List<HiFiToyDataBuf> l = new ArrayList<>();
 
         for (int i = 0; i < 7; i++) {
-            data = BinaryOperation.concatData(data, biquads[i].getBinary());
+            l.addAll(biquads[i].getDataBufs());
         }
-        return data;
+        return l;
     }
+
 
     @Override
     public boolean importData(byte[] data) {

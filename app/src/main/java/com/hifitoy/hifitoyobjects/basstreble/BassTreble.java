@@ -19,8 +19,10 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -136,14 +138,14 @@ public class BassTreble implements HiFiToyObject, Cloneable {
 
     @Override
     public void sendToPeripheral(boolean response) {
-        HiFiToyControl.getInstance().sendDataToDsp(getFreqDbBinary(), response);
+        HiFiToyControl.getInstance().sendDataToDsp(getFreqDbDataBuf().getBinary(), response);
     }
 
     public void sendEnabledToPeripheral(byte channel, boolean response) {
-        HiFiToyControl.getInstance().sendDataToDsp(getEnabledBinary(channel), response);
+        HiFiToyControl.getInstance().sendDataToDsp(getEnabledDataBuf(channel).getBinary(), response);
     }
 
-    private byte[] getFreqDbBinary() {
+    private HiFiToyDataBuf getFreqDbDataBuf() {
         ByteBuffer b = ByteBuffer.allocate(16);
         //bass
         b.put(bassTreble8.getBassFreq());
@@ -164,11 +166,10 @@ public class BassTreble implements HiFiToyObject, Cloneable {
         b.put(dbToTAS5558Format(bassTreble34.getTrebleDb()));
         b.put(dbToTAS5558Format(bassTreble127.getTrebleDb()));
 
-        HiFiToyDataBuf dataBuf = new HiFiToyDataBuf(getAddress(), b);
-        return dataBuf.getBinary().array();
+        return new HiFiToyDataBuf(getAddress(), b);
     }
 
-    private byte[] getEnabledBinary(byte channel) {
+    private HiFiToyDataBuf getEnabledDataBuf(byte channel) {
         if (channel > 7) channel = 7;
 
         int val = (int)(0x800000 * enabledCh[channel]);
@@ -177,20 +178,19 @@ public class BassTreble implements HiFiToyObject, Cloneable {
         b.putInt(val);
         b.putInt(ival);
 
-        HiFiToyDataBuf dataBuf = new HiFiToyDataBuf(TAS5558.BASS_TREBLE_REG, b);
-        return dataBuf.getBinary().array();
+        return new HiFiToyDataBuf(TAS5558.BASS_TREBLE_REG, b);
     }
 
     @Override
-    public byte[] getBinary() {
-        byte[] data = new byte[0];
+    public List<HiFiToyDataBuf> getDataBufs() {
+        List<HiFiToyDataBuf> l = new ArrayList<>();
 
         for (byte i = 0; i < 8; i++) {
-            data = BinaryOperation.concatData(data, getEnabledBinary(i));
+            l.add(getEnabledDataBuf(i));
         }
-        data = BinaryOperation.concatData(data, getFreqDbBinary());
+        l.add(getFreqDbDataBuf());
 
-        return data;
+        return l;
     }
 
     @Override

@@ -21,8 +21,10 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -138,13 +140,13 @@ public class Drc implements HiFiToyObject, Cloneable {
     }
 
     public void sendEvaluationToPeripheral(boolean response) {
-        HiFiToyControl.getInstance().sendDataToDsp(getEvaluationBinary(), response);
+        HiFiToyControl.getInstance().sendDataToDsp(getEvaluationDataBuf().getBinary(), response);
     }
 
     public void sendEnabledToPeripheral(byte channel, boolean response) {
-        byte[] d = getEnabledBinary(channel);
+        HiFiToyDataBuf d = getEnabledDataBuf(channel);
 
-        if (d != null) HiFiToyControl.getInstance().sendDataToDsp(d, response);
+        if (d != null) HiFiToyControl.getInstance().sendDataToDsp(d.getBinary(), response);
     }
 
     @Override
@@ -160,7 +162,7 @@ public class Drc implements HiFiToyObject, Cloneable {
         }
     }
 
-    private byte[] getEvaluationBinary() {
+    private HiFiToyDataBuf getEvaluationDataBuf() {
         int d = 0;
         for (int i = 7; i >= 0; i--){
             d <<= 2;
@@ -169,40 +171,31 @@ public class Drc implements HiFiToyObject, Cloneable {
 
         ByteBuffer b = ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
         b.putInt(d);
-        b.putInt((int)(evaluationCh[7] & 0x03));
+        b.putInt((evaluationCh[7] & 0x03));
 
-        HiFiToyDataBuf data = new HiFiToyDataBuf(getAddress(), b);
-        return data.getBinary().array();
+        return new HiFiToyDataBuf(getAddress(), b);
     }
 
-    private byte[] getEnabledBinary(byte channel) {
+    private HiFiToyDataBuf getEnabledDataBuf(byte channel) {
         if ( (channel < 0) || (channel > 7) ) return null;
 
         ByteBuffer b = ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
         b.putInt(0x800000 - (int)(0x800000 * enabledCh[channel]));
         b.putInt((int)(0x800000 * enabledCh[channel]));
 
-        HiFiToyDataBuf data = new HiFiToyDataBuf((byte)(TAS5558.DRC_BYPASS1_REG + channel), b);
-        return data.getBinary().array();
+        return new HiFiToyDataBuf((byte)(TAS5558.DRC_BYPASS1_REG + channel), b);
     }
 
     @Override
-    public byte[] getBinary() {
-        byte[] data = new byte[0];
+    public List<HiFiToyDataBuf> getDataBufs() {
+        List<HiFiToyDataBuf> l = new ArrayList<>();
 
-        if (coef17 != null)         data = BinaryOperation.concatData(data, coef17.getBinary());
-        if (coef8 != null)          data = BinaryOperation.concatData(data, coef8.getBinary());
-        if (timeConst17 != null)    data = BinaryOperation.concatData(data, timeConst17.getBinary());
-        if (timeConst8 != null)     data = BinaryOperation.concatData(data, timeConst8.getBinary());
+        if (coef17 != null)         l.addAll(coef17.getDataBufs());
+        if (coef8 != null)          l.addAll(coef8.getDataBufs());
+        if (timeConst17 != null)    l.addAll(timeConst17.getDataBufs());
+        if (timeConst8 != null)     l.addAll(timeConst8.getDataBufs());
 
-        data = BinaryOperation.concatData(data, getEvaluationBinary());
-
-        for (byte i = 0; i < 8; i++) {
-            byte[] d = getEnabledBinary(i);
-            if (d != null) data = BinaryOperation.concatData(data, d);
-        }
-
-        return data;
+        return l;
     }
 
     @Override

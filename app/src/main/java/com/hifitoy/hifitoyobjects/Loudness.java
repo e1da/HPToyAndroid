@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -111,23 +112,25 @@ public class Loudness implements HiFiToyObject, Cloneable {
 
     @Override
     public void sendToPeripheral(boolean response) {
-        HiFiToyControl.getInstance().sendDataToDsp(getMainBinary(), response);
+        HiFiToyControl.getInstance().sendDataToDsp(getMainDataBuf().getBinary(), response);
     }
 
-    private byte[] getMainBinary() {
+    private HiFiToyDataBuf getMainDataBuf() {
         ByteBuffer b = ByteBuffer.allocate(20);
         b.put(Number523.get523BigEnd(LG));
         b.put(Number523.get523BigEnd(LO));
         b.put(Number523.get523BigEnd(gain));
         b.put(Number523.get523BigEnd(offset));
 
-        HiFiToyDataBuf data = new HiFiToyDataBuf(getAddress(), b);
-        return data.getBinary().array();
+        return new HiFiToyDataBuf(getAddress(), b);
     }
 
     @Override
-    public byte[] getBinary() {
-        return BinaryOperation.concatData(getMainBinary(), biquad.getBinary());
+    public List<HiFiToyDataBuf> getDataBufs() {
+        List<HiFiToyDataBuf> data = biquad.getDataBufs();
+        data.add(getMainDataBuf());
+
+        return data;
     }
 
     @Override

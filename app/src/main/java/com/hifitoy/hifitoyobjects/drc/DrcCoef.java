@@ -12,6 +12,7 @@ import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoynumbers.Number523;
 import com.hifitoy.hifitoynumbers.Number88;
 import com.hifitoy.hifitoynumbers.Number923;
+import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import com.hifitoy.hifitoyobjects.HiFiToyObject;
 import com.hifitoy.tas5558.TAS5558;
@@ -21,7 +22,11 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -165,14 +170,13 @@ public class DrcCoef implements HiFiToyObject, Cloneable {
         b.put(point3.get88Binary());
 
         //send data
-        HiFiToyControl.getInstance().sendDataToDsp(b.array(), response);
+        HiFiToyControl.getInstance().sendDataToDsp(b, response);
     }
 
     @Override
-    public byte[] getBinary() {
+    public List<HiFiToyDataBuf> getDataBufs() {
         ByteBuffer b = new DrcParam(point0, point1, point2, point3).getBinary();
-        HiFiToyDataBuf data = new HiFiToyDataBuf(getAddress(), b);
-        return data.getBinary().array();
+        return new ArrayList<>(Collections.singletonList(new HiFiToyDataBuf(getAddress(), b)));
     }
 
     @Override

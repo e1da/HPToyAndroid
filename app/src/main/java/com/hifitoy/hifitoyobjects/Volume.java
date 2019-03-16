@@ -7,6 +7,8 @@
 package com.hifitoy.hifitoyobjects;
 
 import android.util.Log;
+import android.widget.LinearLayout;
+
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.xml.XmlData;
 import org.xmlpull.v1.XmlPullParser;
@@ -14,7 +16,11 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -111,11 +117,11 @@ public class Volume implements HiFiToyObject, Cloneable {
 
     @Override
     public void sendToPeripheral(boolean response) {
-        HiFiToyControl.getInstance().sendDataToDsp(getBinary(), response);
+        HiFiToyControl.getInstance().sendDataToDsp(BinaryOperation.getBinary(getDataBufs()), response);
     }
 
     @Override
-    public byte[] getBinary() {
+    public List<HiFiToyDataBuf> getDataBufs() {
         int v = 0x245;
         if (db > HW_MUTE_DB) {
             v = (int) ((18.0f - db) / 0.25);
@@ -127,7 +133,7 @@ public class Volume implements HiFiToyObject, Cloneable {
         b.putInt(v);
 
         HiFiToyDataBuf data = new HiFiToyDataBuf(address, b);
-        return data.getBinary().array();
+        return new ArrayList<>(Collections.singletonList(data));
     }
 
     @Override
