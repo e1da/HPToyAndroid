@@ -33,7 +33,7 @@ public class EnergyConfig {
         usbTimeout120ms = 0;    // not used
     }
 
-    public byte[] getBinary() {
+    public ByteBuffer getBinary() {
         ByteBuffer b = ByteBuffer.allocate(12);
         b.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -42,7 +42,14 @@ public class EnergyConfig {
         b.putShort(auxTimeout120ms);
         b.putShort(usbTimeout120ms);
 
-        return b.array();
+        return b;
+    }
+
+    public void parseBinary(ByteBuffer b) {
+        highThresholdDb = b.getFloat();
+        lowThresholdDb = b.getFloat();
+        auxTimeout120ms = b.getShort();
+        usbTimeout120ms = b.getShort();
     }
 
     public void setValues(byte[] data) {

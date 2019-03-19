@@ -134,6 +134,12 @@ public class HiFiToyPreset implements HiFiToyObject {
         checkSum = Checksummer.calc(BinaryOperation.getBinary(getDataBufs()));
     }
 
+    public void storeToPeripheral() {
+        PeripheralData peripheralData = new PeripheralData();
+        peripheralData.setBiquadTypes(filters.getBiquadTypes());
+        peripheralData.setDataBufs(getDataBufs());
+        peripheralData.exportStateFromPresetOffset();
+    }
 
     @Override
     public byte getAddress() {

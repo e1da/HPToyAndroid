@@ -12,10 +12,17 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.hifitoycontrol.CommonCommand;
+import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.Biquad;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.List;
+
+import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC;
 
 public class HiFiToyDevice implements StoreInterface {
     private static final String TAG = "HiFiToy";
@@ -24,18 +31,10 @@ public class HiFiToyDevice implements StoreInterface {
     private String  name;
     private String  activeKeyPreset;
 
-    //peripheral structure                                  // offset
-    private final byte                  i2cAddr = 0x34;     // 0x00
-    private byte                        successWriteFlag;   // 0x01
-    public final short                  version = 11;       // 0x02
-    private int                         pairingCode;        // 0x04
-    private AudioSource                 audioSource;        // 0x08
-    private AdvertiseMode               advertiseMode;      // 0x09 0x01
-    private EnergyConfig                energyConfig;       // 0x0C
-    private byte[]                      biquadTypes;        // 0x18 0x07
-    private short                       dataBufLength;      // 0x20
-    private short                       dataBytesLength;    // 0x22
-    private ArrayList<HiFiToyDataBuf>   dataBufs;           // 0x24
+    private int                         pairingCode;
+    private AudioSource                 audioSource;
+    private AdvertiseMode               advertiseMode;
+    private EnergyConfig                energyConfig;
 
     public HiFiToyDevice() {
         setDefault();
@@ -46,12 +45,10 @@ public class HiFiToyDevice implements StoreInterface {
         name = "Demo";
         activeKeyPreset = "DefaultPreset";
 
-        successWriteFlag = 1;
         pairingCode = 0;
         audioSource = new AudioSource();
         advertiseMode = new AdvertiseMode();
         energyConfig = new EnergyConfig();
-
 
     }
 
@@ -74,19 +71,21 @@ public class HiFiToyDevice implements StoreInterface {
     public void     setPairingCode(int pairingCode){
         this.pairingCode = pairingCode;
     }
+    public short getVersion() {
+        return PeripheralData.VERSION;
+    }
     public String   getActiveKeyPreset(){
         return activeKeyPreset;
     }
     public boolean  setActiveKeyPreset(String key){
-        //if preset with key exist
-        /*if (DspPresetManager.getInstance().getDspPreset(key) != null){
+        if (HiFiToyPresetManager.getInstance().getPreset(key) != null) {
             activeKeyPreset = key;
             return true;
-        }*/
+        }
         return false;
     }
     public HiFiToyPreset getActivePreset() {
-        return new HiFiToyPreset();
+        return HiFiToyPresetManager.getInstance().getPreset(activeKeyPreset);
     }
 
     public AudioSource      getAudioSource() {
@@ -109,7 +108,9 @@ public class HiFiToyDevice implements StoreInterface {
     }
 
     public void restoreFactorySettings() {
-
+        setDefault();
+        PeripheralData peripheralData = new PeripheralData(this);
+        peripheralData.exportState();
     }
 
     @Override

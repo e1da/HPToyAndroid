@@ -14,6 +14,8 @@ public class ApplicationContext {
     private static ApplicationContext instance;
     private Context context;
 
+    public final static String EXTRA_DATA = "com.hifitoy.EXTRA_DATA";
+
     public static ApplicationContext getInstance(){
         if (instance == null){
             instance = new ApplicationContext();
@@ -31,6 +33,11 @@ public class ApplicationContext {
 
     public void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
+        context.sendBroadcast(intent);
+    }
+    public void broadcastUpdate(final String action, byte[] data) {
+        final Intent intent = new Intent(action);
+        intent.putExtra(EXTRA_DATA, data);
         context.sendBroadcast(intent);
     }
 

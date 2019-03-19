@@ -4,6 +4,8 @@ import com.hifitoy.hifitoyobjects.basstreble.BassTreble;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.List;
 import java.util.Locale;
 import static org.junit.Assert.*;
 
@@ -47,6 +49,11 @@ public class BassTrebleTest {
         assertEquals(bt1, bt1);
         assertNotEquals(bt0, bt1);
 
+    }
+
+    @Test
+    public void testGetDataBufs() {
+        List<HiFiToyDataBuf> bufs = bt0.getDataBufs();
     }
 
 }

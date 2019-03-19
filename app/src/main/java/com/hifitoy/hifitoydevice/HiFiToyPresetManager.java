@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
@@ -30,6 +31,9 @@ public class HiFiToyPresetManager {
     public static synchronized HiFiToyPresetManager getInstance(){
         if (instance == null){
             instance = new HiFiToyPresetManager();
+            if (instance.getPreset("DefaultPreset") == null) {
+                instance.setPreset("DefaultPreset", new HiFiToyPreset());
+            }
         }
         return instance;
     }
@@ -75,8 +79,10 @@ public class HiFiToyPresetManager {
             ObjectOutputStream os = new ObjectOutputStream(fos);
             os.writeObject(presetMap);
             os.close();
-        } catch (IOException w) {
-            w.printStackTrace();
+        } catch (NotSerializableException e) {
+            Log.d(TAG, e.toString());
+        } catch (IOException e) {
+            Log.d(TAG, e.toString());
         }
     }
 

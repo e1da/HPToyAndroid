@@ -28,6 +28,7 @@ import com.hifitoy.ApplicationContext;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
+import com.hifitoy.hifitoydevice.PeripheralData;
 
 public class DialogSystem {
 
@@ -312,6 +313,24 @@ public class DialogSystem {
         showProgressDialog("Send dsp parameters...", maxPackets);
 
     }*/
+
+    /*-------------------------- Show import preset dialog -----------------------------*/
+    public void showImportPresetDialog() {
+        OnClickDialog dialogListener = new OnClickDialog() {
+            public void onPositiveClick(){
+                PeripheralData d = new PeripheralData();
+                d.importState();
+            }
+            public void onNegativeClick(){
+                HiFiToyControl.getInstance().getActiveDevice().getActivePreset().storeToPeripheral();
+            }
+        };
+
+        showDialog(dialogListener,
+                "Preset info",
+                "Import preset from peripheral?",
+                "Ok", "Cancel");
+    }
 
     /*-------------------------- Show import preset progress dialog -----------------------------*/
     /*public void showImportPresetProgressBar(int maxPackets){

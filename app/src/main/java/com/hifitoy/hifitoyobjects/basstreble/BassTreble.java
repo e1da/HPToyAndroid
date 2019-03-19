@@ -28,6 +28,9 @@ import java.util.Map;
 import java.util.Objects;
 import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.BassFreq.BASS_FREQ_125;
 import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.BassTrebleCh.BASS_TREBLE_CH_127;
+import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.BassTrebleCh.BASS_TREBLE_CH_34;
+import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.BassTrebleCh.BASS_TREBLE_CH_56;
+import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.BassTrebleCh.BASS_TREBLE_CH_8;
 import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.TrebleFreq.TREBLE_FREQ_11000;
 
 public class BassTreble implements HiFiToyObject, Cloneable {
@@ -40,22 +43,29 @@ public class BassTreble implements HiFiToyObject, Cloneable {
     private BassTrebleChannel bassTreble56;
     private BassTrebleChannel bassTreble8;
 
-    public BassTreble(BassTrebleChannel bassTreble127, BassTrebleChannel bassTreble34,
-                      BassTrebleChannel bassTreble56, BassTrebleChannel bassTreble8) {
+    public BassTreble() {
         for (byte i = 0; i < 8; i++) {
             setEnabledChannel(i, 0.0f);
         }
-        this.bassTreble127 = bassTreble127;
-        this.bassTreble34 = bassTreble34;
-        this.bassTreble56 = bassTreble56;
-        this.bassTreble8 = bassTreble8;
+
+        bassTreble127 = new BassTrebleChannel(BASS_TREBLE_CH_127, BASS_FREQ_125, (byte)0, TREBLE_FREQ_11000, (byte)0);
+        bassTreble34 = new BassTrebleChannel(BASS_TREBLE_CH_34, BASS_FREQ_125, (byte)0, TREBLE_FREQ_11000, (byte)0);
+        bassTreble56 = new BassTrebleChannel(BASS_TREBLE_CH_56, BASS_FREQ_125, (byte)0, TREBLE_FREQ_11000, (byte)0);
+        bassTreble8 = new BassTrebleChannel(BASS_TREBLE_CH_8, BASS_FREQ_125, (byte)0, TREBLE_FREQ_11000, (byte)0);
+    }
+
+    public BassTreble(BassTrebleChannel bassTreble127, BassTrebleChannel bassTreble34,
+                      BassTrebleChannel bassTreble56, BassTrebleChannel bassTreble8) {
+        this();
+
+        if (bassTreble127 != null) this.bassTreble127 = bassTreble127;
+        if (bassTreble34 != null) this.bassTreble34 = bassTreble34;
+        if (bassTreble56 != null) this.bassTreble56 = bassTreble56;
+        if (bassTreble8 != null) this.bassTreble8 = bassTreble8;
     }
     public BassTreble(BassTrebleChannel bassTreble127) {
-        this(bassTreble127, null, null, null);
-    }
-    public BassTreble() {
-        this(null, null, null, null);
-        bassTreble127 = new BassTrebleChannel(BASS_TREBLE_CH_127, BASS_FREQ_125, (byte)0, TREBLE_FREQ_11000, (byte)0);
+        this();
+        if (bassTreble127 != null) this.bassTreble127 = bassTreble127;
     }
 
 
@@ -87,15 +97,10 @@ public class BassTreble implements HiFiToyObject, Cloneable {
             bt.enabledCh[i] = enabledCh[i];
         }
 
-        bt.bassTreble127 = null;
-        bt.bassTreble34 = null;
-        bt.bassTreble56 = null;
-        bt.bassTreble8 = null;
-
-        if (bassTreble127 != null) bt.bassTreble127 = bassTreble127.clone();
-        if (bassTreble34 != null) bt.bassTreble34 = bassTreble34.clone();
-        if (bassTreble56 != null) bt.bassTreble56 = bassTreble56.clone();
-        if (bassTreble8 != null) bt.bassTreble8 = bassTreble8.clone();
+        bt.bassTreble127 = bassTreble127.clone();
+        bt.bassTreble34 = bassTreble34.clone();
+        bt.bassTreble56 = bassTreble56.clone();
+        bt.bassTreble8 = bassTreble8.clone();
 
         return bt;
     }
@@ -206,10 +211,10 @@ public class BassTreble implements HiFiToyObject, Cloneable {
             xmlData.addXmlElement(String.format(Locale.getDefault(), "enabledCh%d", i), enabledCh[i]);
         }
 
-        if (bassTreble127 != null)  xmlData.addXmlData(bassTreble127.toXmlData());
-        if (bassTreble34 != null)   xmlData.addXmlData(bassTreble34.toXmlData());
-        if (bassTreble56 != null)   xmlData.addXmlData(bassTreble56.toXmlData());
-        if (bassTreble8 != null)    xmlData.addXmlData(bassTreble8.toXmlData());
+        xmlData.addXmlData(bassTreble127.toXmlData());
+        xmlData.addXmlData(bassTreble34.toXmlData());
+        xmlData.addXmlData(bassTreble56.toXmlData());
+        xmlData.addXmlData(bassTreble8.toXmlData());
 
         XmlData bassTrebleXmlData = new XmlData();
         Map<String, String> attrib = new HashMap<>();

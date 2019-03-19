@@ -31,8 +31,10 @@ import com.hifitoy.ble.BleFinder;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
+import com.hifitoy.hifitoyobjects.BinaryOperation;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.List;
@@ -52,10 +54,15 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     private BleFinder           bleFinder = null;
     private HiFiToyDevice       activeDevice = null;
     private BluetoothGatt       mBluetoothGatt = null;
+    private boolean             bleBusy = false;
 
-    public final static String ENERGY_UPDATE = "com.hifitoy.ENERGY_UPDATE";
-    public final static String ADVERTISE_MODE_UPDATE = "com.hifitoy.ADVERTISE_MODE_UPDATE";
-    public final static String AUDIO_SOURCE_UPDATE = "com.hifitoy.AUDIO_SOURCE_UPDATE";
+    private final static short CC2540_PAGE_SIZE   = 2048;
+    private final static short ATTACH_PAGE_OFFSET = (3 * CC2540_PAGE_SIZE); // 3 page
+
+    public final static String ENERGY_UPDATE            = "com.hifitoy.ENERGY_UPDATE";
+    public final static String ADVERTISE_MODE_UPDATE    = "com.hifitoy.ADVERTISE_MODE_UPDATE";
+    public final static String AUDIO_SOURCE_UPDATE      = "com.hifitoy.AUDIO_SOURCE_UPDATE";
+    public final static String DID_GET_PARAM_DATA       = "com.hifitoy.DID_GET_PARAM_DATA";
 
     private final static UUID FFF1_UUID =
             UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb");
@@ -96,6 +103,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                 case DISCONNECTED:
                     Log.d(TAG, "Disconnected from GATT server.");
                     packets.clear();
+                    bleBusy = false;
 
                     if (connectionDelegate != null) connectionDelegate.didDisconnect();
 
@@ -344,6 +352,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
         @Override
         public void onCharacteristicWrite (BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status){
+            Log.d(TAG, "onCharacteristicWrite");
 
             if (characteristic.getUuid().equals(FFF1_UUID)){
                 packets.remove();
@@ -352,14 +361,15 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                 if (connectionDelegate != null) connectionDelegate.didWriteData(packets.size());
 
                 if (packets.size() > 0) {
+                    bleBusy = true;
+
                     BlePacket packet = packets.element();
                     //send packet
                     FFF1_Char.setValue(packet.getData());
 
-                    if (!mBluetoothGatt.writeCharacteristic(FFF1_Char)){
-                        Log.d(TAG, "Write characteristic is unsuccesful!");
-                    }
+                    writeCharacterstic(FFF1_Char);
                 } else {
+                    bleBusy = false;
                     if (connectionDelegate != null) connectionDelegate.didWriteAllData();
                 }
             }
@@ -377,13 +387,15 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
+            Log.d(TAG, "onCharacteristicChanged");
+
             byte[] data = characteristic.getValue();
 
             if ( (data.length == 13) && (data[0] == CommonCommand.GET_ENERGY_CONFIG) ) { // get energy config
                 Log.d(TAG, "GET_ENERGY_CONFIG");
 
                 data = Arrays.copyOfRange(data, 1, data.length);
-                activeDevice.getEnergyConfig().setValues(data);
+                activeDevice.getEnergyConfig().parseBinary(ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN));
 
                 ApplicationContext.getInstance().broadcastUpdate(ENERGY_UPDATE);
             }
@@ -435,7 +447,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                     {
                         int version = ((int)data[2]) * 256 + (int)data[1];
 
-                        if (version == activeDevice.version) {
+                        if (version == activeDevice.getVersion()) {
                             Log.d(TAG, "GET_VERSION_OK");
                             activeDevice.getAudioSource().readFromDsp();
                         } else {
@@ -446,11 +458,21 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                     }
                     case CommonCommand.GET_CHECKSUM:
                         int checksum = ((int)data[2]) * 256 + (int)data[1];
-                        Log.d(TAG, "GET_CHECKSUM " + checksum);
-
-                        //[self comparePreset:checksum];
+                        Log.d(TAG, "GET_CHECKSUM=" + checksum +
+                                " APP_CHECKSUM=" + activeDevice.getActivePreset().getChecksum());
 
                         state.setState(ConnectionState.CONNECTION_READY);
+
+                        if (activeDevice.getActivePreset().getChecksum() != checksum) {
+                            Handler mainHandler = new Handler(Looper.getMainLooper());
+                            Runnable myRunnable = new Runnable() {
+                                @Override
+                                public void run() {
+                                    DialogSystem.getInstance().showImportPresetDialog();
+                                }
+                            };
+                            mainHandler.post(myRunnable);
+                        }
                         break;
 
                     case CommonCommand.GET_AUDIO_SOURCE:
@@ -470,7 +492,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                         break;
 
                     case CommonCommand.CLIP_DETECTION:
-                        Log.d(TAG, "CLIP_DETECTION " + status);
+                        //Log.d(TAG, "CLIP_DETECTION " + status);
 
                         //NSNumber * clip = [NSNumber numberWithInt:status];
                         //[[NSNotificationCenter defaultCenter] postNotificationName:@"ClipDetectionNotification" object:clip];
@@ -492,6 +514,8 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
             if (data.length == 20){ // Get data from storage
                 if (connectionDelegate != null) connectionDelegate.didGetParamData(data);
+
+                ApplicationContext.getInstance().broadcastUpdate(DID_GET_PARAM_DATA, data);
             }
         }
 
@@ -528,7 +552,8 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
         packets.add(packet); // with response
 
-        if (packets.size() == 1) {
+        if (!bleBusy) {
+            bleBusy = true;
             BlePacket p = packets.element();
 
             //send packet
@@ -543,6 +568,8 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
         if (!mBluetoothGatt.writeCharacteristic(characteristic)){
             Log.d(TAG, "Write characteristic is unsuccesful!");
+        } else {
+            Log.d(TAG, "writeCharacteristic");
         }
     }
     private void readCharacteristic(BluetoothGattCharacteristic characteristic) {
@@ -563,6 +590,55 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         sendDataToDsp(data.array(), response);
     }
 
+    //send 16 bytes to DSP_Data[offset]
+    private void send16Bytes(short offset, ByteBuffer data) {
+        if (data.capacity() != 16) return;
+
+        ByteBuffer b = ByteBuffer.allocate(18).order(ByteOrder.LITTLE_ENDIAN);
+        b.putShort(offset);
+        b.put(data);
+
+        sendDataToDsp(b, true);
+    }
+    private void moveAttachPgToDspData(short offset, short length){
+        ByteBuffer b = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN);
+        b.putShort(offset);
+        b.putShort(length);
+
+        sendDataToDsp(b, true);
+    }
+
+    //this method used attach page
+    public void sendBufToDsp(short offsetInDspData, ByteBuffer data) {
+        int l = CC2540_PAGE_SIZE - offsetInDspData % CC2540_PAGE_SIZE;
+        if (l > data.capacity()) l = data.capacity();
+
+        short offset = 0;
+
+        do {
+            //send buf to attach page
+            for (int i = 0; i < l; i += 16){
+                ByteBuffer b = BinaryOperation.copyOfRange(data, offset + i, offset + i + 16);
+                send16Bytes((short)((ATTACH_PAGE_OFFSET + i) >>> 2), b);
+            }
+            //move attach pg -> dsp data
+            moveAttachPgToDspData((short)(offsetInDspData + offset), (short)l);
+
+            //update
+            offset += l;
+            l = data.capacity() - offset;
+            if (l > CC2540_PAGE_SIZE) l = CC2540_PAGE_SIZE;
+
+            //condition
+        } while (offset < data.capacity());
+    }
+
+    //get 20 bytes from DSP_Data[offset]
+    public void getDspDataWithOffset(short offset) {
+        ByteBuffer b = ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN);
+        b.putShort(offset);
+        sendDataToDsp(b, true);
+    }
 
     //sys command
     public void sendNewPairingCode(int pairingCode) {
@@ -585,7 +661,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
         sendDataToDsp(d, true);
     }
-    private void sendWriteFlag(byte writeFlag) {
+    public void sendWriteFlag(byte writeFlag) {
         byte[] d = { CommonCommand.SET_WRITE_FLAG, writeFlag, 0, 0, 0 };
         sendDataToDsp(d, true);
     }
@@ -601,23 +677,9 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         byte[] d = { CommonCommand.GET_CHECKSUM, 0, 0, 0, 0 };
         sendDataToDsp(d, true);
     }
-    private void setInitDsp() {
+    public void setInitDsp() {
         byte[] d = { CommonCommand.INIT_DSP, 0, 0, 0, 0 };
         sendDataToDsp(d, true);
-    }
-
-
-    //adv command (save/restore to/from storage)
-   /* - (void) restoreFactorySettings;
-    - (void) storePresetToDSP:(HiFiToyPreset *) preset;*/
-
-    //get 20 bytes from DSP_Data[offset]
-    public void getDspDataWithOffset(short offset) {
-        //if (offset < 0) return;
-
-        ByteBuffer b = ByteBuffer.allocate(2);
-        b.putShort(offset);
-        sendDataToDsp(b.array(), true);
     }
 
     /* ------------------------- IBleFinderDelegate ----------------------------*/

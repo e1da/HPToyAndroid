@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -139,10 +140,13 @@ public class Biquad implements HiFiToyObject, Cloneable{
     @Override
     public List<HiFiToyDataBuf> getDataBufs() {
         ByteBuffer data = params.getBinary();
-        HiFiToyDataBuf dataBuf0 = new HiFiToyDataBuf(address0, data);
-        HiFiToyDataBuf dataBuf1 = (address1 != 0) ? new HiFiToyDataBuf(address1, data) : null;
 
-        return new ArrayList<>(Arrays.asList(dataBuf0, dataBuf1));
+        if (address1 != 0) {
+            return new ArrayList<>(Arrays.asList(   new HiFiToyDataBuf(address0, data),
+                                                    new HiFiToyDataBuf(address1, data) ));
+        }
+
+        return new ArrayList<>(Collections.singletonList(new HiFiToyDataBuf(address0, data)));
     }
 
     //we get data with length==20
