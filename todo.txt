@@ -1,5 +1,13 @@
-+reinput pairing code when peripheral!=app 
-
 -clip ui
 
-+audio source ui
+-(032219)store preset on android phone
+
+-(032219)fixed restore factory
+
+-(032219)fixed store preset to peripheral
+
+-(032219)bind ui controllers(volume, bass, treble ..) to model layer
+
+-(032219)add preset manager menu
+
+ 

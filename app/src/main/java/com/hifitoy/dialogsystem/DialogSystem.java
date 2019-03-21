@@ -318,8 +318,7 @@ public class DialogSystem {
     public void showImportPresetDialog() {
         OnClickDialog dialogListener = new OnClickDialog() {
             public void onPositiveClick(){
-                PeripheralData d = new PeripheralData();
-                d.importState();
+                HiFiToyControl.getInstance().getActiveDevice().importPreset();
             }
             public void onNegativeClick(){
                 HiFiToyControl.getInstance().getActiveDevice().getActivePreset().storeToPeripheral();

@@ -20,11 +20,12 @@ import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC;
 
-public class HiFiToyDevice implements StoreInterface {
+public class HiFiToyDevice implements StoreInterface, PeripheralData.PeripheralDataDelegate {
     private static final String TAG = "HiFiToy";
 
     private String  mac;
@@ -113,6 +114,12 @@ public class HiFiToyDevice implements StoreInterface {
         peripheralData.exportState();
     }
 
+    public void importPreset() {
+        PeripheralData d = new PeripheralData();
+        d.setDelegate(this);
+        d.importState();
+    }
+
     @Override
     public boolean restore(String filename, String key) {
         setDefault();
@@ -157,6 +164,22 @@ public class HiFiToyDevice implements StoreInterface {
 
     public void description(){
         Log.d(TAG, "mac=" + mac + "|name=" + name + "|pair=" + pairingCode);
+    }
+
+    @Override
+    public void didImportData(PeripheralData peripheralData) {
+        HiFiToyPreset importPreset = new HiFiToyPreset();
+        importPreset.setName(Calendar.getInstance().getTime().toString());
+
+        if (importPreset.importFromDataBufs(peripheralData.getDataBufs())) {
+            HiFiToyPresetManager.getInstance().setPreset(importPreset.getName(), importPreset);
+            setActiveKeyPreset(importPreset.getName());
+
+            Log.d(TAG, "Preset import success.");
+        } else {
+            Log.d(TAG, "Preset import unsuccess.");
+        }
+
     }
 }
 
