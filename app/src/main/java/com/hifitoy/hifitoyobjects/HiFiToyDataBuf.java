@@ -35,7 +35,7 @@ public class HiFiToyDataBuf {
         this.data = data;
     }
     public ByteBuffer getData() {
-        return data;
+        return (ByteBuffer) data.position(0);
     }
 
     public ByteBuffer getBinary() {

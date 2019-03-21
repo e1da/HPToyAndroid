@@ -481,19 +481,17 @@ public class Filters implements HiFiToyObject, Cloneable {
         return l;
     }
 
-
     @Override
-    public boolean importData(byte[] data) {
-        /*HiFiToyPeripheral_t * HiFiToy = (HiFiToyPeripheral_t *) data.bytes;
-        for (int i = 0; i < 7; i++) {
-            biquads[i].type = HiFiToy->biquadTypes[i];
-        }*/
+    public boolean importFromDataBufs(List<HiFiToyDataBuf> dataBufs) {
+        if (dataBufs == null) return false;
 
         for (int i = 0; i < 7; i++) {
-            if (!biquads[i].importData(data)) {
+            if (!biquads[i].importFromDataBufs(dataBufs)) {
                 return false;
             }
         }
+
+        Log.d(TAG, "Filters import success.");
         return true;
     }
 

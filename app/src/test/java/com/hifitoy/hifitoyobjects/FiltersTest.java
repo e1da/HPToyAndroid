@@ -40,4 +40,17 @@ public class FiltersTest {
         assertNotEquals(f0, f1);
 
     }
+
+    @Test
+    public void testImport() {
+        f1.getBiquad((byte)0).getParams().setFreq((short)150);
+        assertNotEquals(f0, f1);
+
+        if (!f1.importFromDataBufs(f0.getDataBufs())) {
+            fail("Import fail");
+        }
+
+        assertEquals(f0, f1);
+
+    }
 }

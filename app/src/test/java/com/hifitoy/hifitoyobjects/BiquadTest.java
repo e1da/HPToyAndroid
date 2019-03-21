@@ -11,8 +11,8 @@ import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_HIGHPASS
 import static org.junit.Assert.*;
 
 public class BiquadTest {
-    Biquad b0;
-    Biquad b1;
+    private Biquad b0;
+    private Biquad b1;
 
     @Before
     public void setUp() throws Exception {
@@ -54,6 +54,19 @@ public class BiquadTest {
         assertEquals(b0, b0);
         assertEquals(b1, b1);
         assertNotEquals(b0, b1);
+
+    }
+
+    @Test
+    public void testImport() {
+        b1.getParams().setFreq((short)1000);
+        assertNotEquals(b0, b1);
+
+        if (!b1.importFromDataBufs(b0.getDataBufs())) {
+            fail("Import fail");
+        }
+
+        assertEquals(b0, b1);
 
     }
 }

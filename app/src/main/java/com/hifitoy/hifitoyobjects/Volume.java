@@ -10,6 +10,7 @@ import android.util.Log;
 import android.widget.LinearLayout;
 
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.xml.XmlData;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -61,14 +62,14 @@ public class Volume implements HiFiToyObject, Cloneable {
         if (o == null || getClass() != o.getClass()) return false;
         Volume volume = (Volume) o;
         return address == volume.address &&
-                Float.compare(volume.db, db) == 0 &&
-                Float.compare(volume.maxDb, maxDb) == 0 &&
-                Float.compare(volume.minDb, minDb) == 0;
+                FloatUtility.isFloatDiffLessThan(volume.db, db, 0.02f) &&
+                FloatUtility.isFloatDiffLessThan(volume.maxDb, maxDb, 0.02f) &&
+                FloatUtility.isFloatDiffLessThan(volume.minDb, minDb, 0.02f);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(address, db, maxDb, minDb);
+        return Objects.hash(address);
     }
 
     @Override
@@ -137,7 +138,27 @@ public class Volume implements HiFiToyObject, Cloneable {
     }
 
     @Override
-    public boolean importData(byte[] data) {
+    public boolean importFromDataBufs(List<HiFiToyDataBuf> dataBufs) {
+        if (dataBufs == null) return false;
+
+        for (int i = 0; i < dataBufs.size(); i++) {
+            HiFiToyDataBuf buf = dataBufs.get(i);
+
+            if ((buf.getAddr() == getAddress()) && (buf.getLength() == 4)) {
+                int v = buf.getData().getInt();
+                if (v < 1) v = 1;
+                if (v > 0x245) v = 0x245;
+
+                if (v != 0x245) {
+                    db = 18.0f - v * 0.25f;
+                } else {
+                    db = HW_MUTE_DB;
+                }
+
+                Log.d(TAG, "Volume import success.");
+                return true;
+            }
+        }
         return false;
     }
 

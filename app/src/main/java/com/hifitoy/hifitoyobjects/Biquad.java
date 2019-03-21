@@ -149,19 +149,18 @@ public class Biquad implements HiFiToyObject, Cloneable{
         return new ArrayList<>(Collections.singletonList(new HiFiToyDataBuf(address0, data)));
     }
 
-    //we get data with length==20
     @Override
-    public boolean importData(byte[] data) {
-        return params.importData(data);
-    }
-    public boolean importData1(ArrayList<HiFiToyDataBuf> dataBufs) {
+    public boolean importFromDataBufs(List<HiFiToyDataBuf> dataBufs) {
         if (dataBufs == null) return false;
 
         for (int i = 0; i < dataBufs.size(); i++) {
             HiFiToyDataBuf buf = dataBufs.get(i);
 
-            if ((buf.getAddr() == address0) && (buf.getLength() == 20)) {
-                return params.importData(buf.getData().array());
+            if ((buf.getAddr() == address0) &&
+                    (buf.getLength() == 20) && (params.importData(buf.getData())) ) {
+
+                Log.d(TAG, String.format(Locale.getDefault(), "Biquad=0x%x import success", getAddress()));
+                return true;
             }
         }
         return false;
@@ -382,27 +381,27 @@ public class Biquad implements HiFiToyObject, Cloneable{
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             BiquadParam that = (BiquadParam) o;
-            return Float.compare(that.b0, b0) == 0 &&
-                    Float.compare(that.b1, b1) == 0 &&
-                    Float.compare(that.b2, b2) == 0 &&
-                    Float.compare(that.a1, a1) == 0 &&
-                    Float.compare(that.a2, a2) == 0 &&
+            return FloatUtility.isFloatDiffLessThan(that.b0, b0, 0.01f) &&
+                    FloatUtility.isFloatDiffLessThan(that.b1, b1, 0.01f) &&
+                    FloatUtility.isFloatDiffLessThan(that.b2, b2, 0.01f) &&
+                    FloatUtility.isFloatDiffLessThan(that.a1, a1, 0.01f) &&
+                    FloatUtility.isFloatDiffLessThan(that.a2, a2, 0.01f)  &&
                     freq == that.freq &&
-                    Float.compare(that.qFac, qFac) == 0 &&
-                    Float.compare(that.dbVolume, dbVolume) == 0 &&
+                    FloatUtility.isFloatDiffLessThan(that.qFac, qFac, 0.02f) &&
+                    FloatUtility.isFloatDiffLessThan(that.dbVolume, dbVolume, 0.02f) &&
                     maxFreq == that.maxFreq &&
                     minFreq == that.minFreq &&
-                    Float.compare(that.maxQ, maxQ) == 0 &&
-                    Float.compare(that.minQ, minQ) == 0 &&
-                    Float.compare(that.maxDbVolume, maxDbVolume) == 0 &&
-                    Float.compare(that.minDbVolume, minDbVolume) == 0 &&
+                    FloatUtility.isFloatDiffLessThan(that.maxQ, maxQ, 0.02f) &&
+                    FloatUtility.isFloatDiffLessThan(that.minQ, minQ, 0.02f) &&
+                    FloatUtility.isFloatDiffLessThan(that.maxDbVolume, maxDbVolume, 0.02f) &&
+                    FloatUtility.isFloatDiffLessThan(that.minDbVolume, minDbVolume, 0.02f) &&
                     Objects.equals(order, that.order) &&
                     Objects.equals(type, that.type);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(order, type, b0, b1, b2, a1, a2, freq, qFac, dbVolume, maxFreq, minFreq, maxQ, minQ, maxDbVolume, minDbVolume);
+            return Objects.hash(order, type, freq, maxFreq, minFreq);
         }
 
         //setters getters
@@ -696,14 +695,14 @@ public class Biquad implements HiFiToyObject, Cloneable{
             return b;
         }
         //import from binary
-        public boolean importData(byte[] data) {
-            if (data.length == 20) {
-                ByteBuffer b = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
-                b0 = Number523.toFloat(b.put(data, 0, 4));
-                b1 = Number523.toFloat(b.put(data, 4, 4));
-                b2 = Number523.toFloat(b.put(data, 8, 4));
-                a1 = Number523.toFloat(b.put(data, 12, 4));
-                a2 = Number523.toFloat(b.put(data, 16, 4));
+        public boolean importData(ByteBuffer b) {
+
+            if (b.capacity() == 20) {
+                b0 = Number523.toFloat(BinaryOperation.copyOfRange(b, 0, 4));
+                b1 = Number523.toFloat(BinaryOperation.copyOfRange(b, 4, 8));
+                b2 = Number523.toFloat(BinaryOperation.copyOfRange(b, 8, 12));
+                a1 = Number523.toFloat(BinaryOperation.copyOfRange(b, 12, 16));
+                a2 = Number523.toFloat(BinaryOperation.copyOfRange(b, 16, 20));
 
                 updateOrder();
                 update(b0, b1, b2, a1, a2);

@@ -9,6 +9,7 @@ package com.hifitoy.hifitoyobjects;
 import android.util.Log;
 
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoynumbers.Number523;
 import com.hifitoy.tas5558.TAS5558;
 import com.hifitoy.xml.XmlData;
@@ -56,16 +57,16 @@ public class Loudness implements HiFiToyObject, Cloneable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Loudness loudness = (Loudness) o;
-        return Float.compare(loudness.LG, LG) == 0 &&
-                Float.compare(loudness.LO, LO) == 0 &&
-                Float.compare(loudness.gain, gain) == 0 &&
-                Float.compare(loudness.offset, offset) == 0 &&
+        return FloatUtility.isFloatDiffLessThan(loudness.LG, LG, 0.02f) &&
+                FloatUtility.isFloatDiffLessThan(loudness.LO, LO, 0.02f) &&
+                FloatUtility.isFloatDiffLessThan(loudness.gain, gain, 0.02f) &&
+                FloatUtility.isFloatDiffLessThan(loudness.offset, offset, 0.02f) &&
                 Objects.equals(biquad, loudness.biquad);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(biquad, LG, LO, gain, offset);
+        return Objects.hash(biquad);
     }
 
     @Override
@@ -116,7 +117,7 @@ public class Loudness implements HiFiToyObject, Cloneable {
     }
 
     private HiFiToyDataBuf getMainDataBuf() {
-        ByteBuffer b = ByteBuffer.allocate(20);
+        ByteBuffer b = ByteBuffer.allocate(16);
         b.put(Number523.get523BigEnd(LG));
         b.put(Number523.get523BigEnd(LO));
         b.put(Number523.get523BigEnd(gain));
@@ -134,7 +135,27 @@ public class Loudness implements HiFiToyObject, Cloneable {
     }
 
     @Override
-    public boolean importData(byte[] data) {
+    public boolean importFromDataBufs(List<HiFiToyDataBuf> dataBufs) {
+        if (dataBufs == null) return false;
+
+        if (!biquad.importFromDataBufs(dataBufs)) return false;
+
+        for (int i = 0; i < dataBufs.size(); i++) {
+            HiFiToyDataBuf buf = dataBufs.get(i);
+
+            if ((buf.getAddr() == getAddress()) && (buf.getLength() == 16)) {
+                ByteBuffer b = buf.getData().order(ByteOrder.BIG_ENDIAN);
+
+                LG = Number523.toFloat(BinaryOperation.copyOfRange(b, 0, 4));
+                LO = Number523.toFloat(BinaryOperation.copyOfRange(b, 4, 8));
+                gain = Number523.toFloat(BinaryOperation.copyOfRange(b, 8, 12));
+                offset = Number523.toFloat(BinaryOperation.copyOfRange(b, 12, 16));
+
+                Log.d(TAG, "Loudness import success.");
+                return true;
+            }
+        }
+
         return false;
     }
 

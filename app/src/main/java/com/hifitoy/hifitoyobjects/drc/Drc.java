@@ -8,6 +8,7 @@ package com.hifitoy.hifitoyobjects.drc;
 
 import android.util.Log;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoynumbers.Number523;
 import com.hifitoy.hifitoynumbers.Number88;
 import com.hifitoy.hifitoynumbers.Number923;
@@ -29,6 +30,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.hifitoy.hifitoyobjects.drc.DrcChannel.DRC_CH_1_7;
+import static com.hifitoy.hifitoyobjects.drc.DrcChannel.DRC_CH_8;
+import static com.hifitoy.tas5558.TAS5558.DRC_BYPASS1_REG;
+
 public class Drc implements HiFiToyObject, Cloneable {
     private static final String TAG = "HiFiToy";
 
@@ -40,30 +45,47 @@ public class Drc implements HiFiToyObject, Cloneable {
     private DrcTimeConst    timeConst17;
     private DrcTimeConst    timeConst8;
 
-    public Drc (DrcCoef coef17, DrcCoef coef8, DrcTimeConst timeConst17, DrcTimeConst timeConst8) {
-        this.coef17 = coef17;
-        this.coef8 = coef8;
-        this.timeConst17 = timeConst17;
-        this.timeConst8 = timeConst8;
-
+    public Drc() {
         enabledCh = new float[8];
         evaluationCh = new byte[8];
         for (int i = 0; i < 8; i++) {
             enabledCh[i] = 0.0f;
             evaluationCh[i] = DrcEvaluation.DISABLED_EVAL;
         }
+
+        this.coef17         = new DrcCoef(DRC_CH_1_7);
+        this.coef8          = new DrcCoef(DRC_CH_8);
+        this.timeConst17    = new DrcTimeConst(DRC_CH_1_7);
+        this.timeConst8     = new DrcTimeConst(DRC_CH_1_7);
     }
     public Drc (DrcCoef coef17, DrcTimeConst timeConst17) {
-        this(coef17, null, timeConst17, null);
+        this();
+
+        if (coef17 != null) this.coef17 = coef17;
+        if (timeConst17 != null) this.timeConst17 = timeConst17;
     }
+    public Drc (DrcCoef coef17, DrcCoef coef8, DrcTimeConst timeConst17, DrcTimeConst timeConst8) {
+        this();
+
+        if (coef17 != null) this.coef17 = coef17;
+        if (coef8 != null) this.coef8 = coef8;
+        if (timeConst17 != null) this.timeConst17 = timeConst17;
+        if (timeConst8 != null) this.timeConst8 = timeConst8;
+    }
+
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Drc drc = (Drc) o;
-        return Arrays.equals(enabledCh, drc.enabledCh) &&
-                Arrays.equals(evaluationCh, drc.evaluationCh) &&
+
+        for (int i = 0; i < 8; i++) {
+            if (!FloatUtility.isFloatDiffLessThan(enabledCh[i], drc.enabledCh[i], 0.01f)) {
+                return false;
+            }
+        }
+        return Arrays.equals(evaluationCh, drc.evaluationCh) &&
                 Objects.equals(coef17, drc.coef17) &&
                 Objects.equals(coef8, drc.coef8) &&
                 Objects.equals(timeConst17, drc.timeConst17) &&
@@ -73,7 +95,6 @@ public class Drc implements HiFiToyObject, Cloneable {
     @Override
     public int hashCode() {
         int result = Objects.hash(coef17, coef8, timeConst17, timeConst8);
-        result = 31 * result + Arrays.hashCode(enabledCh);
         result = 31 * result + Arrays.hashCode(evaluationCh);
         return result;
     }
@@ -89,15 +110,10 @@ public class Drc implements HiFiToyObject, Cloneable {
             drc.evaluationCh[i] = evaluationCh[i];
         }
 
-        drc.coef17      = null;
-        drc.coef8       = null;
-        drc.timeConst17 = null;
-        drc.timeConst8  = null;
-
-        if (coef17 != null)         drc.coef17 = coef17.clone();
-        if (coef8 != null)          drc.coef8 = coef8.clone();
-        if (timeConst17 != null)    drc.timeConst17 = timeConst17.clone();
-        if (timeConst8 != null)     drc.timeConst8 = timeConst8.clone();
+        drc.coef17 = coef17.clone();
+        drc.coef8 = coef8.clone();
+        drc.timeConst17 = timeConst17.clone();
+        drc.timeConst8 = timeConst8.clone();
 
         return drc;
     }
@@ -151,10 +167,10 @@ public class Drc implements HiFiToyObject, Cloneable {
 
     @Override
     public void sendToPeripheral(boolean response) {
-        if (coef17 != null)         coef17.sendToPeripheral(response);
-        if (coef8 != null)          coef8.sendToPeripheral(response);
-        if (timeConst17 != null)    timeConst17.sendToPeripheral(response);
-        if (timeConst8 != null)     timeConst8.sendToPeripheral(response);
+        coef17.sendToPeripheral(response);
+        coef8.sendToPeripheral(response);
+        timeConst17.sendToPeripheral(response);
+        timeConst8.sendToPeripheral(response);
         sendEvaluationToPeripheral(response);
 
         for (byte i = 0; i < 8; i++) {
@@ -183,23 +199,69 @@ public class Drc implements HiFiToyObject, Cloneable {
         b.putInt(0x800000 - (int)(0x800000 * enabledCh[channel]));
         b.putInt((int)(0x800000 * enabledCh[channel]));
 
-        return new HiFiToyDataBuf((byte)(TAS5558.DRC_BYPASS1_REG + channel), b);
+        return new HiFiToyDataBuf((byte)(DRC_BYPASS1_REG + channel), b);
     }
 
     @Override
     public List<HiFiToyDataBuf> getDataBufs() {
         List<HiFiToyDataBuf> l = new ArrayList<>();
 
-        if (coef17 != null)         l.addAll(coef17.getDataBufs());
-        if (coef8 != null)          l.addAll(coef8.getDataBufs());
-        if (timeConst17 != null)    l.addAll(timeConst17.getDataBufs());
-        if (timeConst8 != null)     l.addAll(timeConst8.getDataBufs());
+        l.addAll(coef17.getDataBufs());
+        l.addAll(coef8.getDataBufs());
+        l.addAll(timeConst17.getDataBufs());
+        l.addAll(timeConst8.getDataBufs());
+
+        l.add(getEvaluationDataBuf());
+
+        for (byte i = 0; i < 8; i++){
+            l.add(getEnabledDataBuf(i));
+        }
 
         return l;
     }
 
     @Override
-    public boolean importData(byte[] data) {
+    public boolean importFromDataBufs(List<HiFiToyDataBuf> dataBufs) {
+        if (dataBufs == null) return false;
+
+        if (!coef17.importFromDataBufs(dataBufs)) return false;
+        if (!coef17.importFromDataBufs(dataBufs)) return false;
+        if (!timeConst17.importFromDataBufs(dataBufs)) return false;
+        if (!timeConst8.importFromDataBufs(dataBufs)) return false;
+
+        int importCounter = 0;
+
+        for (int i = 0; i < dataBufs.size(); i++) {
+            HiFiToyDataBuf buf = dataBufs.get(i);
+
+            if ((buf.getAddr() == getAddress()) && (buf.getLength() == 8)) {
+                int d = buf.getData().getInt(0);
+
+                for (int u = 0; u < 7; u++){
+                    evaluationCh[u] = (byte)(d & 0x03);
+                    d >>>= 2;
+                }
+                evaluationCh[7] = (byte)(buf.getData().getInt(1) & 0x03);
+
+                importCounter++;
+            }
+
+            if ((buf.getAddr() >= DRC_BYPASS1_REG) &&
+                    (buf.getAddr() < DRC_BYPASS1_REG + 8) && (buf.getLength() == 8)) {
+
+                float val = Number523.toFloat(BinaryOperation.copyOfRange(buf.getData(), 4, 8));
+                enabledCh[buf.getAddr() - DRC_BYPASS1_REG] = val;
+
+                importCounter++;
+            }
+
+            if (importCounter >= 9) {
+                Log.d(TAG, "Drc import success.");
+                return true;
+            }
+
+        }
+
         return false;
     }
 

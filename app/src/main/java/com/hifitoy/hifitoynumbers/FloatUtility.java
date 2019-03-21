@@ -33,4 +33,10 @@ public class FloatUtility {
     public static boolean isFloatDiffLessThan(float f0, float f1, float maxDiff) {
         return Math.abs(f0 - f1) < maxDiff;
     }
+
+    //perc >= 0.0
+    public static boolean isFloatDiffLessThanPerc(float f0, float f1, float perc) {
+        if (perc < 0.0f) perc = 0.0f;
+        return Math.abs(f0 - f1) / Math.max(Math.abs(f0), Math.abs(f1)) < perc / 100.0f;
+    }
 }

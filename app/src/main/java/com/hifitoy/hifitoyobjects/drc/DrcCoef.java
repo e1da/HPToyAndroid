@@ -9,6 +9,7 @@ package com.hifitoy.hifitoyobjects.drc;
 import android.util.Log;
 
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoynumbers.Number523;
 import com.hifitoy.hifitoynumbers.Number88;
 import com.hifitoy.hifitoynumbers.Number923;
@@ -31,6 +32,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.hifitoy.hifitoyobjects.drc.DrcChannel.DRC_CH_1_7;
+
 public class DrcCoef implements HiFiToyObject, Cloneable {
     private static final String TAG = "HiFiToy";
 
@@ -51,6 +54,12 @@ public class DrcCoef implements HiFiToyObject, Cloneable {
         setPoint2(p2);
         setPoint3(p3);
     }
+    public DrcCoef(byte channel) {
+        this(channel, new DrcCoef.DrcPoint(POINT0_INPUT_DB, -120.0f),
+                        new DrcCoef.DrcPoint(-72.0f, -72.0f),
+                        new DrcCoef.DrcPoint(-24.0f, -24.0f),
+                        new DrcCoef.DrcPoint(POINT3_INPUT_DB, -24.0f));
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -66,7 +75,7 @@ public class DrcCoef implements HiFiToyObject, Cloneable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(channel, point0, point1, point2, point3);
+        return Objects.hash(channel);
     }
 
     @Override
@@ -94,20 +103,32 @@ public class DrcCoef implements HiFiToyObject, Cloneable {
         if (p.outputDb > 0) p.outputDb = 0;
         point0 = p;
     }
+    public DrcPoint getPoint0() {
+        return point0;
+    }
     public void setPoint1(DrcPoint p) {
         if (p.inputDb > 0) p.inputDb = 0;
         if (p.outputDb > 0) p.outputDb = 0;
         point1 = p;
+    }
+    public DrcPoint getPoint1() {
+        return point1;
     }
     public void setPoint2(DrcPoint p) {
         if (p.inputDb > 0) p.inputDb = 0;
         if (p.outputDb > 0) p.outputDb = 0;
         point2 = p;
     }
+    public DrcPoint getPoint2() {
+        return point2;
+    }
     public void setPoint3(DrcPoint p) {
         if (p.inputDb > 0) p.inputDb = 0;
         if (p.outputDb > 0) p.outputDb = 0;
         point3 = p;
+    }
+    public DrcPoint getPoint3() {
+        return point3;
     }
     public void setPoint0WithCheck(DrcPoint point0) {
         if (point0.outputDb > point1.outputDb) {
@@ -180,7 +201,28 @@ public class DrcCoef implements HiFiToyObject, Cloneable {
     }
 
     @Override
-    public boolean importData(byte[] data) {
+    public boolean importFromDataBufs(List<HiFiToyDataBuf> dataBufs) {
+        if (dataBufs == null) return false;
+
+        for (int i = 0; i < dataBufs.size(); i++) {
+            HiFiToyDataBuf buf = dataBufs.get(i);
+
+            if ((buf.getAddr() == getAddress()) && (buf.getLength() == 28)) {
+                DrcParam param = new DrcParam();
+                if (param.parseBinary(buf.getData())) {
+                    DrcPoint[] p = param.getDrcPoints();
+
+                    point0 = p[0];
+                    point1 = p[1];
+                    point2 = p[2];
+                    point3 = p[3];
+
+                    Log.d(TAG, "DrcCoef import success.");
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
@@ -280,6 +322,39 @@ public class DrcCoef implements HiFiToyObject, Cloneable {
             this.outputDb = outputDb;
         }
 
+        @Override
+        public DrcPoint clone() throws CloneNotSupportedException{
+            return (DrcPoint) super.clone();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            DrcPoint drcPoint = (DrcPoint) o;
+            return FloatUtility.isFloatDiffLessThan(drcPoint.inputDb, inputDb, 0.5f) &&
+                    FloatUtility.isFloatDiffLessThan(drcPoint.outputDb, outputDb, 0.5f);
+        }
+
+        @Override
+        public int hashCode() {
+            return 0;
+        }
+
+        //settters / getters
+        public void setInputDb(float inputDb) {
+            this.inputDb = inputDb;
+        }
+        public float getInputDb() {
+            return inputDb;
+        }
+        public void setOutputDb(float outputDb) {
+            this.outputDb = outputDb;
+        }
+        public float getOutputDb() {
+            return outputDb;
+        }
+
         public String getInfo() {
             return String.format(Locale.getDefault(), "%.1f %.1f", inputDb, outputDb);
         }
@@ -290,14 +365,9 @@ public class DrcCoef implements HiFiToyObject, Cloneable {
             b.put(Number88.get88BigEnd(outputDb));
             return b;
         }
-
-        @Override
-        public DrcPoint clone() throws CloneNotSupportedException{
-            return (DrcPoint) super.clone();
-        }
     }
 
-    public class DrcParam {
+    public static class DrcParam implements Cloneable {
         private float threshold1_db;
         private float threshold2_db;
         private float offset1_db;
@@ -306,6 +376,16 @@ public class DrcCoef implements HiFiToyObject, Cloneable {
         private float k1;    //-1<k<0 - compression
         private float k2;
 
+        public DrcParam() {
+            threshold1_db = 0.0f;
+            threshold2_db = -1.0f;
+            offset1_db = 0.0f;
+            offset2_db = 0.0f;
+
+            k0 = 1.0f;
+            k1 = 1.0f;
+            k2 = 1.0f;
+        }
         public DrcParam(DrcPoint p0, DrcPoint p1, DrcPoint p2, DrcPoint p3) {
             threshold1_db = p1.inputDb;
             threshold2_db = p2.inputDb;
@@ -316,12 +396,52 @@ public class DrcCoef implements HiFiToyObject, Cloneable {
             k1 = getK(p1, p2) - 1;
             k2 = getK(p2, p3) - 1;
         }
+        public DrcParam(ByteBuffer data) {
+            this();
+            parseBinary(data);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            DrcParam drcParam = (DrcParam) o;
+            return FloatUtility.isFloatDiffLessThan(drcParam.threshold1_db, threshold1_db, 0.5f) &&
+                    FloatUtility.isFloatDiffLessThan(drcParam.threshold2_db, threshold2_db, 0.5f) &&
+                    FloatUtility.isFloatDiffLessThan(drcParam.offset1_db, offset1_db, 0.5f) &&
+                    FloatUtility.isFloatDiffLessThan(drcParam.offset2_db, offset2_db, 0.5f) &&
+                    FloatUtility.isFloatDiffLessThan(drcParam.k0, k0, 0.01f) &&
+                    FloatUtility.isFloatDiffLessThan(drcParam.k1, k1, 0.01f) &&
+                    FloatUtility.isFloatDiffLessThan(drcParam.k2, k2, 0.01f);
+        }
+
+        @Override
+        public int hashCode() {
+            return 0;
+        }
+
+        @Override
+        public DrcParam clone() throws CloneNotSupportedException{
+            return (DrcParam) super.clone();
+        }
 
         private float getK(DrcPoint p0, DrcPoint p1) {
             if (p1.inputDb == p0.inputDb) {
                 return 1;
             }
             return (p1.outputDb - p0.outputDb) / (p1.inputDb - p0.inputDb);
+        }
+
+        public DrcPoint[] getDrcPoints() {
+            DrcPoint[] p = new DrcPoint[4];
+
+            p[1] = new DrcPoint(threshold1_db, threshold1_db - offset1_db);
+            p[2] = new DrcPoint(threshold2_db, threshold2_db - offset2_db);
+
+            p[3] = new DrcPoint(POINT3_INPUT_DB, p[2].outputDb + (k2 + 1) * (POINT3_INPUT_DB - p[2].inputDb));
+            p[0] = new DrcPoint(POINT0_INPUT_DB, p[1].outputDb - (k0 + 1) * (p[1].inputDb - POINT0_INPUT_DB));
+
+            return p;
         }
 
         public ByteBuffer getBinary() {
@@ -334,6 +454,20 @@ public class DrcCoef implements HiFiToyObject, Cloneable {
             b.put(Number923.get923BigEnd((offset1_db + 24.0824f) / 6.0206f));
             b.put(Number923.get923BigEnd((offset2_db + 24.0824f) / 6.0206f));
             return b;
+        }
+
+        private boolean parseBinary(ByteBuffer data) {
+            if (data.capacity() != 28) return false;
+
+            threshold1_db = Number923.toFloat(BinaryOperation.copyOfRange(data, 0, 4)) * -6.0206f;
+            threshold2_db = Number923.toFloat(BinaryOperation.copyOfRange(data, 4, 8)) * -6.0206f;
+            k0 = Number523.toFloat(BinaryOperation.copyOfRange(data, 8, 12));
+            k1 = Number523.toFloat(BinaryOperation.copyOfRange(data, 12, 16));
+            k2 = Number523.toFloat(BinaryOperation.copyOfRange(data, 16, 20));
+            offset1_db = Number923.toFloat(BinaryOperation.copyOfRange(data, 20, 24)) * 6.0206f - 24.0824f;
+            offset2_db = Number923.toFloat(BinaryOperation.copyOfRange(data, 24, 28)) * 6.0206f - 24.0824f;
+
+            return true;
         }
     }
 }

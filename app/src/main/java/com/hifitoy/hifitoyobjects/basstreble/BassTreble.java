@@ -9,6 +9,7 @@ package com.hifitoy.hifitoyobjects.basstreble;
 import android.util.Log;
 
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import com.hifitoy.hifitoyobjects.HiFiToyObject;
@@ -32,6 +33,7 @@ import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.BassTreble
 import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.BassTrebleCh.BASS_TREBLE_CH_56;
 import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.BassTrebleCh.BASS_TREBLE_CH_8;
 import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.TrebleFreq.TREBLE_FREQ_11000;
+import static com.hifitoy.tas5558.TAS5558.BASS_TREBLE_REG;
 
 public class BassTreble implements HiFiToyObject, Cloneable {
     private static final String TAG = "HiFiToy";
@@ -74,8 +76,13 @@ public class BassTreble implements HiFiToyObject, Cloneable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BassTreble that = (BassTreble) o;
-        return Arrays.equals(enabledCh, that.enabledCh) &&
-                Objects.equals(bassTreble127, that.bassTreble127) &&
+
+        for (int i = 0; i < 8; i++) {
+            if (!FloatUtility.isFloatDiffLessThan(enabledCh[i], that.enabledCh[i], 0.01f)) {
+                return false;
+            }
+        }
+        return Objects.equals(bassTreble127, that.bassTreble127) &&
                 Objects.equals(bassTreble34, that.bassTreble34) &&
                 Objects.equals(bassTreble56, that.bassTreble56) &&
                 Objects.equals(bassTreble8, that.bassTreble8);
@@ -83,9 +90,7 @@ public class BassTreble implements HiFiToyObject, Cloneable {
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(bassTreble127, bassTreble34, bassTreble56, bassTreble8);
-        result = 31 * result + Arrays.hashCode(enabledCh);
-        return result;
+        return Objects.hash(bassTreble127, bassTreble34, bassTreble56, bassTreble8);
     }
 
     @Override
@@ -180,10 +185,10 @@ public class BassTreble implements HiFiToyObject, Cloneable {
         int val = (int)(0x800000 * enabledCh[channel]);
         int ival = (int)(0x800000 - 0x800000 * enabledCh[channel]);
         ByteBuffer b = ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
-        b.putInt(val);
         b.putInt(ival);
+        b.putInt(val);
 
-        return new HiFiToyDataBuf(TAS5558.BASS_TREBLE_REG, b);
+        return new HiFiToyDataBuf((byte)(BASS_TREBLE_REG + channel), b);
     }
 
     @Override
@@ -199,7 +204,54 @@ public class BassTreble implements HiFiToyObject, Cloneable {
     }
 
     @Override
-    public boolean importData(byte[] data) {
+    public boolean importFromDataBufs(List<HiFiToyDataBuf> dataBufs) {
+        if (dataBufs == null) return false;
+
+        int importCounter = 0;
+
+        for (int i = 0; i < dataBufs.size(); i++) {
+            HiFiToyDataBuf buf = dataBufs.get(i);
+
+            if ((buf.getAddr() == getAddress()) && (buf.getLength() == 16)) {
+                ByteBuffer b = buf.getData();
+                b.position(0);
+
+                bassTreble8.setBassFreq(b.get());
+                bassTreble56.setBassFreq(b.get());
+                bassTreble34.setBassFreq(b.get());
+                bassTreble127.setBassFreq(b.get());
+
+                bassTreble8.setBassDb(TAS5558ToDbFormat(b.get()));
+                bassTreble56.setBassDb(TAS5558ToDbFormat(b.get()));
+                bassTreble34.setBassDb(TAS5558ToDbFormat(b.get()));
+                bassTreble127.setBassDb(TAS5558ToDbFormat(b.get()));
+
+                bassTreble8.setTrebleFreq(b.get());
+                bassTreble56.setTrebleFreq(b.get());
+                bassTreble34.setTrebleFreq(b.get());
+                bassTreble127.setTrebleFreq(b.get());
+
+                bassTreble8.setTrebleDb(TAS5558ToDbFormat(b.get()));
+                bassTreble56.setTrebleDb(TAS5558ToDbFormat(b.get()));
+                bassTreble34.setTrebleDb(TAS5558ToDbFormat(b.get()));
+                bassTreble127.setTrebleDb(TAS5558ToDbFormat(b.get()));
+
+                importCounter++;
+            }
+
+            if ((buf.getAddr() >= BASS_TREBLE_REG) &&
+                    (buf.getAddr() < BASS_TREBLE_REG + 8) && (buf.getLength() == 8)) {
+
+                enabledCh[buf.getAddr() - BASS_TREBLE_REG] = (float)buf.getData().getInt(4) / 0x800000;
+                importCounter++;
+            }
+
+            if (importCounter >= 9) {
+                Log.d(TAG, "BassTreble import success.");
+                return true;
+            }
+        }
+
         return false;
     }
 

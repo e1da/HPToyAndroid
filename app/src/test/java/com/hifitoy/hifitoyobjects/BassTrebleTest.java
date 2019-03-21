@@ -51,9 +51,18 @@ public class BassTrebleTest {
 
     }
 
+
     @Test
-    public void testGetDataBufs() {
-        List<HiFiToyDataBuf> bufs = bt0.getDataBufs();
+    public void testImport() {
+        bt0.setEnabledChannel((byte)0, 0.1f);
+        assertNotEquals(bt0, bt1);
+
+        if (!bt1.importFromDataBufs(bt0.getDataBufs())) {
+            fail("Import fail");
+        }
+
+        assertEquals(bt0, bt1);
+
     }
 
 }

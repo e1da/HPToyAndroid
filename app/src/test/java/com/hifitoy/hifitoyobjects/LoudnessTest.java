@@ -50,7 +50,7 @@ public class LoudnessTest {
     public void testEqual() {
         System.out.println("testEqual");
 
-        l1.setGain(0.0001f);
+        l1.setGain(0.05f);
         System.out.println(String.format(Locale.getDefault(), "%f %f", l0.getGain(), l1.getGain()));
 
         assertEquals(l0, l0);
@@ -63,6 +63,19 @@ public class LoudnessTest {
         assertEquals(l0, l0);
         assertEquals(l2, l2);
         assertNotEquals(l0, l2);
+
+    }
+
+    @Test
+    public void testImport() {
+        l1.setGain(0.05f);
+        assertNotEquals(l0, l1);
+
+        if (!l1.importFromDataBufs(l0.getDataBufs())) {
+            fail("Import fail");
+        }
+
+        assertEquals(l0, l1);
 
     }
 

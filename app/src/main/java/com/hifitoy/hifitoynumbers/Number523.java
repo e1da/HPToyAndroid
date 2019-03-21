@@ -37,13 +37,13 @@ public class Number523 {
     public static ByteBuffer get523LittleEnd(float num){
         num = checkRange(num);
         int n = (int)(num * 0x800000);
-        return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(n);
+        return (ByteBuffer)ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(n).position(0);
     }
 
     public static ByteBuffer get523BigEnd(float num){
         num = checkRange(num);
         int n = (int)(num * 0x800000);
-        return ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(n);
+        return (ByteBuffer) ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(n).position(0);
     }
 
     public static float toFloat(ByteBuffer buf) {

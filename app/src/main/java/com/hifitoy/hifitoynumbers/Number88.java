@@ -12,11 +12,11 @@ import java.nio.ByteOrder;
 public class Number88 {
     public static ByteBuffer get88LittleEnd(float num) {
         short n = (short)(num * 0x100);
-        return ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort(n);
+        return (ByteBuffer) ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort(n).position(0);
     }
     public static ByteBuffer get88BigEnd(float num) {
         short n = (short)(num * 0x100);
-        return ByteBuffer.allocate(2).order(ByteOrder.BIG_ENDIAN).putShort(n);
+        return (ByteBuffer) ByteBuffer.allocate(2).order(ByteOrder.BIG_ENDIAN).putShort(n).position(0);
     }
 
     public static float toFloat(ByteBuffer buf){

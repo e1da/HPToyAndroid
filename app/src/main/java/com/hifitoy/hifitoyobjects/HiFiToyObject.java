@@ -23,7 +23,7 @@ public interface HiFiToyObject {
     void sendToPeripheral(boolean response);
 
     List<HiFiToyDataBuf> getDataBufs();
-    boolean importData(byte[] data);
+    boolean importFromDataBufs(List<HiFiToyDataBuf> dataBufs);
 
     XmlData toXmlData();
     boolean importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException;

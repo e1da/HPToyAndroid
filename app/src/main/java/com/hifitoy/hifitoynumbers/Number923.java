@@ -12,11 +12,11 @@ import java.nio.ByteOrder;
 public class Number923 {
     public static ByteBuffer get923LittleEnd(float num) {
         int n = (int)(num * 0x800000);
-        return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(n);
+        return (ByteBuffer) ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(n).position(0);
     }
     public static ByteBuffer get923BigEnd(float num) {
         int n = (int)(num * 0x800000);
-        return ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(n);
+        return (ByteBuffer) ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(n).position(0);
     }
 
     public static float toFloat(ByteBuffer buf){

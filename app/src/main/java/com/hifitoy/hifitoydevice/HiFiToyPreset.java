@@ -46,6 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.BassFreq.BASS_FREQ_125;
 import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.BassTrebleCh.BASS_TREBLE_CH_127;
@@ -55,10 +56,10 @@ import static com.hifitoy.hifitoyobjects.drc.DrcChannel.DRC_CH_1_7;
 import static com.hifitoy.hifitoyobjects.drc.DrcCoef.POINT0_INPUT_DB;
 import static com.hifitoy.hifitoyobjects.drc.DrcCoef.POINT3_INPUT_DB;
 
-public class HiFiToyPreset implements HiFiToyObject {
+public class HiFiToyPreset implements HiFiToyObject, Cloneable {
     private static final String TAG = "HiFiToy";
 
-    private String  presetName;
+    private String  name;
     private short   checkSum;
 
     // HiFiToy CHARACTERISTICS, pointer to all characteristics
@@ -75,6 +76,49 @@ public class HiFiToyPreset implements HiFiToyObject {
         setDefault();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        HiFiToyPreset that = (HiFiToyPreset) o;
+
+        boolean b0 = checkSum == that.checkSum;
+        boolean b1 = Objects.equals(filters, that.filters);
+        boolean b2 = Objects.equals(masterVolume, that.masterVolume);
+        boolean b3 = Objects.equals(bassTreble, that.bassTreble);
+        boolean b4 = Objects.equals(loudness, that.loudness);
+        boolean b5 = Objects.equals(drc, that.drc);
+
+        return checkSum == that.checkSum &&
+                Objects.equals(filters, that.filters) &&
+                Objects.equals(masterVolume, that.masterVolume) &&
+                Objects.equals(bassTreble, that.bassTreble) &&
+                Objects.equals(loudness, that.loudness) &&
+                Objects.equals(drc, that.drc);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(checkSum, filters, masterVolume, bassTreble, loudness, drc);
+    }
+
+    @Override
+    public HiFiToyPreset clone() throws CloneNotSupportedException{
+        HiFiToyPreset preset = (HiFiToyPreset) super.clone();
+
+        preset.filters = filters.clone();
+        preset.masterVolume = masterVolume.clone();
+        preset.bassTreble = bassTreble.clone();
+        preset.loudness = loudness.clone();
+        preset.drc = drc.clone();
+
+        preset.characteristics = new ArrayList<>();
+        preset.updateCharacteristics();
+
+        return preset;
+    }
+
+
     public void updateCharacteristics() {
         characteristics.clear();
         characteristics.add(filters);
@@ -85,7 +129,7 @@ public class HiFiToyPreset implements HiFiToyObject {
     }
 
     public void setDefault() {
-        presetName = "DefaultPreset";
+        name = "DefaultPreset";
 
         //Filters
         filters = new Filters(TAS5558.BIQUAD_FILTER_REG, (byte)(TAS5558.BIQUAD_FILTER_REG + 7));
@@ -123,11 +167,21 @@ public class HiFiToyPreset implements HiFiToyObject {
     }
 
     //setters / getters
+    public void setName(String name) {
+        this.name = name;
+    }
+    public String getName() {
+        return name;
+    }
+
     public short getChecksum() {
         return checkSum;
     }
     public Filters getFilters() {
         return filters;
+    }
+    public Volume getVolume() {
+        return masterVolume;
     }
 
     public void updateChecksum() {
@@ -148,7 +202,7 @@ public class HiFiToyPreset implements HiFiToyObject {
 
     @Override
     public String getInfo() {
-        return presetName;
+        return name;
     }
 
     @Override
@@ -175,8 +229,15 @@ public class HiFiToyPreset implements HiFiToyObject {
     }
 
     @Override
-    public boolean importData(byte[] data) {
-        return false;
+    public boolean importFromDataBufs(List<HiFiToyDataBuf> dataBufs) {
+        if (dataBufs == null) return false;
+
+        for (int i = 0; i < characteristics.size(); i++){
+            if (!characteristics.get(i).importFromDataBufs(dataBufs)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -303,7 +364,7 @@ public class HiFiToyPreset implements HiFiToyObject {
             xmlParser.setInput(in, null);
 
             if (importFromXml(xmlParser)) {
-                presetName = filename;
+                name = filename;
                 return true;
             }
 

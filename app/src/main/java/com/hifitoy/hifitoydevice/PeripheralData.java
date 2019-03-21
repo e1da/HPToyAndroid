@@ -47,6 +47,12 @@ public class PeripheralData {
     private short                   dataBytesLength;    // 0x22
     private List<HiFiToyDataBuf>    dataBufs;           // 0x24
 
+    private PeripheralDataDelegate delegate;
+
+    public interface PeripheralDataDelegate {
+        void didImportData(PeripheralData peripheralData);
+    }
+
     public PeripheralData(HiFiToyDevice device) {
         i2cAddr = I2C_ADDR;
         successWriteFlag = 0;
@@ -63,6 +69,10 @@ public class PeripheralData {
     }
     public PeripheralData() {
         clear();
+    }
+
+    public void setDelegate(PeripheralDataDelegate delegate) {
+        this.delegate = delegate;
     }
 
     public void clear() {
@@ -110,6 +120,9 @@ public class PeripheralData {
             dataBytesLength = getDataBytesLength(dataBufs);
         }
         this.dataBufs = dataBufs;
+    }
+    public List<HiFiToyDataBuf> getDataBufs() {
+        return dataBufs;
     }
 
     public void exportState() {
@@ -214,10 +227,11 @@ public class PeripheralData {
                     dataBufs.add(new HiFiToyDataBuf(b));
                 }
 
-                Log.d(TAG, "Import finished success.");
+                Log.d(TAG, "Peripheral data import finished success.");
 
                 //close progress dialog
-                //send broadcast
+
+                if (delegate != null) delegate.didImportData(this);
 
                 Context c = ApplicationContext.getInstance().getContext();
                 c.unregisterReceiver(broadcastReceiver);

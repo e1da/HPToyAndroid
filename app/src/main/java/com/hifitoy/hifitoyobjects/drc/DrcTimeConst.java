@@ -8,6 +8,7 @@ package com.hifitoy.hifitoyobjects.drc;
 
 import android.util.Log;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import com.hifitoy.hifitoyobjects.HiFiToyObject;
@@ -40,6 +41,9 @@ public class DrcTimeConst implements HiFiToyObject, Cloneable {
         this.attackMS = attackMS;
         this.decayMS = decayMS;
     }
+    public DrcTimeConst(byte channel) {
+        this(channel,0.1f, 10.0f, 100.0f);
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -47,14 +51,14 @@ public class DrcTimeConst implements HiFiToyObject, Cloneable {
         if (o == null || getClass() != o.getClass()) return false;
         DrcTimeConst that = (DrcTimeConst) o;
         return channel == that.channel &&
-                Float.compare(that.energyMS, energyMS) == 0 &&
-                Float.compare(that.attackMS, attackMS) == 0 &&
-                Float.compare(that.decayMS, decayMS) == 0;
+                FloatUtility.isFloatDiffLessThan(that.energyMS, energyMS, 0.5f) &&
+                FloatUtility.isFloatDiffLessThan(that.attackMS, attackMS, 0.5f) &&
+                FloatUtility.isFloatDiffLessThan(that.decayMS, decayMS, 0.5f);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(channel, energyMS, attackMS, decayMS);
+        return Objects.hash(channel);
     }
 
     @Override
@@ -73,7 +77,7 @@ public class DrcTimeConst implements HiFiToyObject, Cloneable {
         return channel;
     }
 
-    public void setEnergyMS(float energyMS) {
+    public void setRoundEnergyMS(float energyMS) {
         if (energyMS < 0.05f) {
             energyMS = 0.05f;
         } else if (energyMS < 0.1f) {
@@ -87,6 +91,12 @@ public class DrcTimeConst implements HiFiToyObject, Cloneable {
         }
 
         this.energyMS = energyMS;
+    }
+    public void setEnergyMS(float energyMS) {
+        this.energyMS = energyMS;
+    }
+    public float getEnergyMS() {
+        return energyMS;
     }
 
     @Override
@@ -130,6 +140,12 @@ public class DrcTimeConst implements HiFiToyObject, Cloneable {
         return (int)(Math.pow(Math.E, -2000.0f / time_ms / TAS5558.TAS5558_FS) * 0x800000) & 0x007FFFFF;
     }
 
+    private float intToTimeMS(int time) {
+        float t = (float)(time & 0x007FFFFF) / 0x800000;
+
+        return (float)(-2000.0f / TAS5558.TAS5558_FS / Math.log(t)); //log == ln
+    }
+
     private HiFiToyDataBuf getEnergyDataBuf() {
         ByteBuffer b = ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
         b.putInt(0x800000 - timeToInt(energyMS));
@@ -154,7 +170,36 @@ public class DrcTimeConst implements HiFiToyObject, Cloneable {
     }
 
     @Override
-    public boolean importData(byte[] data) {
+    public boolean importFromDataBufs(List<HiFiToyDataBuf> dataBufs) {
+        if (dataBufs == null) return false;
+
+        int importCounter = 0;
+
+        for (int i = 0; i < dataBufs.size(); i++) {
+            HiFiToyDataBuf buf = dataBufs.get(i);
+
+            if ((buf.getAddr() == getAddress()) && (buf.getLength() == 8)) {
+                int energy = buf.getData().order(ByteOrder.BIG_ENDIAN).getInt(4);
+                energyMS = intToTimeMS(energy);
+
+                importCounter++;
+            }
+
+            if ((buf.getAddr() == getAddress() + 4) && (buf.getLength() == 16)) {
+                int attack = buf.getData().order(ByteOrder.BIG_ENDIAN).getInt(4);
+                attackMS = intToTimeMS(attack);
+                int decay = buf.getData().order(ByteOrder.BIG_ENDIAN).getInt(12);
+                decayMS = intToTimeMS(decay);
+
+                importCounter++;
+            }
+
+            if (importCounter >= 2) {
+                Log.d(TAG, "DrcTimeConst import success.");
+                return true;
+            }
+        }
+
         return false;
     }
 

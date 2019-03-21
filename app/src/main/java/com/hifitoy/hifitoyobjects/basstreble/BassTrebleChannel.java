@@ -93,7 +93,7 @@ public class BassTrebleChannel implements Cloneable {
         return channel;
     }
 
-    private void setBassFreq(byte bassFreq) {
+    public void setBassFreq(byte bassFreq) {
         if (bassFreq > BassFreq.BASS_FREQ_500) bassFreq = BassFreq.BASS_FREQ_500;
         if (bassFreq < BassFreq.BASS_FREQ_125) bassFreq = BassFreq.BASS_FREQ_125;
         this.bassFreq = bassFreq;
@@ -101,7 +101,7 @@ public class BassTrebleChannel implements Cloneable {
     public byte getBassFreq() {
         return bassFreq;
     }
-    private void setTrebleFreq(byte trebleFreq) {
+    public void setTrebleFreq(byte trebleFreq) {
         if (trebleFreq > TrebleFreq.TREBLE_FREQ_13000) trebleFreq = TrebleFreq.TREBLE_FREQ_13000;
         if (trebleFreq < TrebleFreq.TREBLE_FREQ_2750) trebleFreq = TrebleFreq.TREBLE_FREQ_2750;
         this.trebleFreq = trebleFreq;
