@@ -31,15 +31,15 @@ public class HiFiToyPresetManager {
     public static synchronized HiFiToyPresetManager getInstance(){
         if (instance == null){
             instance = new HiFiToyPresetManager();
-            if (instance.getPreset("DefaultPreset") == null) {
-                instance.setPreset("DefaultPreset", new HiFiToyPreset());
-            }
         }
         return instance;
     }
 
-    public HiFiToyPresetManager(){
+    private HiFiToyPresetManager(){
         restore();
+        if (getPreset("DefaultPreset") == null) {
+            setPreset("DefaultPreset", new HiFiToyPreset());
+        }
     }
 
     //store/restore

@@ -20,6 +20,7 @@ import com.hifitoy.xml.XmlData;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ import static com.hifitoy.hifitoyobjects.drc.DrcChannel.DRC_CH_1_7;
 import static com.hifitoy.hifitoyobjects.drc.DrcChannel.DRC_CH_8;
 import static com.hifitoy.tas5558.TAS5558.DRC_BYPASS1_REG;
 
-public class Drc implements HiFiToyObject, Cloneable {
+public class Drc implements HiFiToyObject, Cloneable, Serializable {
     private static final String TAG = "HiFiToy";
 
     private float[]         enabledCh; // 0.0 .. 1.0, 8 channels

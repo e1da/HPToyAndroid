@@ -21,6 +21,7 @@ import com.hifitoy.xml.XmlData;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ import java.util.Objects;
 
 import static com.hifitoy.hifitoyobjects.drc.DrcChannel.DRC_CH_1_7;
 
-public class DrcCoef implements HiFiToyObject, Cloneable {
+public class DrcCoef implements HiFiToyObject, Cloneable, Serializable {
     private static final String TAG = "HiFiToy";
 
     public final static float POINT0_INPUT_DB = -120.0f;
@@ -313,7 +314,7 @@ public class DrcCoef implements HiFiToyObject, Cloneable {
     }
 
 
-    public static class DrcPoint implements Cloneable{
+    public static class DrcPoint implements Cloneable, Serializable{
         private float inputDb;
         private float outputDb;
 
@@ -367,7 +368,7 @@ public class DrcCoef implements HiFiToyObject, Cloneable {
         }
     }
 
-    public static class DrcParam implements Cloneable {
+    public static class DrcParam implements Cloneable, Serializable {
         private float threshold1_db;
         private float threshold2_db;
         private float offset1_db;

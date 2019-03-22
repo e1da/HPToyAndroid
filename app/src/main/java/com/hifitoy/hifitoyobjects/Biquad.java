@@ -29,7 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-public class Biquad implements HiFiToyObject, Cloneable{
+public class Biquad implements HiFiToyObject, Cloneable, Serializable{
     private static final String TAG = "HiFiToy";
     private static final int FS = 96000;
 

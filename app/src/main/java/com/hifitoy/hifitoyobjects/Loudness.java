@@ -16,6 +16,7 @@ import com.hifitoy.xml.XmlData;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.HashMap;
@@ -26,7 +27,7 @@ import java.util.Objects;
 
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_BANDPASS;
 
-public class Loudness implements HiFiToyObject, Cloneable {
+public class Loudness implements HiFiToyObject, Cloneable, Serializable {
     private static final String TAG = "HiFiToy";
 
     private Biquad biquad;

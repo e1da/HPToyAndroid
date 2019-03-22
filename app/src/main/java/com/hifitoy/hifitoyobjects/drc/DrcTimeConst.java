@@ -17,6 +17,7 @@ import com.hifitoy.xml.XmlData;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-public class DrcTimeConst implements HiFiToyObject, Cloneable {
+public class DrcTimeConst implements HiFiToyObject, Cloneable, Serializable {
     private static final String TAG = "HiFiToy";
 
     private byte    channel;

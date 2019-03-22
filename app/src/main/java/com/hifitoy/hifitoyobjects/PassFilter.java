@@ -7,6 +7,8 @@
 package com.hifitoy.hifitoyobjects;
 
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -18,7 +20,7 @@ import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_HIGHPASS
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_LOWPASS;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_OFF;
 
-public class PassFilter implements Cloneable{
+public class PassFilter implements Cloneable, Serializable {
     public final static byte PASSFILTER_ORDER_0      = 0;
     public final static byte PASSFILTER_ORDER_2      = 1;
     public final static byte PASSFILTER_ORDER_4      = 2;

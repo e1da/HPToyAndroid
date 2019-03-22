@@ -3,7 +3,9 @@ package com.hifitoy.hifitoydevice;
 import com.hifitoy.hifitoycontrol.CommonCommand;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 
-public class AdvertiseMode {
+import java.io.Serializable;
+
+public class AdvertiseMode implements Serializable {
     public static final byte ALWAYS_ENABLED = 0;
     public static final byte AFTER_1MIN_DISABLED = 1;
     private byte mode;

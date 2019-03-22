@@ -39,6 +39,7 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ import static com.hifitoy.hifitoyobjects.drc.DrcChannel.DRC_CH_1_7;
 import static com.hifitoy.hifitoyobjects.drc.DrcCoef.POINT0_INPUT_DB;
 import static com.hifitoy.hifitoyobjects.drc.DrcCoef.POINT3_INPUT_DB;
 
-public class HiFiToyPreset implements HiFiToyObject, Cloneable {
+public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     private static final String TAG = "HiFiToy";
 
     private String  name;

@@ -10,7 +10,9 @@ package com.hifitoy.hifitoydevice;
 import com.hifitoy.hifitoycontrol.CommonCommand;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 
-public class AudioSource {
+import java.io.Serializable;
+
+public class AudioSource implements Serializable {
     public static final byte SPDIF_SOURCE = 0;
     public static final byte USB_SOURCE = 1;
     public static final byte BT_SOURCE = 2;

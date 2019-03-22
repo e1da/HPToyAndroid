@@ -18,6 +18,7 @@ import com.hifitoy.xml.XmlData;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.BassTreble
 import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.TrebleFreq.TREBLE_FREQ_11000;
 import static com.hifitoy.tas5558.TAS5558.BASS_TREBLE_REG;
 
-public class BassTreble implements HiFiToyObject, Cloneable {
+public class BassTreble implements HiFiToyObject, Cloneable, Serializable {
     private static final String TAG = "HiFiToy";
 
     private float[] enabledCh = new float[8]; // 0.0 .. 1.0, 8 channels

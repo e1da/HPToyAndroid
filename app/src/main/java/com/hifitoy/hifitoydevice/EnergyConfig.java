@@ -8,19 +8,19 @@ package com.hifitoy.hifitoydevice;
 
 import com.hifitoy.hifitoycontrol.CommonCommand;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class EnergyConfig {
+public class EnergyConfig implements Serializable {
     private final float MAX_THRESHOLD_DB = 0.0f;
     private final float MIN_THRESHOLD_DB = -120.0f;
 
     private float   highThresholdDb;
     private float   lowThresholdDb;
-    private short     auxTimeout120ms;
-    private short     usbTimeout120ms;
-
-    private final short offset = 0x0C;
+    private short   auxTimeout120ms;
+    private short   usbTimeout120ms;
 
     public EnergyConfig() {
         setDefault();

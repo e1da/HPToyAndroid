@@ -11,11 +11,12 @@ import com.hifitoy.xml.XmlData;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class BassTrebleChannel implements Cloneable {
+public class BassTrebleChannel implements Cloneable, Serializable {
     private static final String TAG = "HiFiToy";
 
     private final static byte HW_BASSTREBLE_MAX_DB = 18;

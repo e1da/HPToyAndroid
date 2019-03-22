@@ -17,6 +17,8 @@ import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.Biquad;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 
+import java.io.Externalizable;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -25,17 +27,17 @@ import java.util.List;
 
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC;
 
-public class HiFiToyDevice implements StoreInterface, PeripheralData.PeripheralDataDelegate {
+public class HiFiToyDevice implements StoreInterface, PeripheralData.PeripheralDataDelegate, Serializable {
     private static final String TAG = "HiFiToy";
 
     private String  mac;
     private String  name;
     private String  activeKeyPreset;
+    private int     pairingCode;
 
-    private int                         pairingCode;
-    private AudioSource                 audioSource;
-    private AdvertiseMode               advertiseMode;
-    private EnergyConfig                energyConfig;
+    private AudioSource       audioSource;
+    private AdvertiseMode     advertiseMode;
+    private EnergyConfig      energyConfig;
 
     public HiFiToyDevice() {
         setDefault();
@@ -81,6 +83,7 @@ public class HiFiToyDevice implements StoreInterface, PeripheralData.PeripheralD
     public boolean  setActiveKeyPreset(String key){
         if (HiFiToyPresetManager.getInstance().getPreset(key) != null) {
             activeKeyPreset = key;
+            HiFiToyDeviceManager.getInstance().store();
             return true;
         }
         return false;

@@ -11,6 +11,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 import com.hifitoy.ApplicationContext;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,13 +37,15 @@ public class HiFiToyDeviceManager {
 
     private HiFiToyDeviceManager(){
         restore();
+        if (getDevice("demo") == null) {
+            setDevice("demo", new HiFiToyDevice());
+        }
     }
 
     public void setDevice(String key, HiFiToyDevice device){
         deviceMap.put(key, device);
 
         store();
-        description();
     }
 
     public HiFiToyDevice getDevice(String key){
@@ -53,60 +63,50 @@ public class HiFiToyDeviceManager {
         Log.d(TAG, "================</DeviceMap>======================");
     }
 
-    private boolean restore(){
+    //store/restore
+    public void restore(){
+        Log.d(TAG, "Restore HiFiToyDeviceMap.");
+
         Context context = ApplicationContext.getInstance().getContext();
-        SharedPreferences sharedPref = context.getSharedPreferences("HiFiToyDeviceManager", Context.MODE_PRIVATE);
+        try {
+            FileInputStream fis = context.openFileInput("HiFiToyDeviceMap.dat");
+            ObjectInputStream is = new ObjectInputStream(fis);
+            Object o = is.readObject();
+            deviceMap = (HashMap<String, HiFiToyDevice>)o;
 
-        if (sharedPref == null){
-            Log.d(TAG, "sharedPref == null.");
-            return false;
+            is.close();
+        } catch(FileNotFoundException f) {
+            Log.d(TAG, "HiFiToyDeviceMap.dat is not found.");
+
+            //create default preset
+            deviceMap.clear();
+            setDevice("demo", new HiFiToyDevice());
+
+        } catch (IOException e) {
+            Log.d(TAG, e.toString());
+        } catch (ClassNotFoundException e) {
+            Log.d(TAG, e.toString());
         }
 
-        int length = sharedPref.getInt("DeviceCount", -1);
-        if (length == -1){
-            Log.d(TAG, "DeviceCount == -1.");
-            return false;
-        }
-        Log.d(TAG, "sharedPref length == " + Integer.toString(length));
-
-        deviceMap.clear();
-
-        for (int i = 0; i < length; i++){
-            HiFiToyDevice device = new HiFiToyDevice();
-            device.restore("HiFiToyDeviceManager", "HiFiToyDevice#" + Integer.toString(i));
-            deviceMap.put(device.getMac(), device);
-        }
-
-        Log.d(TAG, "Restore DeviceMap.");
-        return true;
     }
 
-    public boolean store(){
+    public void store(){
+        Log.d(TAG, "Store HiFiToyDeviceMap.");
+
         Context context = ApplicationContext.getInstance().getContext();
-        SharedPreferences sharedPref = context.getSharedPreferences("HiFiToyDeviceManager", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
+        try {
+            FileOutputStream fos = context.openFileOutput("HiFiToyDeviceMap.dat",
+                    Context.MODE_PRIVATE);
+            ObjectOutputStream os = new ObjectOutputStream(fos);
+            os.writeObject(deviceMap);
+            os.close();
 
-        if (editor == null){
-            Log.d(TAG, "sharedPref editor == null.");
-            return false;
+            description();
+        } catch (NotSerializableException e) {
+            Log.d(TAG, e.toString());
+        } catch (IOException e) {
+            Log.d(TAG, e.toString());
         }
-
-        editor.clear();
-
-        int length = deviceMap.size();
-        editor.putInt("DeviceCount", length);
-
-        editor.commit();
-
-        int count = 0;
-        for(Map.Entry<String, HiFiToyDevice> entry : deviceMap.entrySet()) {
-            StoreInterface device = entry.getValue();
-            device.store("HiFiToyDeviceManager", "HiFiToyDevice#" + Integer.toString(count));
-            count++;
-        }
-
-        Log.d(TAG, "Store DeviceMap.");
-        return true;
     }
 
 }
