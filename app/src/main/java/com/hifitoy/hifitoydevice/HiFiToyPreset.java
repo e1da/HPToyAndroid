@@ -185,7 +185,12 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable {
     }
 
     public void updateChecksum() {
-        checkSum = Checksummer.calc(BinaryOperation.getBinary(getDataBufs()));
+        updateChecksum(getDataBufs());
+    }
+
+    private void updateChecksum(List<HiFiToyDataBuf> dataBufs) {
+        checkSum = Checksummer.calc(BinaryOperation.getBinary(dataBufs));
+        Log.d(TAG, String.format(Locale.getDefault(), "Update checksum = 0x%x", checkSum));
     }
 
     public void storeToPeripheral() {
@@ -237,6 +242,8 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable {
                 return false;
             }
         }
+
+        updateChecksum(dataBufs);
         return true;
     }
 

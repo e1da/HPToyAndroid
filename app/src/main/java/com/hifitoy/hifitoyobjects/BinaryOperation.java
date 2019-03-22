@@ -59,7 +59,7 @@ public class BinaryOperation {
 
         byte[] data = new byte[0];
 
-        for (int i= 0; i < dataBufs.size(); i++) {
+        for (int i = 0; i < dataBufs.size(); i++) {
             data = concatData(data, dataBufs.get(i).getBinary().array());
         }
 

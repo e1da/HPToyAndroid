@@ -44,6 +44,8 @@ public class HiFiToyDataBuf {
             ByteBuffer b = ByteBuffer.allocate(2 + length);
             b.put(addr);
             b.put(length);
+
+            data.position(0);
             b.put(data);
 
             return b;

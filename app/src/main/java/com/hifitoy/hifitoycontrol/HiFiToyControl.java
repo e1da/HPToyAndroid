@@ -38,6 +38,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Queue;
 import java.util.UUID;
 
@@ -457,9 +458,13 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                         break;
                     }
                     case CommonCommand.GET_CHECKSUM:
-                        int checksum = ((int)data[2]) * 256 + (int)data[1];
-                        Log.d(TAG, "GET_CHECKSUM=" + checksum +
-                                " APP_CHECKSUM=" + activeDevice.getActivePreset().getChecksum());
+                        short checksum = (short)(((int)data[2]) * 256 + (int)data[1]);
+
+
+                        String info = String.format(Locale.getDefault(),
+                                            "GET_CHECKSUM=0x%x APP_CHECKSUM=0x%x",
+                                                    checksum, activeDevice.getActivePreset().getChecksum());
+                        Log.d(TAG, info);
 
                         state.setState(ConnectionState.CONNECTION_READY);
 
