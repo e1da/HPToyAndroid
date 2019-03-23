@@ -31,7 +31,9 @@ import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETR
 public class PeripheralData {
     private static final String TAG = "HiFiToy";
 
-    private final short PERIPHERAL_CONFIG_LENGTH = 0x24;
+    private final short PERIPHERAL_CONFIG_LENGTH    = 0x24;
+    private final short PRESET_DATA_OFFSET          = 0x18;
+
     public static final byte I2C_ADDR = 0x34;
     public static final short VERSION = 11;
 
@@ -51,6 +53,8 @@ public class PeripheralData {
     private List<HiFiToyDataBuf>    dataBufs;           // 0x24
 
     private PeripheralDataDelegate delegate;
+
+    private byte[] importData;
 
     public interface PeripheralDataDelegate {
         void didImportData(PeripheralData peripheralData);
@@ -128,7 +132,7 @@ public class PeripheralData {
         return dataBufs;
     }
 
-    public void exportState() {
+    private ByteBuffer getBinary() {
         ByteBuffer data = ByteBuffer.allocate(PERIPHERAL_CONFIG_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
         data.put(i2cAddr);
         data.put(successWriteFlag);
@@ -148,44 +152,71 @@ public class PeripheralData {
                 data = BinaryOperation.concatData(data, dataBufs.get(i).getBinary());
             }
         }
+        data.position(0);
 
-        HiFiToyControl.getInstance().sendBufToDsp((short)0, data);
+        return data;
+    }
+
+    private ByteBuffer getPresetBinary() {
+        ByteBuffer data = getBinary();
+        return BinaryOperation.copyOfRange(data, PRESET_DATA_OFFSET, data.capacity());
+    }
+
+    public void export() {
+        if (!HiFiToyControl.getInstance().isConnected()) return;
+
+        HiFiToyControl.getInstance().sendBufToDsp((short)0, getBinary());
         HiFiToyControl.getInstance().sendWriteFlag((byte)1);
         HiFiToyControl.getInstance().setInitDsp();
     }
 
-    public void exportStateFromPresetOffset() {
-        final short PRESET_DATA_OFFSET = 0x18;
+    public void exportWithDialog(String title) {
+        if (!HiFiToyControl.getInstance().isConnected()) return;
 
-        ByteBuffer data = ByteBuffer.allocate(12).order(ByteOrder.LITTLE_ENDIAN);
-        data.put(biquadTypes);
-        data.put(reserved1);
-        data.putShort(dataBufLength);
-        data.putShort(dataBytesLength);
+        Context c = ApplicationContext.getInstance().getContext();
+        c.registerReceiver(broadcastReceiver, makeExportIntentFilter());
 
-        if (dataBufs != null) {
-            for (int i = 0; i < dataBufs.size(); i++) {
-                data = BinaryOperation.concatData(data, dataBufs.get(i).getBinary());
-            }
-        }
+        DialogSystem.getInstance().showProgressDialog(title, getBinary().capacity());
+        export();
+    }
+
+    public void exportPreset() {
+        if (!HiFiToyControl.getInstance().isConnected()) return;
 
         HiFiToyControl.getInstance().sendWriteFlag((byte)0);
-        HiFiToyControl.getInstance().sendBufToDsp(PRESET_DATA_OFFSET , data);
+        HiFiToyControl.getInstance().sendBufToDsp(PRESET_DATA_OFFSET , getPresetBinary());
         HiFiToyControl.getInstance().sendWriteFlag((byte)1);
         HiFiToyControl.getInstance().setInitDsp();
     }
 
+    public void exportPresetWithDialog(String title) {
+        if (!HiFiToyControl.getInstance().isConnected()) return;
 
-    private byte[] importData;
-
-    public void importState(){
         Context c = ApplicationContext.getInstance().getContext();
-        c.registerReceiver(broadcastReceiver, new IntentFilter(HiFiToyControl.DID_GET_PARAM_DATA));
+        c.registerReceiver(broadcastReceiver, makeExportIntentFilter());
+
+        DialogSystem.getInstance().showProgressDialog(title, getPresetBinary().capacity());
+        exportPreset();
+    }
+
+    public void startImport(){
+        if (!HiFiToyControl.getInstance().isConnected()) return;
+
+        Context c = ApplicationContext.getInstance().getContext();
+        c.registerReceiver(broadcastReceiver, makeImportIntentFilter());
 
         dataBytesLength = -1;
         importData = new byte[0];
         //start read first 20 bytes
         HiFiToyControl.getInstance().getDspDataWithOffset((short)0);
+    }
+
+    public void importWithDialog(String title) {
+        if (!HiFiToyControl.getInstance().isConnected()) return;
+
+        //real max packets calculate after get first packet
+        DialogSystem.getInstance().showProgressDialog(title, PERIPHERAL_CONFIG_LENGTH);
+        startImport();
     }
 
     public void didGet20Bytes(byte[] data20) {
@@ -216,6 +247,9 @@ public class PeripheralData {
             reserved1 = b.get();
             dataBufLength = b.getShort();
             dataBytesLength = b.getShort();
+
+            DialogSystem.getInstance().getProgressDialog().setMax(dataBytesLength - 40);
+
         } else if (dataBytesLength != -1) {
 
             //then reading finished
@@ -230,13 +264,13 @@ public class PeripheralData {
                 }
 
                 Log.d(TAG, "Peripheral data import finished success.");
-
-                //close progress dialog
-
-                if (delegate != null) delegate.didImportData(this);
+                DialogSystem.getInstance().closeProgressDialog();
 
                 Context c = ApplicationContext.getInstance().getContext();
                 c.unregisterReceiver(broadcastReceiver);
+
+                if (delegate != null) delegate.didImportData(this);
+
                 return;
             }
         }
@@ -249,6 +283,20 @@ public class PeripheralData {
 
     }
 
+    private static IntentFilter makeImportIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(HiFiToyControl.DID_GET_PARAM_DATA);
+
+        return intentFilter;
+    }
+    private static IntentFilter makeExportIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(HiFiToyControl.DID_WRITE_DATA);
+        intentFilter.addAction(HiFiToyControl.DID_WRITE_ALL_DATA);
+
+        return intentFilter;
+    }
+
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -256,7 +304,19 @@ public class PeripheralData {
 
             if (HiFiToyControl.DID_GET_PARAM_DATA.equals(action)) {
                 byte[] data = intent.getByteArrayExtra(EXTRA_DATA);
+                DialogSystem.getInstance().updateProgressDialog(data.length);
+
                 didGet20Bytes(data);
+            }
+            if (HiFiToyControl.DID_WRITE_DATA.equals(action)) {
+                int v = intent.getIntExtra(EXTRA_DATA, -1);
+                DialogSystem.getInstance().updateProgressDialog(16);
+            }
+            if (HiFiToyControl.DID_WRITE_ALL_DATA.equals(action)) {
+                DialogSystem.getInstance().closeProgressDialog();
+
+                Context c = ApplicationContext.getInstance().getContext();
+                c.unregisterReceiver(broadcastReceiver);
             }
         }
     };

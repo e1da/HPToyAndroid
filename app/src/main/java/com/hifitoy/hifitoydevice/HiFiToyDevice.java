@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 import com.hifitoy.ApplicationContext;
+import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.CommonCommand;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoynumbers.Checksummer;
@@ -29,7 +30,7 @@ import java.util.Locale;
 
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC;
 
-public class HiFiToyDevice implements StoreInterface, PeripheralData.PeripheralDataDelegate, Serializable {
+public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Serializable {
     private static final String TAG = "HiFiToy";
 
     private String  mac;
@@ -119,62 +120,14 @@ public class HiFiToyDevice implements StoreInterface, PeripheralData.PeripheralD
         energyConfig = new EnergyConfig();
         setActiveKeyPreset("DefaultPreset");
 
-        HiFiToyPreset p = getActivePreset();
-        List<HiFiToyDataBuf> b = p.getDataBufs();
-        byte[] d = BinaryOperation.getBinary(b);
-
-        Log.d(TAG, String.format(Locale.getDefault(), "restoreFactory=%x", Checksummer.calc(d)));
-
         PeripheralData peripheralData = new PeripheralData(this);
-        peripheralData.exportState();
+        peripheralData.exportWithDialog("Restore factory...");
     }
 
     public void importPreset() {
         PeripheralData d = new PeripheralData();
         d.setDelegate(this);
-        d.importState();
-    }
-
-    @Override
-    public boolean restore(String filename, String key) {
-        setDefault();
-
-        Context context = ApplicationContext.getInstance().getContext();
-        SharedPreferences pref = context.getSharedPreferences(filename, Context.MODE_PRIVATE);
-
-        if (pref == null){
-            Log.d(TAG, "sharedPref == null.");
-            return false;
-        }
-
-        mac = pref.getString(key + "_mac", "");
-        name = pref.getString(key + "_name", "");
-        pairingCode = pref.getInt(key + "_value", -1);
-        activeKeyPreset = pref.getString(key + "_activeKeyPreset", "");
-
-        if ((mac.equals("")) || (name.equals("")) || (pairingCode == -1) || (activeKeyPreset.equals(""))){
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public void store(String filename, String key) {
-        Context context = ApplicationContext.getInstance().getContext();
-        SharedPreferences sharedPref = context.getSharedPreferences(filename, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-
-        if (editor == null){
-            Log.d(TAG, "sharedPref editor == null.");
-            return;
-        }
-
-        editor.putString(key + "_mac", mac);
-        editor.putString(key + "_name", name);
-        editor.putInt(key + "_value", pairingCode);
-        editor.putString(key + "_activeKeyPreset", activeKeyPreset);
-
-        editor.commit();
+        d.importWithDialog("Import Preset...");
     }
 
     public void description(){

@@ -222,7 +222,6 @@ public class DialogSystem {
         OnClickDialog dialogListener = new OnClickDialog() {
             public void onPositiveClick(){
                 HiFiToyControl.getInstance().getActiveDevice().restoreFactorySettings();
-                //showFactoryProgressDialog();
             }
             public void onNegativeClick(){
                 //
@@ -247,11 +246,6 @@ public class DialogSystem {
                 "Dsp Firmware is corrupted! 'Restore Factory Seetings' will solve problem, continue?",
                 "Ok", "Cancel");
     }
-
-
-    /*public void showFactoryProgressDialog(int remainPackets){
-        showProgressDialog("Send factory settings...", remainPackets);
-    }*/
 
     /*---------------------------- Show pairing code dialog -----------------------------*/
     public void showPairingCodeDialog(){

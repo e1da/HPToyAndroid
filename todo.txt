@@ -15,4 +15,4 @@
  
 -(032219)test and fix bugs Xml export/import
 
--(032319)add progress bar for import/export presets
++(032319)add progress bar for import/export presets

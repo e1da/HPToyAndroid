@@ -64,6 +64,8 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     public final static String ADVERTISE_MODE_UPDATE    = "com.hifitoy.ADVERTISE_MODE_UPDATE";
     public final static String AUDIO_SOURCE_UPDATE      = "com.hifitoy.AUDIO_SOURCE_UPDATE";
     public final static String DID_GET_PARAM_DATA       = "com.hifitoy.DID_GET_PARAM_DATA";
+    public final static String DID_WRITE_DATA           = "com.hifitoy.DID_WRITE_DATA";
+    public final static String DID_WRITE_ALL_DATA       = "com.hifitoy.DID_WRITE_ALL_DATA";
 
     private final static UUID FFF1_UUID =
             UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb");
@@ -156,11 +158,6 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     public interface ConnectionDelegate {
         void didConnect();
         void didDisconnect();
-
-        void didWriteData(int remainPackets);
-        void didWriteAllData();
-
-        void didGetParamData(byte[] data);
     }
 
     public static synchronized HiFiToyControl getInstance() {
@@ -359,7 +356,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                 packets.remove();
 
                 Log.d(TAG, String.format("left pack count = %d", packets.size()));
-                if (connectionDelegate != null) connectionDelegate.didWriteData(packets.size());
+                ApplicationContext.getInstance().broadcastUpdate(DID_WRITE_DATA, packets.size());
 
                 if (packets.size() > 0) {
                     bleBusy = true;
@@ -371,7 +368,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                     writeCharacterstic(FFF1_Char);
                 } else {
                     bleBusy = false;
-                    if (connectionDelegate != null) connectionDelegate.didWriteAllData();
+                    ApplicationContext.getInstance().broadcastUpdate(DID_WRITE_ALL_DATA);
                 }
             }
         }
@@ -516,8 +513,6 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
             }
 
             if (data.length == 20){ // Get data from storage
-                if (connectionDelegate != null) connectionDelegate.didGetParamData(data);
-
                 ApplicationContext.getInstance().broadcastUpdate(DID_GET_PARAM_DATA, data);
             }
         }
