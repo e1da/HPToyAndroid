@@ -445,21 +445,19 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                         break;
 
                     case CommonCommand.GET_VERSION:
-                    {
-                        int version = ((int)data[2]) * 256 + (int)data[1];
+                        int version = (data[1] & 0xFF) | ((data[2] << 8) & 0xFF00);
 
                         if (version == activeDevice.getVersion()) {
                             Log.d(TAG, "GET_VERSION_OK");
                             activeDevice.getAudioSource().readFromDsp();
                         } else {
-                            Log.d(TAG, "GET_VERSION_FAIL" + version);
+                            Log.d(TAG, "GET_VERSION_FAIL=" + version + "CURRENT=" + activeDevice.getVersion());
                             activeDevice.restoreFactorySettings();
                         }
                         break;
-                    }
-                    case CommonCommand.GET_CHECKSUM:
-                        short checksum = (short)(((int)data[2]) * 256 + (int)data[1]);
 
+                    case CommonCommand.GET_CHECKSUM:
+                        short checksum = (short)( (data[1] & 0xFF) | ((data[2] << 8) & 0xFF00) );
 
                         String info = String.format(Locale.getDefault(),
                                             "GET_CHECKSUM=0x%x APP_CHECKSUM=0x%x",
@@ -601,6 +599,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
         ByteBuffer b = ByteBuffer.allocate(18).order(ByteOrder.LITTLE_ENDIAN);
         b.putShort(offset);
+        data.position(0);
         b.put(data);
 
         sendDataToDsp(b, true);
@@ -623,7 +622,9 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         do {
             //send buf to attach page
             for (int i = 0; i < l; i += 16){
-                ByteBuffer b = BinaryOperation.copyOfRange(data, offset + i, offset + i + 16);
+                ByteBuffer b = ByteBuffer.allocate(16);
+                b.put(BinaryOperation.copyOfRange(data, offset + i, offset + i + 16));
+
                 send16Bytes((short)((ATTACH_PAGE_OFFSET + i) >>> 2), b);
             }
             //move attach pg -> dsp data

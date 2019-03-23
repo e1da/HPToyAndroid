@@ -31,6 +31,9 @@ public class BinaryOperation {
     }
 
     public static ByteBuffer concatData(ByteBuffer data, ByteBuffer appendData){
+        data.position(0);
+        appendData.position(0);
+
         ByteBuffer concatData = ByteBuffer.allocate(data.capacity() + appendData.capacity());
         concatData.put(data);
         concatData.put(appendData);

@@ -42,6 +42,7 @@ public class EnergyConfig implements Serializable {
         b.putShort(auxTimeout120ms);
         b.putShort(usbTimeout120ms);
 
+        b.position(0);
         return b;
     }
 

@@ -48,6 +48,7 @@ public class HiFiToyDataBuf {
             data.position(0);
             b.put(data);
 
+            b.position(0);
             return b;
         }
         return null;

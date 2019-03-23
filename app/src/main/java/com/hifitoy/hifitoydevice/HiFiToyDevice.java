@@ -13,6 +13,7 @@ import android.util.Log;
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.hifitoycontrol.CommonCommand;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoynumbers.Checksummer;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.Biquad;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
@@ -24,6 +25,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC;
 
@@ -52,7 +54,6 @@ public class HiFiToyDevice implements StoreInterface, PeripheralData.PeripheralD
         audioSource = new AudioSource();
         advertiseMode = new AdvertiseMode();
         energyConfig = new EnergyConfig();
-
     }
 
     //setters/getters
@@ -112,7 +113,18 @@ public class HiFiToyDevice implements StoreInterface, PeripheralData.PeripheralD
     }
 
     public void restoreFactorySettings() {
-        setDefault();
+        pairingCode = 0;
+        audioSource = new AudioSource();
+        advertiseMode = new AdvertiseMode();
+        energyConfig = new EnergyConfig();
+        setActiveKeyPreset("DefaultPreset");
+
+        HiFiToyPreset p = getActivePreset();
+        List<HiFiToyDataBuf> b = p.getDataBufs();
+        byte[] d = BinaryOperation.getBinary(b);
+
+        Log.d(TAG, String.format(Locale.getDefault(), "restoreFactory=%x", Checksummer.calc(d)));
+
         PeripheralData peripheralData = new PeripheralData(this);
         peripheralData.exportState();
     }

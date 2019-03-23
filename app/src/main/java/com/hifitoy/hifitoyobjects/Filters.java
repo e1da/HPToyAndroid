@@ -46,7 +46,7 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
         biquads = new Biquad[7];
 
         for (byte i = 0; i < 7; i++) {
-            biquads[i] = new Biquad((byte)(address0 + i), (address1 != 0) ? (byte)(address0 + i) : (byte)0);
+            biquads[i] = new Biquad((byte)(address0 + i), (address1 != 0) ? (byte)(address1 + i) : (byte)0);
 
             Biquad.BiquadParam p = biquads[i].getParams();
             p.setBorderFreq((short)20000, (short)20);
