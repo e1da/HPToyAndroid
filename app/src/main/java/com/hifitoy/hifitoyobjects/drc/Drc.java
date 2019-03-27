@@ -7,6 +7,8 @@
 package com.hifitoy.hifitoyobjects.drc;
 
 import android.util.Log;
+
+import com.hifitoy.ble.BlePacket;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoynumbers.Number523;
@@ -157,13 +159,17 @@ public class Drc implements HiFiToyObject, Cloneable, Serializable {
     }
 
     public void sendEvaluationToPeripheral(boolean response) {
-        HiFiToyControl.getInstance().sendDataToDsp(getEvaluationDataBuf().getBinary(), response);
+        BlePacket p = new BlePacket(getEvaluationDataBuf().getBinary(), 20, response);
+        HiFiToyControl.getInstance().sendDataToDsp(p);
     }
 
     public void sendEnabledToPeripheral(byte channel, boolean response) {
         HiFiToyDataBuf d = getEnabledDataBuf(channel);
 
-        if (d != null) HiFiToyControl.getInstance().sendDataToDsp(d.getBinary(), response);
+        if (d != null) {
+            BlePacket p = new BlePacket(d.getBinary(), 20, response);
+            HiFiToyControl.getInstance().sendDataToDsp(p);
+        }
     }
 
     @Override

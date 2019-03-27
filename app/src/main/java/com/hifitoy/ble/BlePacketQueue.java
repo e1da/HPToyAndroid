@@ -8,8 +8,9 @@ package com.hifitoy.ble;
 
 import java.util.ArrayDeque;
 import java.util.Iterator;
+import java.util.LinkedList;
 
-public class BlePacketQueue extends ArrayDeque<BlePacket> {
+public class BlePacketQueue extends LinkedList<BlePacket> {
     @Override
     public boolean add(BlePacket packet) {
         if (packet.getResponse()) {
@@ -17,18 +18,15 @@ public class BlePacketQueue extends ArrayDeque<BlePacket> {
         } else {
             boolean addStatus = false;
 
-            Iterator<BlePacket> iter = descendingIterator();
+            for (int i = size() - 1; i >= 0; i--) {
+                BlePacket p = get(i);
 
-            do {
-                BlePacket p = iter.next();
                 if (!p.getResponse()) {
-                    p = packet;
+                    set(i, packet);
                     addStatus = true;
                     break;
                 }
-
-            } while (iter.hasNext());
-
+            }
 
             if (!addStatus) super.add(packet);
         }

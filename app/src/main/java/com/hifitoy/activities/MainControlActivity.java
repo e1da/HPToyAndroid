@@ -28,7 +28,16 @@ import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.AudioSource;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
+import com.hifitoy.hifitoydevice.HiFiToyPreset;
+import com.hifitoy.hifitoyobjects.Biquad;
+import com.hifitoy.hifitoyobjects.Loudness;
+import com.hifitoy.hifitoyobjects.Volume;
+import com.hifitoy.hifitoyobjects.basstreble.BassTreble;
+import com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel;
 import com.hifitoy.widgets.AudioSourceWidget;
+
+import java.nio.ByteBuffer;
+import java.util.Locale;
 
 
 public class MainControlActivity extends Activity implements SeekBar.OnSeekBarChangeListener,
@@ -141,8 +150,8 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
         loudnessFreqLabel_outl      = findViewById(R.id.loudnessFreqLabel_outl);
         loudnessFreqSeekBar_outl    = findViewById(R.id.loudnessFreqSeekBar_outl);
 
-        filtersInfo_outl = findViewById(R.id.filters_control_info);
-        filtersActivity_outl = findViewById(R.id.filtersActivity_outl);
+        filtersInfo_outl        = findViewById(R.id.filters_control_info);
+        filtersActivity_outl    = findViewById(R.id.filtersActivity_outl);
         compressorInfo_outl     = findViewById(R.id.compressor_control_info);
         compressorActivity_outl = findViewById(R.id.compressorActivity_outl);
         optionsActivity_outl    = findViewById(R.id.optionsActivity_outl);
@@ -157,10 +166,34 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
         compressorInfo_outl.setOnClickListener(this);
         compressorActivity_outl.setOnClickListener(this);
         optionsActivity_outl.setOnClickListener(this);
+
+        volumeSeekBar_outl.setOnSeekBarChangeListener(this);
+        bassSeekBar_outl.setOnSeekBarChangeListener(this);
+        trebleSeekBar_outl.setOnSeekBarChangeListener(this);
+        loudnessSeekBar_outl.setOnSeekBarChangeListener(this);
+        loudnessFreqSeekBar_outl.setOnSeekBarChangeListener(this);
     }
 
     private void setupOutlets() {
+        HiFiToyPreset preset = hifiToyDevice.getActivePreset();
+
         audioSource_outl.setState(hifiToyDevice.getAudioSource().getSource());
+
+        volumeLabel_outl.setText(preset.getVolume().getInfo());
+        setSeekBar(volumeSeekBar_outl, preset.getVolume().getDbPercent());
+
+        BassTrebleChannel bassTreble = preset.getBassTreble().getBassTreble127();
+        bassLabel_outl.setText(String.format(Locale.getDefault(),"%ddB", bassTreble.getBassDb()));
+        setSeekBar(bassSeekBar_outl, bassTreble.getBassDbPercent());
+
+        trebleLabel_outl.setText(String.format(Locale.getDefault(),"%ddB", bassTreble.getTrebleDb()));
+        setSeekBar(trebleSeekBar_outl, bassTreble.getTrebleDbPercent());
+
+        loudnessLabel_outl.setText(preset.getLoudness().getInfo());
+        setSeekBar(loudnessSeekBar_outl, preset.getLoudness().getGain() / 2);
+        loudnessFreqLabel_outl.setText(preset.getLoudness().getFreqInfo());
+        setSeekBar(loudnessFreqSeekBar_outl, preset.getLoudness().getBiquad().getParams().getFreqPercent());
+
     }
 
     public void onClick(View v) {
@@ -206,24 +239,53 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (!fromUser) return;
 
+        HiFiToyPreset p = hifiToyDevice.getActivePreset();
+
         if (seekBar.equals(volumeSeekBar_outl)){
-            //dspPreset.gainSlider.setPercent((double)progress / 100);
-            /*dspPreset.gainSlider.setPercent(getSeekBarPercent(seekBar));
-            gainLabel_outl.setText(dspPreset.gainSlider.getInfo());
+            Volume v = p.getVolume();
 
-            dspPreset.gainSlider.sendToDsp(false);//false = without response*/
+            v.setDbPercent(getSeekBarPercent(volumeSeekBar_outl));
+            volumeLabel_outl.setText(v.getInfo());
+
+            v.sendToPeripheral(false);
         }
+
         if (seekBar.equals(bassSeekBar_outl)){
+            BassTrebleChannel bass = p.getBassTreble().getBassTreble127();
 
+            bass.setBassDbPercent(getSeekBarPercent(bassSeekBar_outl));
+            bassLabel_outl.setText(String.format(Locale.getDefault(),"%ddB", bass.getBassDb()));
+
+            p.getBassTreble().sendToPeripheral(false);
         }
+
         if (seekBar.equals(trebleSeekBar_outl)){
+            BassTrebleChannel treble = p.getBassTreble().getBassTreble127();
 
+            treble.setTrebleDbPercent(getSeekBarPercent(trebleSeekBar_outl));
+            trebleLabel_outl.setText(String.format(Locale.getDefault(),"%ddB", treble.getTrebleDb()));
+
+            p.getBassTreble().sendToPeripheral(false);
         }
+
         if (seekBar.equals(loudnessSeekBar_outl)){
+            Loudness l = p.getLoudness();
 
+            l.setGain(getSeekBarPercent(loudnessSeekBar_outl) * 2);
+            loudnessLabel_outl.setText(l.getInfo());
+
+            l.sendToPeripheral(false);
         }
-        if (seekBar.equals(loudnessFreqSeekBar_outl)){
 
+        if (seekBar.equals(loudnessFreqSeekBar_outl)){
+            Biquad.BiquadParam bp = p.getLoudness().getBiquad().getParams();
+
+            bp.setFreqPercent(getSeekBarPercent(loudnessFreqSeekBar_outl));
+            //round freq
+            bp.setFreq(freqRound(bp.getFreq()));
+
+            loudnessFreqLabel_outl.setText(p.getLoudness().getFreqInfo());
+            p.getLoudness().getBiquad().sendToPeripheral(false);
         }
     }
     public void onStartTrackingTouch(SeekBar seekBar) {
@@ -234,12 +296,21 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
 
     }
 
-    private void setSeekBar(SeekBar seekBar, double percent){//percent=[0.0 .. 1.0]
+    private void setSeekBar(SeekBar seekBar, float percent){//percent=[0.0 .. 1.0]
         int percentValue = (int)(percent * seekBar.getMax());
         seekBar.setProgress(percentValue);
     }
-    private double getSeekBarPercent(SeekBar seekBar){//percent=[0.0 .. 1.0]
-        return (double)seekBar.getProgress() / seekBar.getMax();
+    private float getSeekBarPercent(SeekBar seekBar){//percent=[0.0 .. 1.0]
+        return (float)seekBar.getProgress() / seekBar.getMax();
+    }
+
+    private short freqRound(short freq) {
+        if (freq > 1000) {
+            return (short)(freq / 100 * 100);
+        } else if (freq > 100) {
+            return (short)(freq / 10 * 10);
+        }
+        return freq;
     }
 
     private static IntentFilter makeIntentFilter() {

@@ -184,6 +184,12 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     public Volume getVolume() {
         return masterVolume;
     }
+    public BassTreble getBassTreble() {
+        return bassTreble;
+    }
+    public Loudness getLoudness() {
+        return loudness;
+    }
 
     public void updateChecksum() {
         updateChecksum(getDataBufs());

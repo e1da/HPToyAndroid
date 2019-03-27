@@ -8,6 +8,9 @@ package com.hifitoy.ble;
 
 import android.util.Log;
 
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+
 public class BlePacket {
     private static final String TAG = "HiFiToy";
 
@@ -17,6 +20,15 @@ public class BlePacket {
     public BlePacket(byte[] value, boolean response){
         this.data = value;
         this.response = response;
+    }
+    public BlePacket(ByteBuffer value, boolean response){
+        this(value.array(), response);
+    }
+    public BlePacket(byte[] value, int length, boolean response){
+        this(Arrays.copyOf(value, length), response);
+    }
+    public BlePacket(ByteBuffer value, int length, boolean response){
+        this(value.array(), length, response);
     }
 
     public byte[] getData() {

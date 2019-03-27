@@ -455,6 +455,13 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
         public short getFreq() {
             return freq;
         }
+        public void setFreqPercent(float percent) {
+            setFreq((short)Math.pow(10, percent * (Math.log10(maxFreq) - Math.log10(minFreq)) + Math.log10(minFreq)));
+        }
+        public float getFreqPercent() {
+            return (float)((Math.log10(freq) - Math.log10(minFreq)) / (Math.log10(maxFreq) - Math.log10(minFreq)));
+        }
+
         public void setQFac(float qFac) {
             if (qFac < minQ) qFac = minQ;
             if (qFac > maxQ) qFac = maxQ;

@@ -8,6 +8,7 @@ package com.hifitoy.hifitoyobjects;
 
 import android.util.Log;
 
+import com.hifitoy.ble.BlePacket;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoynumbers.Number523;
@@ -80,7 +81,7 @@ public class Loudness implements HiFiToyObject, Cloneable, Serializable {
     //setters / getters
     public void setGain(float gain) {
         if (gain < 0.0f) gain = 0.0f;
-        if (gain > 1.0f) gain = 1.0f;
+        if (gain > 2.0f) gain = 2.0f;
 
         this.gain = gain;
     }
@@ -92,6 +93,9 @@ public class Loudness implements HiFiToyObject, Cloneable, Serializable {
     }
     public short getFreq() {
         return biquad.getParams().getFreq();
+    }
+    public Biquad getBiquad() {
+        return biquad;
     }
 
     @Override
@@ -114,7 +118,8 @@ public class Loudness implements HiFiToyObject, Cloneable, Serializable {
 
     @Override
     public void sendToPeripheral(boolean response) {
-        HiFiToyControl.getInstance().sendDataToDsp(getMainDataBuf().getBinary(), response);
+        BlePacket p = new BlePacket(getMainDataBuf().getBinary(), 20, response);
+        HiFiToyControl.getInstance().sendDataToDsp(p);
     }
 
     private HiFiToyDataBuf getMainDataBuf() {

@@ -7,6 +7,8 @@
 package com.hifitoy.hifitoyobjects.drc;
 
 import android.util.Log;
+
+import com.hifitoy.ble.BlePacket;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
@@ -124,11 +126,13 @@ public class DrcTimeConst implements HiFiToyObject, Cloneable, Serializable {
     }
 
     public void sendEnergyToPeripheral(boolean response) {
-        HiFiToyControl.getInstance().sendDataToDsp(getEnergyDataBuf().getBinary(), response);
+        BlePacket p = new BlePacket(getEnergyDataBuf().getBinary(), 20, response);
+        HiFiToyControl.getInstance().sendDataToDsp(p);
     }
 
     public void sendAttackDecayToPeripheral(boolean response) {
-        HiFiToyControl.getInstance().sendDataToDsp(getAttackDecayDataBuf().getBinary(), response);
+        BlePacket p = new BlePacket(getAttackDecayDataBuf().getBinary(), 20, response);
+        HiFiToyControl.getInstance().sendDataToDsp(p);
     }
 
     @Override

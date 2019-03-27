@@ -9,6 +9,7 @@ package com.hifitoy.hifitoyobjects;
 import android.util.Log;
 import android.widget.LinearLayout;
 
+import com.hifitoy.ble.BlePacket;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.xml.XmlData;
@@ -119,7 +120,8 @@ public class Volume implements HiFiToyObject, Cloneable, Serializable {
 
     @Override
     public void sendToPeripheral(boolean response) {
-        HiFiToyControl.getInstance().sendDataToDsp(BinaryOperation.getBinary(getDataBufs()), response);
+        BlePacket p = new BlePacket(BinaryOperation.getBinary(getDataBufs()), 20, response);
+        HiFiToyControl.getInstance().sendDataToDsp(p);
     }
 
     @Override

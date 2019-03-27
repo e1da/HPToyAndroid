@@ -1,18 +1,16 @@
 -clip ui
 
-+(032219)store preset on android phone
-
-+(032219)fixed restore factory
-
-+(032219)fixed store preset to peripheral
-
--(032219)bind ui controllers(volume, bass, treble ..) to model layer
++(032219)bind ui controllers(volume, bass, treble ..) to model layer
 
 -(032219)add preset manager menu
 
--(032219)add build config for HiFiToy and HPToy
++(032219)add build config for HiFiToy and HPToy
 
  
 -(032219)test and fix bugs Xml export/import
 
 +(032319)add progress bar for import/export presets
+
+-(032819)ble packet queue maybe bug
+
+-(032819)check when app goto wait mode (maybe need service used)

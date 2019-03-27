@@ -191,6 +191,6 @@ public class PassFilter implements Cloneable, Serializable {
         byte nc = 0;
         b.put(nc);
 
-        HiFiToyControl.getInstance().sendDataToDsp(b.array(), response);
+        HiFiToyControl.getInstance().sendDataToDsp(b, response);
     }
 }

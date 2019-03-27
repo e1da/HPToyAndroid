@@ -579,10 +579,13 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     }
 
     //base send command
-    public void sendDataToDsp(byte[] data, boolean response) {
+    public void sendDataToDsp(BlePacket packet) {
         if (activeDevice != null) {
-            writeFFF1Characterstic(new BlePacket(data, response));
+            writeFFF1Characterstic(packet);
         }
+    }
+    public void sendDataToDsp(byte[] data, boolean response) {
+        sendDataToDsp(new BlePacket(data, response));
     }
     public void sendDataToDsp(ByteBuffer data, boolean response) {
         sendDataToDsp(data.array(), response);

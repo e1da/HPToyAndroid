@@ -8,6 +8,7 @@ package com.hifitoy.hifitoyobjects.basstreble;
 
 import android.util.Log;
 
+import com.hifitoy.ble.BlePacket;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
@@ -149,11 +150,13 @@ public class BassTreble implements HiFiToyObject, Cloneable, Serializable {
 
     @Override
     public void sendToPeripheral(boolean response) {
-        HiFiToyControl.getInstance().sendDataToDsp(getFreqDbDataBuf().getBinary(), response);
+        BlePacket p = new BlePacket(getFreqDbDataBuf().getBinary(), 20, response);
+        HiFiToyControl.getInstance().sendDataToDsp(p);
     }
 
     public void sendEnabledToPeripheral(byte channel, boolean response) {
-        HiFiToyControl.getInstance().sendDataToDsp(getEnabledDataBuf(channel).getBinary(), response);
+        BlePacket p = new BlePacket(getEnabledDataBuf(channel).getBinary(), 20, response);
+        HiFiToyControl.getInstance().sendDataToDsp(p);
     }
 
     private HiFiToyDataBuf getFreqDbDataBuf() {
