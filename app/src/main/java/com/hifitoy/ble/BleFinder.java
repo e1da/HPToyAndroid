@@ -11,7 +11,12 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
+import android.content.Context;
 import android.util.Log;
+
+import com.hifitoy.ApplicationContext;
+import com.hifitoy.R;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -73,9 +78,10 @@ public class BleFinder {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             BluetoothDevice device = result.getDevice();
+            Context c = ApplicationContext.getInstance().getContext();
 
             if (    (device.getName() != null) &&
-                    (device.getName().equals("HiFiToyPeripheral")) &&
+                    (device.getName().equals(c.getResources().getString(R.string.ble_device_name))) &&
                     (!deviceAddressList.contains(device.getAddress()))) {
 
                 deviceAddressList.add(device.getAddress());

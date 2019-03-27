@@ -17,6 +17,8 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,10 +32,11 @@ public class AutoOffActivity extends Activity implements SeekBar.OnSeekBarChange
     final static String TAG = "HiFiToy";
     private static final int SYNC_MENU_ID = 1;
 
-    TextView    autoOffLabel_outl;
-    SeekBar     autoOffSeekBar_outl;
-    TextView    clipLabel_outl;
-    SeekBar     clipSeekBar_outl;
+    LinearLayout    autoOffGroup_outl;
+    TextView        autoOffLabel_outl;
+    SeekBar         autoOffSeekBar_outl;
+    TextView        clipLabel_outl;
+    SeekBar         clipSeekBar_outl;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -84,8 +87,16 @@ public class AutoOffActivity extends Activity implements SeekBar.OnSeekBarChange
     }
 
     private void initOutlets() {
+        autoOffGroup_outl    = findViewById(R.id.auto_off_group_outl);
         autoOffLabel_outl    = findViewById(R.id.autoOffLabel_outl);
         autoOffSeekBar_outl  = findViewById(R.id.autoOffSeekBar_outl);
+
+        if (getPackageName().equals("com.hptoy")) {
+            autoOffGroup_outl.setVisibility(View.GONE);
+        } else {
+            autoOffGroup_outl.setVisibility(View.VISIBLE);
+        }
+
         clipLabel_outl    = findViewById(R.id.clipLabel_outl);
         clipSeekBar_outl  = findViewById(R.id.clipSeekBar_outl);
 

@@ -243,7 +243,7 @@ public class DialogSystem {
 
         showDialog(dialogListener,
                 "Dsp Firmware fail",
-                "Dsp Firmware is corrupted! 'Restore Factory Seetings' will solve problem, continue?",
+                "Dsp Firmware is corrupted! 'Restore Factory Settings' will solve problem, continue?",
                 "Ok", "Cancel");
     }
 

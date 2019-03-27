@@ -18,6 +18,7 @@ import android.support.v7.widget.AppCompatImageView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import com.hifitoy.ApplicationContext;
@@ -37,6 +38,7 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
 
     private HiFiToyDevice hifiToyDevice;
 
+    LinearLayout audioSourceGroup_outl;
     AppCompatImageView audioSourceInfo_outl;
     AudioSourceWidget audioSource_outl;
 
@@ -113,8 +115,15 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
     }
 
     private void initOutlets() {
+        audioSourceGroup_outl   = findViewById(R.id.audio_source_group);
         audioSourceInfo_outl    = findViewById(R.id.audio_source_info);
         audioSource_outl        = findViewById(R.id.audio_source1_outl);
+
+        if (getPackageName().equals("com.hptoy")) {
+            audioSourceGroup_outl.setVisibility(View.GONE);
+        } else {
+            audioSourceGroup_outl.setVisibility(View.VISIBLE);
+        }
 
         //volumeInfo_outl     = findViewById(R.id.volume_control_info);
         volumeLabel_outl    = findViewById(R.id.volumeLabel_outl);

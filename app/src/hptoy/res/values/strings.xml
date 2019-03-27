@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HPToy</string>
+    <string name="ble_device_name">HPToyPeripheral</string>
+
+    <string name="discovery_info">
+        This window shows all available online HP Toy devices, which you may choose to control.
+        Also you can rename UUID number for any simple name in the Options/Name menu.
+    </string>
+
+</resources>
