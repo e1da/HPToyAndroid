@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
+import com.hifitoy.activities.options.presetmanager.PresetManagerActivity;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
@@ -123,8 +124,8 @@ public class OptionsActivity extends Activity implements View.OnClickListener {
                 showChangePairingCodeDialog();
                 break;
             case R.id.presetManager_outl:
-                //intent = new Intent(OptionsActivity.this, PresetManagerActivity.class);
-                //startActivity(intent);
+                intent = new Intent(OptionsActivity.this, PresetManagerActivity.class);
+                startActivity(intent);
                 break;
             case R.id.autoOff_outl:
                 intent = new Intent(OptionsActivity.this, AutoOffActivity.class);

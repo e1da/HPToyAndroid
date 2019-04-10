@@ -1,8 +1,9 @@
 -clip ui
 
+
 +(032219)bind ui controllers(volume, bass, treble ..) to model layer
 
--(032219)add preset manager menu
++(032219)add preset manager menu
 
 +(032219)add build config for HiFiToy and HPToy
 
