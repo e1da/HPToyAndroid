@@ -254,19 +254,19 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
                     params.minFreq = Short.parseShort(elementValue);
                     count++;
                 }
-                if (elementName.equals("MaxQfac")){
+                if (elementName.equals("MaxQ")){
                     params.maxQ = Float.parseFloat(elementValue);
                     count++;
                 }
-                if (elementName.equals("MinQfac")){
+                if (elementName.equals("MinQ")){
                     params.minQ = Float.parseFloat(elementValue);
                     count++;
                 }
-                if (elementName.equals("MaxDbVolume")){
+                if (elementName.equals("MaxDbVol")){
                     params.maxDbVolume = Float.parseFloat(elementValue);
                     count++;
                 }
-                if (elementName.equals("MinDbVolume")){
+                if (elementName.equals("MinDbVol")){
                     params.minDbVolume = Float.parseFloat(elementValue);
                     count++;
                 }
@@ -557,7 +557,7 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
 
                     case Type.BIQUAD_BANDPASS:
                         w0 = (float)(Math.acos(a1 / 2 * (1 + b0 / (1 - b0))));
-                        freq = (short)(w0 * (float)FS / (2 * Math.PI));
+                        freq = (short)Math.round(w0 * (float)FS / (2 * Math.PI));
                         //TODO set import bandwidth
                         break;
 

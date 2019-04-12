@@ -1,15 +1,24 @@
 package com.hifitoy.hifitoyobjects.drc;
 
+import android.util.Xml;
+
 import com.hifitoy.hifitoyobjects.basstreble.BassTreble;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.Locale;
 
 import static com.hifitoy.hifitoyobjects.drc.DrcChannel.DRC_CH_1_7;
 import static org.junit.Assert.*;
 
+@RunWith(RobolectricTestRunner.class)
 public class DrcTimeConstTest {
     private DrcTimeConst dt0;
     private DrcTimeConst dt1;
@@ -74,6 +83,35 @@ public class DrcTimeConstTest {
         }
 
         assertEquals(dt0, dt1);*/
+
+    }
+
+    @Test
+    public void testXmlExportImport() {
+        dt0.setEnergyMS(1.0f);
+        assertNotEquals(dt0, dt1);
+
+        StringReader data = new StringReader(dt0.toXmlData().toString());
+
+        try {
+            XmlPullParser xmlParser = Xml.newPullParser();
+            xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+            xmlParser.setInput(data);
+
+            if (dt1.importFromXml(xmlParser)) {
+                assertEquals(dt0, dt1);
+
+            } else {
+                fail("Import from XML fail.");
+            }
+
+        } catch (XmlPullParserException e) {
+            System.out.println(e.toString());
+            fail("XmlPullParser Exception.");
+        } catch (IOException e) {
+            System.out.println(e.toString());
+            fail("IO Exception.");
+        }
 
     }
 

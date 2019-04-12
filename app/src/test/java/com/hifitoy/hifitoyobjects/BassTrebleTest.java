@@ -1,14 +1,23 @@
 package com.hifitoy.hifitoyobjects;
 
+import android.util.Xml;
+
 import com.hifitoy.hifitoyobjects.basstreble.BassTreble;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 import java.util.Locale;
 import static org.junit.Assert.*;
 
+@RunWith(RobolectricTestRunner.class)
 public class BassTrebleTest {
     private BassTreble bt0;
     private BassTreble bt1;
@@ -65,4 +74,32 @@ public class BassTrebleTest {
 
     }
 
+    @Test
+    public void testXmlExportImport() {
+        bt0.setEnabledChannel((byte)0, 0.1f);
+        assertNotEquals(bt0, bt1);
+
+        StringReader data = new StringReader(bt0.toXmlData().toString());
+
+        try {
+            XmlPullParser xmlParser = Xml.newPullParser();
+            xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+            xmlParser.setInput(data);
+
+            if (bt1.importFromXml(xmlParser)) {
+                assertEquals(bt0, bt1);
+
+            } else {
+                fail("Import from XML fail.");
+            }
+
+        } catch (XmlPullParserException e) {
+            System.out.println(e.toString());
+            fail("XmlPullParser Exception.");
+        } catch (IOException e) {
+            System.out.println(e.toString());
+            fail("IO Exception.");
+        }
+
+    }
 }

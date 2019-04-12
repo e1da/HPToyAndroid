@@ -14,6 +14,7 @@ import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -33,6 +34,8 @@ import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
+import com.hifitoy.hifitoydevice.HiFiToyPreset;
+import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 
 import java.util.ArrayList;
 
@@ -55,6 +58,9 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
                     1);
 
         mLeDeviceListAdapter = new LeDeviceListAdapter();
+
+        //check preset import file
+        checkImportPreset(getIntent());
     }
 
     @Override
@@ -274,6 +280,27 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
     public void didFindPeripheral(HiFiToyDevice device) {
         mLeDeviceListAdapter.addDevice(device);
         mLeDeviceListAdapter.notifyDataSetChanged();
+    }
+
+    //import xml preset
+    private void checkImportPreset(Intent intent) {
+        if ((intent == null) || (intent.getAction() == null)) return;
+
+        if (intent.getAction().equals(Intent.ACTION_VIEW)){
+            Uri uri = intent.getData();
+            if (uri == null) return;
+
+            HiFiToyPreset importPreset = new HiFiToyPreset();
+            if (importPreset.importFromXml(uri)){
+                HiFiToyPresetManager.getInstance().setDspPresetWithDuplicateCheck(importPreset.getName(), importPreset);
+
+                DialogSystem.getInstance().showDialog("Info",
+                        "Add " + importPreset.getName() + " preset", "Ok");
+            } else {
+                DialogSystem.getInstance().showDialog("Warning", "Import preset is not success.", "Ok");
+            }
+
+        }
     }
 
 }

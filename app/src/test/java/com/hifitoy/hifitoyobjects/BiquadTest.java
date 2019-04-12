@@ -1,8 +1,16 @@
 package com.hifitoy.hifitoyobjects;
 
+import android.util.Xml;
+
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -10,6 +18,7 @@ import java.util.Locale;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_HIGHPASS;
 import static org.junit.Assert.*;
 
+@RunWith(RobolectricTestRunner.class)
 public class BiquadTest {
     private Biquad b0;
     private Biquad b1;
@@ -67,6 +76,35 @@ public class BiquadTest {
         }
 
         assertEquals(b0, b1);
+
+    }
+
+    @Test
+    public void testXmlExportImport() {
+        b0.getParams().setFreq((short)1000);
+        assertNotEquals(b0, b1);
+
+        StringReader data = new StringReader(b0.toXmlData().toString());
+
+        try {
+            XmlPullParser xmlParser = Xml.newPullParser();
+            xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+            xmlParser.setInput(data);
+
+            if (b1.importFromXml(xmlParser)) {
+                assertEquals(b0, b1);
+
+            } else {
+                fail("Import from XML fail.");
+            }
+
+        } catch (XmlPullParserException e) {
+            System.out.println(e.toString());
+            fail("XmlPullParser Exception.");
+        } catch (IOException e) {
+            System.out.println(e.toString());
+            fail("IO Exception.");
+        }
 
     }
 }

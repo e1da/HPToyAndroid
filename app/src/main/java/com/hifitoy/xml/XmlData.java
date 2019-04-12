@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 public class XmlData {
-    private static final String TAG = "IWoofer_XML";
 
     private String xmlHeader;
     private List<String> xmlStringList;

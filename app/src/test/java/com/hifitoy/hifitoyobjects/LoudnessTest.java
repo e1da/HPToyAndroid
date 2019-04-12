@@ -1,12 +1,21 @@
 package com.hifitoy.hifitoyobjects;
 
+import android.util.Xml;
+
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.Locale;
 
 import static org.junit.Assert.*;
 
+@RunWith(RobolectricTestRunner.class)
 public class LoudnessTest {
     private Loudness l0;
     private Loudness l1;
@@ -76,6 +85,35 @@ public class LoudnessTest {
         }
 
         assertEquals(l0, l1);
+
+    }
+
+    @Test
+    public void testXmlExportImport() {
+        l0.setGain(0.05f);
+        assertNotEquals(l0, l1);
+
+        StringReader data = new StringReader(l0.toXmlData().toString());
+
+        try {
+            XmlPullParser xmlParser = Xml.newPullParser();
+            xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+            xmlParser.setInput(data);
+
+            if (l1.importFromXml(xmlParser)) {
+                assertEquals(l0, l1);
+
+            } else {
+                fail("Import from XML fail.");
+            }
+
+        } catch (XmlPullParserException e) {
+            System.out.println(e.toString());
+            fail("XmlPullParser Exception.");
+        } catch (IOException e) {
+            System.out.println(e.toString());
+            fail("IO Exception.");
+        }
 
     }
 

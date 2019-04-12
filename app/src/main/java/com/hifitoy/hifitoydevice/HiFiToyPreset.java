@@ -83,14 +83,9 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         HiFiToyPreset that = (HiFiToyPreset) o;
 
-        boolean b0 = checkSum == that.checkSum;
-        boolean b1 = Objects.equals(filters, that.filters);
-        boolean b2 = Objects.equals(masterVolume, that.masterVolume);
-        boolean b3 = Objects.equals(bassTreble, that.bassTreble);
-        boolean b4 = Objects.equals(loudness, that.loudness);
-        boolean b5 = Objects.equals(drc, that.drc);
+        boolean b0 = true;//checkSum == that.checkSum;//!!!Warning
 
-        return checkSum == that.checkSum &&
+        return b0 &&
                 Objects.equals(filters, that.filters) &&
                 Objects.equals(masterVolume, that.masterVolume) &&
                 Objects.equals(bassTreble, that.bassTreble) &&
@@ -277,7 +272,8 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         int count = 0;
 
         do {
-            if (xmlParser.getDepth() != 0) xmlParser.next();
+            //if (xmlParser.getDepth() != 0) xmlParser.next();
+            xmlParser.next();
 
             if (xmlParser.getEventType() == XmlPullParser.START_TAG){
                 elementName = xmlParser.getName();

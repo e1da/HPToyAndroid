@@ -8,6 +8,7 @@ package com.hifitoy.hifitoyobjects;
 
 import android.util.Log;
 import com.hifitoy.hifitoynumbers.FloatUtility;
+import com.hifitoy.tas5558.TAS5558;
 import com.hifitoy.xml.XmlData;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -26,6 +27,7 @@ import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_HIGHPASS
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_LOWPASS;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_OFF;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC;
+import static com.hifitoy.tas5558.TAS5558.BIQUAD_FILTER_REG;
 
 public class Filters implements HiFiToyObject, Cloneable, Serializable {
     private static final String TAG = "HiFiToy";
@@ -60,7 +62,7 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
         activeBiquadIndex = 0;
     }
     public Filters() {
-        this((byte)0x51, (byte)0x52);
+        this(BIQUAD_FILTER_REG, (byte)(TAS5558.BIQUAD_FILTER_REG + 7));
     }
 
     @Override
