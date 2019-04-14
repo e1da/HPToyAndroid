@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.hifitoy.ble.BlePacket;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoynumbers.ByteUtility;
 import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoynumbers.Number523;
 import com.hifitoy.hifitoynumbers.Number88;
@@ -291,7 +292,7 @@ public class Drc implements HiFiToyObject, Cloneable, Serializable {
 
         XmlData drcXmlData = new XmlData();
         Map<String, String> attrib = new HashMap<>();
-        attrib.put("Address", Integer.toString(getAddress()));
+        attrib.put("Address", ByteUtility.toString(getAddress()));
 
         drcXmlData.addXmlElement("Drc", xmlData, attrib);
         return drcXmlData;

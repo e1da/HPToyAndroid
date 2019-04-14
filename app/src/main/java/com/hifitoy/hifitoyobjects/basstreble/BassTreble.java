@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.hifitoy.ble.BlePacket;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoynumbers.ByteUtility;
 import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
@@ -278,7 +279,7 @@ public class BassTreble implements HiFiToyObject, Cloneable, Serializable {
 
         XmlData bassTrebleXmlData = new XmlData();
         Map<String, String> attrib = new HashMap<>();
-        attrib.put("Address", Integer.toString(getAddress()));
+        attrib.put("Address", ByteUtility.toString(getAddress()));
 
         bassTrebleXmlData.addXmlElement("BassTreble", xmlData, attrib);
         return bassTrebleXmlData;

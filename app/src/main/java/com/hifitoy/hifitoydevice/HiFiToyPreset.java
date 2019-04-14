@@ -17,6 +17,7 @@ import android.util.Xml;
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoynumbers.ByteUtility;
 import com.hifitoy.hifitoynumbers.Checksummer;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
@@ -292,7 +293,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
 
                     String addrStr = xmlParser.getAttributeValue(null, "Address");
                     if (addrStr == null) continue;
-                    byte addr = Byte.parseByte(addrStr);
+                    byte addr = ByteUtility.parse(addrStr);
 
                     Log.d(TAG, "addr = " + addrStr);
 

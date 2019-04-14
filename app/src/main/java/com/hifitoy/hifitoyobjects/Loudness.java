@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.hifitoy.ble.BlePacket;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoynumbers.ByteUtility;
 import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoynumbers.Number523;
 import com.hifitoy.tas5558.TAS5558;
@@ -177,7 +178,7 @@ public class Loudness implements HiFiToyObject, Cloneable, Serializable {
 
         XmlData loudnessXmlData = new XmlData();
         Map<String, String> attrib = new HashMap<>();
-        attrib.put("Address", Integer.toString(getAddress()));
+        attrib.put("Address", ByteUtility.toString(getAddress()));
 
         loudnessXmlData.addXmlElement("Loudness", xmlData, attrib);
         return loudnessXmlData;
@@ -197,7 +198,7 @@ public class Loudness implements HiFiToyObject, Cloneable, Serializable {
                 if (elementName.equals("Biquad")){
                     String addrStr = xmlParser.getAttributeValue(null, "Address");
                     if (addrStr == null) continue;
-                    byte address = Byte.parseByte(addrStr);
+                    byte address = ByteUtility.parse(addrStr);
 
                     if ( (biquad.getAddress() == address) && (biquad.importFromXml(xmlParser)) ){
                         count++;

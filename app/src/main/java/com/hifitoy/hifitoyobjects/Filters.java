@@ -7,6 +7,8 @@
 package com.hifitoy.hifitoyobjects;
 
 import android.util.Log;
+
+import com.hifitoy.hifitoynumbers.ByteUtility;
 import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.tas5558.TAS5558;
 import com.hifitoy.xml.XmlData;
@@ -508,8 +510,8 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
 
         XmlData filtersXmlData = new XmlData();
         Map<String, String> attrib = new HashMap<>();
-        attrib.put("Address", Integer.toString(address0));
-        attrib.put("Address1", Integer.toString(address1));
+        attrib.put("Address", ByteUtility.toString(address0));
+        attrib.put("Address1", ByteUtility.toString(address1));
 
         filtersXmlData.addXmlElement("Filters", xmlData, attrib);
         return filtersXmlData;
@@ -529,7 +531,7 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
                 if (elementName.equals("Biquad")) {
                     String addrStr = xmlParser.getAttributeValue(null, "Address");
                     if (addrStr == null) continue;
-                    byte addr = Byte.parseByte(addrStr);
+                    byte addr = ByteUtility.parse(addrStr);
 
                     for (int i = 0; i < 7; i++) {
                         if ( (biquads[i].getAddress() == addr) && (biquads[i].importFromXml(xmlParser)) ) {

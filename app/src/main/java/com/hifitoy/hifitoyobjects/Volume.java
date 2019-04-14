@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 
 import com.hifitoy.ble.BlePacket;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoynumbers.ByteUtility;
 import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.xml.XmlData;
 import org.xmlpull.v1.XmlPullParser;
@@ -175,7 +176,7 @@ public class Volume implements HiFiToyObject, Cloneable, Serializable {
 
         XmlData gainXmlData = new XmlData();
         Map<String, String> attrib = new HashMap<>();
-        attrib.put("Address", Integer.toString(address));
+        attrib.put("Address", ByteUtility.toString(address));
 
         gainXmlData.addXmlElement("Volume", xmlData, attrib);
         return gainXmlData;

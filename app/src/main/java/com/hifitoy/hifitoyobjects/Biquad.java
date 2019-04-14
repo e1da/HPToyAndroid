@@ -9,6 +9,7 @@ package com.hifitoy.hifitoyobjects;
 import android.util.Log;
 
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoynumbers.ByteUtility;
 import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoynumbers.Number523;
 import com.hifitoy.xml.XmlData;
@@ -202,8 +203,8 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
 
         XmlData biquadXmlData = new XmlData();
         Map<String, String> attrib = new HashMap<>();
-        attrib.put("Address", Integer.toString(address0));
-        attrib.put("Address1", Integer.toString(address1));
+        attrib.put("Address", ByteUtility.toString(address0));
+        attrib.put("Address1", ByteUtility.toString(address1));
 
         biquadXmlData.addXmlElement("Biquad", xmlData, attrib);
 
