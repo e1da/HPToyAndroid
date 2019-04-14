@@ -134,12 +134,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         masterVolume = new Volume(TAS5558.MASTER_VOLUME_REG, 0.0f, 0.0f, Volume.HW_MUTE_DB);
 
         //Bass Treble
-        BassTrebleChannel bassTreble12 = new BassTrebleChannel(BASS_TREBLE_CH_127,
-                                                            BASS_FREQ_125, (byte)0,
-                                                            TREBLE_FREQ_9000, (byte)0,
-                                                            (byte)12, (byte)-12,
-                                                            (byte)12, (byte)-12);
-        bassTreble = new BassTreble(bassTreble12);
+        bassTreble = new BassTreble();
         bassTreble.setEnabledChannel((byte)0, 1.0f);
         bassTreble.setEnabledChannel((byte)1, 1.0f);
 
@@ -156,7 +151,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
 
         drc = new Drc(drcCoef17, drcTimeConst17);
         drc.setEvaluation(POST_VOLUME_EVAL, (byte)0);
-        drc.setEvaluation(POST_VOLUME_EVAL, (byte)0);
+        drc.setEvaluation(POST_VOLUME_EVAL, (byte)1);
 
         updateCharacteristics();
         updateChecksum();

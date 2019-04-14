@@ -126,7 +126,8 @@ public class XmlData {
         addXmlElement(name, Double.toString(value), attrib, level);
     }
     public void addXmlElement(String name, boolean value, Map<String, String> attrib, int level){
-        addXmlElement(name, Boolean.toString(value), attrib, level);
+        int intValue = (value) ? 1 : 0;
+        addXmlElement(name, intValue, attrib, level);
     }
 
     //without level

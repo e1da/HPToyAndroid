@@ -35,6 +35,7 @@ import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.BassTreble
 import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.BassTrebleCh.BASS_TREBLE_CH_56;
 import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.BassTrebleCh.BASS_TREBLE_CH_8;
 import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.TrebleFreq.TREBLE_FREQ_11000;
+import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.TrebleFreq.TREBLE_FREQ_9000;
 import static com.hifitoy.tas5558.TAS5558.BASS_TREBLE_REG;
 
 public class BassTreble implements HiFiToyObject, Cloneable, Serializable {
@@ -52,20 +53,23 @@ public class BassTreble implements HiFiToyObject, Cloneable, Serializable {
             setEnabledChannel(i, 0.0f);
         }
 
-        bassTreble127 = new BassTrebleChannel(BASS_TREBLE_CH_127, BASS_FREQ_125, (byte)0, TREBLE_FREQ_11000, (byte)0);
-        bassTreble34 = new BassTrebleChannel(BASS_TREBLE_CH_34, BASS_FREQ_125, (byte)0, TREBLE_FREQ_11000, (byte)0);
-        bassTreble56 = new BassTrebleChannel(BASS_TREBLE_CH_56, BASS_FREQ_125, (byte)0, TREBLE_FREQ_11000, (byte)0);
-        bassTreble8 = new BassTrebleChannel(BASS_TREBLE_CH_8, BASS_FREQ_125, (byte)0, TREBLE_FREQ_11000, (byte)0);
+        bassTreble127   = new BassTrebleChannel(BASS_TREBLE_CH_127,
+                                                BASS_FREQ_125, (byte)0,
+                                                TREBLE_FREQ_9000, (byte)0,
+                                                (byte)12, (byte)-12, (byte)12, (byte)-12);
+        bassTreble34    = new BassTrebleChannel(BASS_TREBLE_CH_34);
+        bassTreble56    = new BassTrebleChannel(BASS_TREBLE_CH_56);
+        bassTreble8     = new BassTrebleChannel(BASS_TREBLE_CH_8);
     }
 
     public BassTreble(BassTrebleChannel bassTreble127, BassTrebleChannel bassTreble34,
                       BassTrebleChannel bassTreble56, BassTrebleChannel bassTreble8) {
         this();
 
-        if (bassTreble127 != null) this.bassTreble127 = bassTreble127;
-        if (bassTreble34 != null) this.bassTreble34 = bassTreble34;
-        if (bassTreble56 != null) this.bassTreble56 = bassTreble56;
-        if (bassTreble8 != null) this.bassTreble8 = bassTreble8;
+        if (bassTreble127 != null)  this.bassTreble127 = bassTreble127;
+        if (bassTreble34 != null)   this.bassTreble34 = bassTreble34;
+        if (bassTreble56 != null)   this.bassTreble56 = bassTreble56;
+        if (bassTreble8 != null)    this.bassTreble8 = bassTreble8;
     }
     public BassTreble(BassTrebleChannel bassTreble127) {
         this();
@@ -104,10 +108,10 @@ public class BassTreble implements HiFiToyObject, Cloneable, Serializable {
             bt.enabledCh[i] = enabledCh[i];
         }
 
-        bt.bassTreble127 = bassTreble127.clone();
-        bt.bassTreble34 = bassTreble34.clone();
-        bt.bassTreble56 = bassTreble56.clone();
-        bt.bassTreble8 = bassTreble8.clone();
+        bt.bassTreble127    = bassTreble127.clone();
+        bt.bassTreble34     = bassTreble34.clone();
+        bt.bassTreble56     = bassTreble56.clone();
+        bt.bassTreble8      = bassTreble8.clone();
 
         return bt;
     }
@@ -296,16 +300,16 @@ public class BassTreble implements HiFiToyObject, Cloneable, Serializable {
                     if (channelStr == null) continue;
                     byte channel = Byte.parseByte(channelStr);
 
-                    if ((bassTreble127 != null) && (bassTreble127.getChannel() == channel)){
+                    if (bassTreble127.getChannel() == channel) {
                         if (bassTreble127.importFromXml(xmlParser)) count++;
                     }
-                    if ((bassTreble34 != null) && (bassTreble34.getChannel() == channel)){
+                    if (bassTreble34.getChannel() == channel) {
                         if (bassTreble34.importFromXml(xmlParser)) count++;
                     }
-                    if ((bassTreble56 != null) && (bassTreble56.getChannel() == channel)){
+                    if (bassTreble56.getChannel() == channel) {
                         if (bassTreble56.importFromXml(xmlParser)) count++;
                     }
-                    if ((bassTreble8 != null) && (bassTreble8.getChannel() == channel)){
+                    if (bassTreble8.getChannel() == channel) {
                         if (bassTreble8.importFromXml(xmlParser)) count++;
                     }
                 }
@@ -331,13 +335,7 @@ public class BassTreble implements HiFiToyObject, Cloneable, Serializable {
         } while (xmlParser.getEventType() != XmlPullParser.END_DOCUMENT);
 
         //check import result
-        int cmp_count = 8;
-        if (bassTreble127 != null)  cmp_count++;
-        if (bassTreble34 != null)   cmp_count++;
-        if (bassTreble56 != null)   cmp_count++;
-        if (bassTreble8 != null)    cmp_count++;
-
-        if (count != cmp_count){
+        if (count != 12){
             Log.d(TAG, "BassTreble. Import from xml is not success.");
             return false;
         }

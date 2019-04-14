@@ -234,7 +234,7 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
                 if (elementValue == null) continue;
 
                 if (elementName.equals("HiddenGui")){
-                    hiddenGui = elementValue.equals("true");
+                    hiddenGui = (Byte.parseByte(elementValue) == 1);
                     count++;
                 }
                 if (elementName.equals("Order")){

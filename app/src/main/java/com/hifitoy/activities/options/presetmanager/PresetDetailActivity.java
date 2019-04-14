@@ -246,8 +246,6 @@ public class PresetDetailActivity extends Activity implements View.OnClickListen
             return null;
         }
 
-        /*File dir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOCUMENTS), "IWooferExport");*/
         File extDir = new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
                                     "ToyExport");
 

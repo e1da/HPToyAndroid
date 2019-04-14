@@ -57,6 +57,10 @@ public class BassTrebleChannel implements Cloneable, Serializable {
         this(channel, bassFreq, bassDb, trebleFreq, trebleDb,
                 HW_BASSTREBLE_MAX_DB, HW_BASSTREBLE_MIN_DB, HW_BASSTREBLE_MAX_DB, HW_BASSTREBLE_MIN_DB);
     }
+    public BassTrebleChannel(byte channel) {
+        this(channel, BassFreq.BASS_FREQ_NONE, (byte)0, TrebleFreq.TREBLE_FREQ_NONE, (byte)0,
+                HW_BASSTREBLE_MAX_DB, HW_BASSTREBLE_MIN_DB, HW_BASSTREBLE_MAX_DB, HW_BASSTREBLE_MIN_DB);
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -96,7 +100,7 @@ public class BassTrebleChannel implements Cloneable, Serializable {
 
     public void setBassFreq(byte bassFreq) {
         if (bassFreq > BassFreq.BASS_FREQ_500) bassFreq = BassFreq.BASS_FREQ_500;
-        if (bassFreq < BassFreq.BASS_FREQ_125) bassFreq = BassFreq.BASS_FREQ_125;
+        if (bassFreq < BassFreq.BASS_FREQ_NONE) bassFreq = BassFreq.BASS_FREQ_NONE;
         this.bassFreq = bassFreq;
     }
     public byte getBassFreq() {
@@ -104,7 +108,7 @@ public class BassTrebleChannel implements Cloneable, Serializable {
     }
     public void setTrebleFreq(byte trebleFreq) {
         if (trebleFreq > TrebleFreq.TREBLE_FREQ_13000) trebleFreq = TrebleFreq.TREBLE_FREQ_13000;
-        if (trebleFreq < TrebleFreq.TREBLE_FREQ_2750) trebleFreq = TrebleFreq.TREBLE_FREQ_2750;
+        if (trebleFreq < TrebleFreq.TREBLE_FREQ_NONE) trebleFreq = TrebleFreq.TREBLE_FREQ_NONE;
         this.trebleFreq = trebleFreq;
     }
     public byte getTrebleFreq() {
@@ -234,14 +238,16 @@ public class BassTrebleChannel implements Cloneable, Serializable {
 
     public class BassFreq {
         //freq for FS = 96kHz
-        public final static byte BASS_FREQ_125 = 1;
-        public final static byte BASS_FREQ_250 = 2;
-        public final static byte BASS_FREQ_375 = 3;
-        public final static byte BASS_FREQ_438 = 4;
-        public final static byte BASS_FREQ_500 = 5;
+        public final static byte BASS_FREQ_NONE = 0;
+        public final static byte BASS_FREQ_125  = 1;
+        public final static byte BASS_FREQ_250  = 2;
+        public final static byte BASS_FREQ_375  = 3;
+        public final static byte BASS_FREQ_438  = 4;
+        public final static byte BASS_FREQ_500  = 5;
     }
     public class TrebleFreq {
         //freq for FS = 96kHz
+        public final static byte TREBLE_FREQ_NONE   = 0;
         public final static byte TREBLE_FREQ_2750   = 1;
         public final static byte TREBLE_FREQ_5500   = 2;
         public final static byte TREBLE_FREQ_9000   = 3;

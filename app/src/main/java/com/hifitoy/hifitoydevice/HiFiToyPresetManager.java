@@ -9,9 +9,11 @@ package com.hifitoy.hifitoydevice;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.hifitoy.ApplicationContext;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -44,15 +46,16 @@ public class HiFiToyPresetManager {
 
     //store/restore
     public void restore(){
-        Log.d(TAG, "Restore HiFiToyPresetMap.");
-
         Context context = ApplicationContext.getInstance().getContext();
+
         try {
             FileInputStream fis = context.openFileInput("HiFiToyPresetMap.dat");
             ObjectInputStream is = new ObjectInputStream(fis);
             presetMap = (HashMap<String, HiFiToyPreset>)is.readObject();
 
             is.close();
+            Log.d(TAG, "Restore HiFiToyPresetMap.");
+
         } catch(FileNotFoundException f) {
             Log.d(TAG, "HiFiToyPresetMap.dat is not found.");
 
@@ -60,6 +63,8 @@ public class HiFiToyPresetManager {
             presetMap.clear();
             HiFiToyPreset preset = new HiFiToyPreset();
             setPreset("DefaultPreset", preset);
+
+            Log.d(TAG, "Create HiFiToyPresetMap.");
 
         } catch (IOException w) {
             w.printStackTrace();
@@ -70,8 +75,6 @@ public class HiFiToyPresetManager {
     }
 
     public void store(){
-        Log.d(TAG, "Store HiFiToyPresetMap.");
-
         Context context = ApplicationContext.getInstance().getContext();
         try {
             FileOutputStream fos = context.openFileOutput("HiFiToyPresetMap.dat",
@@ -79,6 +82,8 @@ public class HiFiToyPresetManager {
             ObjectOutputStream os = new ObjectOutputStream(fos);
             os.writeObject(presetMap);
             os.close();
+            Log.d(TAG, "Store HiFiToyPresetMap.");
+
         } catch (NotSerializableException e) {
             Log.d(TAG, e.toString());
         } catch (IOException e) {
