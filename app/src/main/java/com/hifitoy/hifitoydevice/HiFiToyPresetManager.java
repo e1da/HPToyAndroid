@@ -110,17 +110,6 @@ public class HiFiToyPresetManager {
         description();
     }
 
-    public void setDspPresetWithDuplicateCheck(String key, HiFiToyPreset preset){
-        int count = 0;
-        String newKey = key;
-        while (getPreset(newKey) != null){
-            count++;
-            newKey = key + "_" + Integer.toString(count);
-        }
-
-        setPreset(newKey, preset);
-    }
-
     public HiFiToyPreset getPreset(String key){
         return presetMap.get(key);
     }

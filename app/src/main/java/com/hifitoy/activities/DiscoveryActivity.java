@@ -292,7 +292,15 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
 
             HiFiToyPreset importPreset = new HiFiToyPreset();
             if (importPreset.importFromXml(uri)){
-                HiFiToyPresetManager.getInstance().setDspPresetWithDuplicateCheck(importPreset.getName(), importPreset);
+                //check duplicate name
+                String name = importPreset.getName();
+                int count = 0;
+                while (HiFiToyPresetManager.getInstance().getPreset(name) != null){
+                    count++;
+                    name = importPreset.getName() + "_" + Integer.toString(count);
+                }
+                importPreset.setName(name);
+                HiFiToyPresetManager.getInstance().setPreset(importPreset.getName(), importPreset);
 
                 DialogSystem.getInstance().showDialog("Info",
                         "Add " + importPreset.getName() + " preset", "Ok");

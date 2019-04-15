@@ -60,7 +60,7 @@ public class Drc implements HiFiToyObject, Cloneable, Serializable {
         this.coef17         = new DrcCoef(DRC_CH_1_7);
         this.coef8          = new DrcCoef(DRC_CH_8);
         this.timeConst17    = new DrcTimeConst(DRC_CH_1_7);
-        this.timeConst8     = new DrcTimeConst(DRC_CH_1_7);
+        this.timeConst8     = new DrcTimeConst(DRC_CH_8);
     }
     public Drc (DrcCoef coef17, DrcTimeConst timeConst17) {
         this();

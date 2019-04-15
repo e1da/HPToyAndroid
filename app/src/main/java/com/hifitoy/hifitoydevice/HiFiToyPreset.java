@@ -256,7 +256,6 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         Map<String, String> attrib = new HashMap<>();
         attrib.put("Type", "HiFiToy");
         attrib.put("Version", "1.0");
-        attrib.put("Checksum", Short.toString(checkSum));
 
         presetXmlData.addXmlElement("Preset", xmlData, attrib);
         return presetXmlData;
@@ -277,17 +276,13 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
                 if (elementName.equals("Preset")) {
                     String type = xmlParser.getAttributeValue(null, "Type");
                     String version = xmlParser.getAttributeValue(null, "Version");
-                    String checkSumStr = xmlParser.getAttributeValue(null, "Checksum");
 
                     if ((type == null) || (!type.equals("HiFiToy")) ||
-                            (version == null) || (!version.equals("1.0")) || (checkSumStr == null)) {
+                            (version == null) || (!version.equals("1.0"))) {
 
-                        Log.d(TAG, "Preset xml file is not correct. See \"Type\", \"Version\" or \"Checksum\" fields.");
+                        Log.d(TAG, "Preset xml file is not correct. See \"Type\" or \"Version\" fields.");
                         return false;
                     }
-
-                    checkSum = Short.parseShort(checkSumStr);
-                    Log.d(TAG, "import preset has checksum = " + checkSumStr);
 
                 } else {
 
@@ -321,6 +316,8 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         } while (xmlParser.getEventType() != XmlPullParser.END_DOCUMENT);
 
         if (count == characteristics.size()){
+            updateChecksum();
+
             Log.d(TAG, "Xml parsing is success complete.");
             return true;
         } else {
