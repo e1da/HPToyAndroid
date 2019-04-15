@@ -18,7 +18,8 @@ public class BlePacketQueue extends LinkedList<BlePacket> {
         } else {
             boolean addStatus = false;
 
-            for (int i = size() - 1; i >= 0; i--) {
+            //>0 is true. >=0 is not true, because wecan loose last packet
+            for (int i = size() - 1; i > 0; i--) {
                 BlePacket p = get(i);
 
                 if (!p.getResponse()) {
