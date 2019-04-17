@@ -40,6 +40,7 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -345,17 +346,17 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
 
         try {
             //get file input stream
-            FileInputStream in;
+            InputStream in;
 
             if ( (scheme.equals("file")) && (uri.getPath() != null) ) {
                 in = new FileInputStream(new File(uri.getPath()));
 
             } else if (scheme.equals("content")) { // else "content"
                 ContentResolver resolver = ApplicationContext.getInstance().getContext().getContentResolver();
-                ParcelFileDescriptor fd = resolver.openFileDescriptor(uri, "r");
-                if (fd == null) return false;
+                //ParcelFileDescriptor fd = resolver.openFileDescriptor(uri, "r");
+                //if (fd == null) return false;
 
-                in = new FileInputStream(fd.getFileDescriptor());
+                in = resolver.openInputStream(uri);//new FileInputStream(fd.getFileDescriptor());
 
             } else {
                 return false;
