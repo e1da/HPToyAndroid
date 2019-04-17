@@ -82,6 +82,10 @@
             android:name=".activities.options.presetmanager.PresetDetailActivity"
             android:label="Preset detail"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.filters.FiltersActivity"
+            android:label="Filters"
+            android:screenOrientation="reverseLandscape" />
 
     </application>
 

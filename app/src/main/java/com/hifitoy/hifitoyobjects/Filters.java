@@ -96,9 +96,15 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
     }
 
     //getters / setters
+    public boolean isActiveNullHP() {
+        return activeNullHP;
+    }
     public void setActiveNullHP(boolean active) {
         activeNullHP = active;
         if (active) activeNullLP = false;
+    }
+    public boolean isActiveNullLP() {
+        return activeNullLP;
     }
     public void setActiveNullLP(boolean active) {
         activeNullLP = active;
@@ -112,6 +118,10 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
     }
     public byte getActiveBiquadIndex() {
         return activeBiquadIndex;
+    }
+
+    public int getBiquadLength() {
+        return 7;
     }
 
     public void setBiquad(byte index, Biquad b) {
@@ -433,7 +443,7 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
 
         //get max delta freq
         float maxDLogFreq = 0;
-        for (int i = 0; i < freqs.size(); i++){
+        for (int i = 0; i < freqs.size() - 1; i++){
             short f0 = freqs.get(i);
             short f1 = freqs.get(i + 1);
 

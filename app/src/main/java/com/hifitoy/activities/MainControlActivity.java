@@ -23,7 +23,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
+import com.hifitoy.activities.filters.FiltersActivity;
 import com.hifitoy.activities.options.OptionsActivity;
+import com.hifitoy.activities.options.presetmanager.PresetManagerActivity;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.AudioSource;
@@ -102,9 +104,8 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
                 finish();
                 return true;
             case R.id.showPresetManager_outl:
-                /*intent = new Intent(this,
-                        PresetManagerActivity.class);
-                startActivity(intent);*/
+                intent = new Intent(this, PresetManagerActivity.class);
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -216,6 +217,8 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
                 DialogSystem.getInstance().showDialog("Info", getString(R.string.filters_info), "Close");
                 break;
             case R.id.filtersActivity_outl:
+                intent = new Intent(this, FiltersActivity.class);
+                startActivity(intent);
                 break;
             case R.id.compressor_control_info:
                 DialogSystem.getInstance().showDialog("Info", getString(R.string.compressor_info), "Close");

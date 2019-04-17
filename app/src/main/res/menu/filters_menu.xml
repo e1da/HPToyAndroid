@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/enabled_parametrics"
+        android:title="PEQ On"
+        android:orderInCategory="100"
+        android:showAsAction="ifRoom|withText" />
+    <item
+        android:id="@+id/filters_info"
+        android:title="Info"
+        android:orderInCategory="100"
+        android:showAsAction="ifRoom|withText" />
+</menu>
