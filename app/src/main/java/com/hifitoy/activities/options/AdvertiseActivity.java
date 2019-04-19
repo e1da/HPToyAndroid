@@ -102,6 +102,7 @@ public class AdvertiseActivity extends Activity implements View.OnClickListener{
     private static IntentFilter makeIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(HiFiToyControl.ADVERTISE_MODE_UPDATE);
+        intentFilter.addAction(HiFiToyControl.CLIP_UPDATE);
 
         return intentFilter;
     }
@@ -113,6 +114,9 @@ public class AdvertiseActivity extends Activity implements View.OnClickListener{
 
             if (HiFiToyControl.ADVERTISE_MODE_UPDATE.equals(action)) {
                 setupOutlets();
+            }
+            if (HiFiToyControl.CLIP_UPDATE.equals(action)) {
+                ApplicationContext.getInstance().updateClipView();
             }
         }
     };

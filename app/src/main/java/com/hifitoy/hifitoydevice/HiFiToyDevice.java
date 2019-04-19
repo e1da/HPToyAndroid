@@ -42,6 +42,8 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
     private AdvertiseMode     advertiseMode;
     private EnergyConfig      energyConfig;
 
+    private transient boolean clipFlag = false;
+
     public HiFiToyDevice() {
         setDefault();
     }
@@ -55,6 +57,8 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
         audioSource = new AudioSource();
         advertiseMode = new AdvertiseMode();
         energyConfig = new EnergyConfig();
+
+        clipFlag = false;
     }
 
     //setters/getters
@@ -111,6 +115,13 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
     }
     public void             setAdvertiseMode(AdvertiseMode advertiseMode) {
         this.advertiseMode = advertiseMode;
+    }
+
+    public boolean getClipFlag() {
+        return clipFlag;
+    }
+    public void setClipFlag(boolean clipFlag) {
+        this.clipFlag = clipFlag;
     }
 
     public void restoreFactorySettings() {

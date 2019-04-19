@@ -46,7 +46,6 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         ApplicationContext.getInstance().setContext(this);
 
         requestPermissions(new String[]{Manifest.permission.BLUETOOTH,
@@ -58,6 +57,7 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
                     1);
 
         mLeDeviceListAdapter = new LeDeviceListAdapter();
+
 
         //check preset import file
         checkImportPreset(getIntent());

@@ -11,4 +11,9 @@
         android:title="Info"
         android:orderInCategory="100"
         android:showAsAction="ifRoom|withText" />
+    <item
+        android:id="@+id/show_coef"
+        android:title="@string/right_arrow"
+        android:orderInCategory="100"
+        android:showAsAction="ifRoom|withText" />
 </menu>

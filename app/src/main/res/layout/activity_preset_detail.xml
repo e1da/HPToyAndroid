@@ -13,7 +13,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
-
             <LinearLayout
                 android:id="@+id/presetNameLayout_outl"
                 android:layout_width="match_parent"

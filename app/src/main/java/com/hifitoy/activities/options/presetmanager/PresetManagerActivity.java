@@ -8,7 +8,10 @@ package com.hifitoy.activities.options.presetmanager;
 
 import android.app.ActionBar;
 import android.app.ListActivity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -48,6 +51,7 @@ public class PresetManagerActivity extends ListActivity {
     protected void onResume() {
         super.onResume();
         ApplicationContext.getInstance().setContext(this);
+        registerReceiver(broadcastReceiver, makeIntentFilter());
 
         // Initializes list view adapter.
         if (mPresetListAdapter == null){
@@ -57,6 +61,12 @@ public class PresetManagerActivity extends ListActivity {
 
         mPresetListAdapter.notifyDataSetChanged();
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(broadcastReceiver);
     }
 
     @Override
@@ -179,5 +189,24 @@ public class PresetManagerActivity extends ListActivity {
         }
 
     }
+
+    /*--------------------------- Broadcast receiver implementation ------------------------------*/
+    private static IntentFilter makeIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(HiFiToyControl.CLIP_UPDATE);
+
+        return intentFilter;
+    }
+
+    public final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+
+            if (HiFiToyControl.CLIP_UPDATE.equals(action)) {
+                ApplicationContext.getInstance().updateClipView();
+            }
+        }
+    };
 
 }

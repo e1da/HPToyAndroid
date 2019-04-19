@@ -3,15 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <View
-            android:layout_width="fill_parent"
-            android:layout_height="1dp"
-            android:layout_weight="1"
-            android:background="#444444"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp" />
+    android:layout_height="wrap_content">
 
     <RadioGroup
         android:layout_width="match_parent"
@@ -38,4 +30,13 @@
             android:text="After 1 minute off"
             android:textSize="20sp"/>
     </RadioGroup>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:layout_weight="1"
+        android:background="#444444"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp" />
+
 </LinearLayout>

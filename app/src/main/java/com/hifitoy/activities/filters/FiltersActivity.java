@@ -8,6 +8,10 @@ package com.hifitoy.activities.filters;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.os.Bundle;
@@ -79,12 +83,14 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
     @Override
     protected void onPause() {
         super.onPause();
+        unregisterReceiver(broadcastReceiver);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         ApplicationContext.getInstance().setContext(this);
+        registerReceiver(broadcastReceiver, makeIntentFilter());
 
         filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
         updateViews();
@@ -480,5 +486,24 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
         //parametric, allpass
         return checkCrossParamFilters(biquad, tapPoint.x);
     }
+
+    private static IntentFilter makeIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(HiFiToyControl.CLIP_UPDATE);
+
+        return intentFilter;
+    }
+
+    public final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+
+            if (HiFiToyControl.CLIP_UPDATE.equals(action)) {
+                ApplicationContext.getInstance().updateClipView();
+            }
+        }
+    };
+
 
 }

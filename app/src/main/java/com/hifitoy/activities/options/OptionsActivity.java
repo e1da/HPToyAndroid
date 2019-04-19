@@ -63,8 +63,7 @@ public class OptionsActivity extends Activity implements View.OnClickListener {
     protected void onResume() {
         super.onResume();
         ApplicationContext.getInstance().setContext(this);
-
-        registerReceiver(mBleReceiver, makeGattUpdateIntentFilter());
+        registerReceiver(broadcastReceiver, makeIntentFilter());
 
         hifiToyDevice = HiFiToyControl.getInstance().getActiveDevice();
 
@@ -73,7 +72,7 @@ public class OptionsActivity extends Activity implements View.OnClickListener {
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(mBleReceiver);
+        unregisterReceiver(broadcastReceiver);
     }
 
     //back button handler
@@ -227,24 +226,31 @@ public class OptionsActivity extends Activity implements View.OnClickListener {
     }
 
     /*--------------------------- Broadcast receiver implementation ------------------------------*/
-    private static IntentFilter makeGattUpdateIntentFilter() {
+    private static IntentFilter makeIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
-        //intentFilter.addAction(BleService.BLE_DID_CONNECTED);
-        //intentFilter.addAction(BleService.BLE_DID_DISCONNECTED);
+        intentFilter.addAction(HiFiToyControl.DID_CONNECT);
+        intentFilter.addAction(HiFiToyControl.DID_DISCONNECT);
+        intentFilter.addAction(HiFiToyControl.CLIP_UPDATE);
 
         return intentFilter;
     }
-    public final BroadcastReceiver mBleReceiver = new BroadcastReceiver() {
+
+    public final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
 
-            /*if (BleService.BLE_DID_CONNECTED.equals(action)){
-                deviceMacLabel_outl.setText("Connected");
+            if (HiFiToyControl.DID_CONNECT.equals(action)){
+                deviceNameLabel_outl.setText(hifiToyDevice.getName());
+                deviceMacLabel_outl.setText(hifiToyDevice.getMac());
             }
-            if (BleService.BLE_DID_DISCONNECTED.equals(action)){
-                deviceMacLabel_outl.setText("Disconnected");
-            }*/
+            if (HiFiToyControl.DID_DISCONNECT.equals(action)){
+                deviceNameLabel_outl.setText(hifiToyDevice.getName());
+                deviceMacLabel_outl.setText(hifiToyDevice.getMac());
+            }
+            if (HiFiToyControl.CLIP_UPDATE.equals(action)) {
+                ApplicationContext.getInstance().updateClipView();
+            }
         }
     };
 

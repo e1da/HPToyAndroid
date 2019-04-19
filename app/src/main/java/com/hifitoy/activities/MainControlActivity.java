@@ -13,7 +13,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,6 +23,8 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toolbar;
+
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
 import com.hifitoy.activities.filters.FiltersActivity;
@@ -40,6 +44,9 @@ import com.hifitoy.widgets.AudioSourceWidget;
 
 import java.nio.ByteBuffer;
 import java.util.Locale;
+
+import static android.view.Gravity.CENTER_VERTICAL;
+import static android.view.View.TEXT_ALIGNMENT_CENTER;
 
 
 public class MainControlActivity extends Activity implements SeekBar.OnSeekBarChangeListener,
@@ -76,7 +83,6 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
     TextView optionsActivity_outl;
 
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,6 +91,7 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
         //show back button
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+
 
         initOutlets();
     }
@@ -120,6 +127,7 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
 
         hifiToyDevice = HiFiToyControl.getInstance().getActiveDevice();
 
+        ApplicationContext.getInstance().updateClipView();
         setupOutlets();
 
     }
@@ -316,9 +324,11 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
         return freq;
     }
 
+    /*--------------------------- Broadcast receiver implementation ------------------------------*/
     private static IntentFilter makeIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(HiFiToyControl.AUDIO_SOURCE_UPDATE);
+        intentFilter.addAction(HiFiToyControl.CLIP_UPDATE);
 
         return intentFilter;
     }
@@ -330,6 +340,9 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
 
             if (HiFiToyControl.AUDIO_SOURCE_UPDATE.equals(action)) {
                 setupOutlets();
+            }
+            if (HiFiToyControl.CLIP_UPDATE.equals(action)) {
+                ApplicationContext.getInstance().updateClipView();
             }
         }
     };

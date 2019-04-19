@@ -63,6 +63,9 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     public final static String ENERGY_UPDATE            = "com.hifitoy.ENERGY_UPDATE";
     public final static String ADVERTISE_MODE_UPDATE    = "com.hifitoy.ADVERTISE_MODE_UPDATE";
     public final static String AUDIO_SOURCE_UPDATE      = "com.hifitoy.AUDIO_SOURCE_UPDATE";
+    public final static String CLIP_UPDATE              = "com.hifitoy.CLIP_UPDATE";
+    public final static String DID_CONNECT              = "com.hifitoy.DID_CONNECT";
+    public final static String DID_DISCONNECT           = "com.hifitoy.DID_DISCONNECT";
     public final static String DID_GET_PARAM_DATA       = "com.hifitoy.DID_GET_PARAM_DATA";
     public final static String DID_WRITE_DATA           = "com.hifitoy.DID_WRITE_DATA";
     public final static String DID_WRITE_ALL_DATA       = "com.hifitoy.DID_WRITE_ALL_DATA";
@@ -109,7 +112,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                     bleBusy = false;
 
                     if (connectionDelegate != null) connectionDelegate.didDisconnect();
-
+                    ApplicationContext.getInstance().broadcastUpdate(DID_CONNECT);
                     break;
                 case CONNECTING:
                     Log.d(TAG, "Connecting to GATT server");
@@ -143,6 +146,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                     mainHandler.post(myRunnable);
 
                     if (connectionDelegate != null) connectionDelegate.didConnect();
+                    ApplicationContext.getInstance().broadcastUpdate(DID_CONNECT);
                     break;
             }
         }
@@ -492,7 +496,9 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                         break;
 
                     case CommonCommand.CLIP_DETECTION:
-                        //Log.d(TAG, "CLIP_DETECTION " + status);
+                        Log.d(TAG, "CLIP_DETECTION " + status);
+                        activeDevice.setClipFlag(status != 0);
+                        ApplicationContext.getInstance().broadcastUpdate(CLIP_UPDATE);
 
                         //NSNumber * clip = [NSNumber numberWithInt:status];
                         //[[NSNotificationCenter defaultCenter] postNotificationName:@"ClipDetectionNotification" object:clip];

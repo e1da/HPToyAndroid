@@ -34,4 +34,7 @@
     <string name="compressor_info">Flexible Compressor/Expander dynamic range control.
         Required some basic understanding to modify parameters successfully.
     </string>
+
+    <string name="right_arrow">\u232A</string>
+
 </resources>

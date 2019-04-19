@@ -166,6 +166,7 @@ public class AutoOffActivity extends Activity implements SeekBar.OnSeekBarChange
     private static IntentFilter makeIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(HiFiToyControl.ENERGY_UPDATE);
+        intentFilter.addAction(HiFiToyControl.CLIP_UPDATE);
 
         return intentFilter;
     }
@@ -177,6 +178,9 @@ public class AutoOffActivity extends Activity implements SeekBar.OnSeekBarChange
 
             if (HiFiToyControl.ENERGY_UPDATE.equals(action)) {
                 setupOutlets();
+            }
+            if (HiFiToyControl.CLIP_UPDATE.equals(action)) {
+                ApplicationContext.getInstance().updateClipView();
             }
         }
     };
