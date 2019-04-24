@@ -86,6 +86,14 @@
             android:name=".activities.filters.FiltersActivity"
             android:label="Filters"
             android:screenOrientation="reverseLandscape" />
+        <activity
+            android:name=".activities.compressor.CompressorActivity"
+            android:label="Compressor"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.compressor.TimeConstActivity"
+            android:label="Time const"
+            android:screenOrientation="portrait" />
 
     </application>
 

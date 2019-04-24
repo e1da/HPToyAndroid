@@ -38,6 +38,13 @@ public class DrcTimeConst implements HiFiToyObject, Cloneable, Serializable {
     private float   attackMS;
     private float   decayMS;
 
+    private static final float MAX_ENERGY    = 50.0f;
+    private static final float MIN_ENERGY    = 0.05f;
+    private static final float MAX_ATTACK    = 200.0f;
+    private static final float MIN_ATTACK    = 1.0f;
+    private static final float MAX_DECAY     = 10000.0f;
+    private static final float MIN_DECAY     = 10.0f;
+
     public DrcTimeConst(byte channel, float energyMS, float attackMS, float decayMS) {
         setChannel(channel);
         this.energyMS = energyMS;
@@ -80,27 +87,79 @@ public class DrcTimeConst implements HiFiToyObject, Cloneable, Serializable {
         return channel;
     }
 
-    public void setRoundEnergyMS(float energyMS) {
+
+    public void setEnergyMS(float energyMS) {
+        if (energyMS > MAX_ENERGY) energyMS = MAX_ENERGY;
+        if (energyMS < MIN_ENERGY) energyMS = MIN_ENERGY;
+
         if (energyMS < 0.05f) {
             energyMS = 0.05f;
         } else if (energyMS < 0.1f) {
-            energyMS = (int)((int)(energyMS / 0.05f) * 0.05f);
+            energyMS = (int)(energyMS / 0.05f) * 0.05f;
+
         } else if (energyMS < 1.0f) {
-            energyMS = (int)((int)(energyMS / 0.1f) * 0.1f);
+            energyMS = (int)(energyMS / 0.1f) * 0.1f;
+
         } else if (energyMS < 10.0f){
             energyMS = (int)energyMS;
+
         } else {
-            energyMS = (int)((int)(energyMS / 10.0f) * 10.0f);
+            energyMS = (int)(energyMS / 10.0f) * 10.0f;
         }
 
-        this.energyMS = energyMS;
-    }
-    public void setEnergyMS(float energyMS) {
         this.energyMS = energyMS;
     }
     public float getEnergyMS() {
         return energyMS;
     }
+
+    public void setAttackMS(float attackMS) {
+        if (attackMS > MAX_ATTACK) attackMS = MAX_ATTACK;
+        if (attackMS < MIN_ATTACK) attackMS = MIN_ATTACK;
+
+        this.attackMS = (int)attackMS;
+    }
+    public float getAttackMS() {
+        return attackMS;
+    }
+
+    public void setDecayMS(float decayMS) {
+        if (decayMS > MAX_DECAY) decayMS = MAX_DECAY;
+        if (decayMS < MIN_DECAY) decayMS = MIN_DECAY;
+
+        this.decayMS = (int)(decayMS / 10) * 10;
+    }
+    public float getDecayMS() {
+        return decayMS;
+    }
+
+    public float getEnergyPercent() {
+        return (float)( (Math.log10(energyMS) - Math.log10(MIN_ENERGY)) /
+                        (Math.log10(MAX_ENERGY) - Math.log10(MIN_ENERGY)));
+    }
+    public void setEnergyPercent(float percent) {
+        float e = (float)Math.pow(10, percent * (Math.log10(MAX_ENERGY) - Math.log10(MIN_ENERGY)) + Math.log10(MIN_ENERGY));
+        setEnergyMS(e);
+    }
+
+    public float getAttackPercent() {
+        return (float)( (Math.log10(attackMS) - Math.log10(MIN_ATTACK)) /
+                (Math.log10(MAX_ATTACK) - Math.log10(MIN_ATTACK)));
+    }
+    public void setAttackPercent(float percent) {
+        float a = (float)Math.pow(10, percent * (Math.log10(MAX_ATTACK) - Math.log10(MIN_ATTACK)) + Math.log10(MIN_ATTACK));
+        setAttackMS(a);
+    }
+
+    public float getDecayPercent() {
+        return (float)( (Math.log10(decayMS) - Math.log10(MIN_DECAY)) /
+                (Math.log10(MAX_DECAY) - Math.log10(MIN_DECAY)));
+    }
+    public void setDecayPercent(float percent) {
+        float d = (float)Math.pow(10, percent * (Math.log10(MAX_DECAY) - Math.log10(MIN_DECAY)) + Math.log10(MIN_DECAY));
+        setDecayMS(d);
+    }
+
 
     @Override
     public byte getAddress() {
@@ -123,6 +182,12 @@ public class DrcTimeConst implements HiFiToyObject, Cloneable, Serializable {
             return String.format(Locale.getDefault(), "%.1fms", energyMS);
         }
         return String.format(Locale.getDefault(), "%dms", (int)energyMS);
+    }
+    public String getAttackDescription() {
+        return String.format(Locale.getDefault(), "%dms", (int)attackMS);
+    }
+    public String getDecayDescription() {
+        return String.format(Locale.getDefault(), "%dms", (int)decayMS);
     }
 
     public void sendEnergyToPeripheral(boolean response) {

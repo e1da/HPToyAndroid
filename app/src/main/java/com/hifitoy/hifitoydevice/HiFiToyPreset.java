@@ -182,6 +182,9 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     public Loudness getLoudness() {
         return loudness;
     }
+    public Drc getDrc() {
+        return drc;
+    }
 
     public void updateChecksum() {
         updateChecksum(getDataBufs());

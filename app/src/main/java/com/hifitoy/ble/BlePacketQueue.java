@@ -6,6 +6,7 @@
  */
 package com.hifitoy.ble;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -22,7 +23,8 @@ public class BlePacketQueue extends LinkedList<BlePacket> {
             for (int i = size() - 1; i > 0; i--) {
                 BlePacket p = get(i);
 
-                if (!p.getResponse()) {
+                //check response and addr equal
+                if ((!p.getResponse()) && (packet.getData()[0] == p.getData()[0]) ) {
                     set(i, packet);
                     addStatus = true;
                     break;

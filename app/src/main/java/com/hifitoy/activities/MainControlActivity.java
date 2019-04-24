@@ -13,9 +13,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,10 +21,10 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toolbar;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
+import com.hifitoy.activities.compressor.CompressorActivity;
 import com.hifitoy.activities.filters.FiltersActivity;
 import com.hifitoy.activities.options.OptionsActivity;
 import com.hifitoy.activities.options.presetmanager.PresetManagerActivity;
@@ -38,15 +36,9 @@ import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoyobjects.Biquad;
 import com.hifitoy.hifitoyobjects.Loudness;
 import com.hifitoy.hifitoyobjects.Volume;
-import com.hifitoy.hifitoyobjects.basstreble.BassTreble;
 import com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel;
 import com.hifitoy.widgets.AudioSourceWidget;
-
-import java.nio.ByteBuffer;
 import java.util.Locale;
-
-import static android.view.Gravity.CENTER_VERTICAL;
-import static android.view.View.TEXT_ALIGNMENT_CENTER;
 
 
 public class MainControlActivity extends Activity implements SeekBar.OnSeekBarChangeListener,
@@ -130,6 +122,12 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
         ApplicationContext.getInstance().updateClipView();
         setupOutlets();
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(broadcastReceiver);
     }
 
     private void initOutlets() {
@@ -232,6 +230,8 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
                 DialogSystem.getInstance().showDialog("Info", getString(R.string.compressor_info), "Close");
                 break;
             case R.id.compressorActivity_outl:
+                intent = new Intent(this, CompressorActivity.class);
+                startActivity(intent);
                 break;
             case R.id.optionsActivity_outl:
                 Intent intentActivity = new Intent(this, OptionsActivity.class);
