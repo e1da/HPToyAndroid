@@ -410,7 +410,13 @@ public class FilterView extends View {
             float ampl = filters.getAFR(pixelToFreq(width - border_right));
             float db = amplToDb(ampl);
             if ((db >= MIN_VIEW_DB) && (db <= MAX_VIEW_DB)) {
-                c.drawCircle(width - border_right, dbToPixel(db), TAP_RADIUS, p);
+                //c.drawCircle(width - border_right, dbToPixel(db), TAP_RADIUS, p);
+                Path path = new Path();
+                path.moveTo(width - border_right, dbToPixel(db) - 20);
+                path.lineTo(width - border_right, dbToPixel(db) + 20);
+                path.lineTo(width - border_right - 40, dbToPixel(db) + 3);
+                path.lineTo(width - border_right - 40, dbToPixel(db) - 3);
+                c.drawPath(path, p);
             }
         }
 
@@ -425,7 +431,13 @@ public class FilterView extends View {
             float ampl = filters.getAFR(pixelToFreq(border_left));
             float db = amplToDb(ampl);
             if ((db >= MIN_VIEW_DB) && (db <= MAX_VIEW_DB)) {
-                c.drawCircle(border_left, dbToPixel(db), TAP_RADIUS, p);
+                //c.drawCircle(border_left, dbToPixel(db), TAP_RADIUS, p);
+                Path path = new Path();
+                path.moveTo(border_left, dbToPixel(db) - 20);
+                path.lineTo(border_left, dbToPixel(db) + 20);
+                path.lineTo(border_left + 40, dbToPixel(db) + 3);
+                path.lineTo(border_left + 40, dbToPixel(db) - 3);
+                c.drawPath(path, p);
             }
         }
     }

@@ -384,7 +384,7 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
                         filterView.dbToPixel(filters.getAFR(filterView.maxFreq)));
 
                 //check cross
-                if ( (Math.abs(p.x - tapPoint.x) < 30) && (Math.abs(p.y - tapPoint.y) < 30) ) {
+                if ( (Math.abs(p.x - tapPoint.x) < 100) && (Math.abs(p.y - tapPoint.y) < 100) ) {
                     filters.setActiveNullLP(true);
                     updateViews();
                     return;
@@ -398,7 +398,7 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
                         filterView.dbToPixel(filters.getAFR(filterView.minFreq)));
 
                 //check cross
-                if ( (Math.abs(p.x - tapPoint.x) < 30) && (Math.abs(p.y - tapPoint.y) < 30) ) {
+                if ( (Math.abs(p.x - tapPoint.x) < 100) && (Math.abs(p.y - tapPoint.y) < 100) ) {
                     filters.setActiveNullHP(true);
                     updateViews();
                     return;
