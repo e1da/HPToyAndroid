@@ -99,6 +99,15 @@ public class DrcCoef implements HiFiToyObject, Cloneable, Serializable {
         return channel;
     }
 
+    public List<DrcPoint> getPoints() {
+        List<DrcPoint> points = new ArrayList<>();
+        points.add(point0);
+        points.add(point1);
+        points.add(point2);
+        points.add(point3);
+
+        return points;
+    }
     public void setPoint0(DrcPoint p) {
         if (p.inputDb > 0) p.inputDb = 0;
         if (p.outputDb > 0) p.outputDb = 0;
@@ -361,10 +370,10 @@ public class DrcCoef implements HiFiToyObject, Cloneable, Serializable {
         }
 
         public ByteBuffer get88Binary() {
-            ByteBuffer b = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
-            b.put(Number88.get88BigEnd(inputDb));
-            b.put(Number88.get88BigEnd(outputDb));
-            return b;
+            ByteBuffer b = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN);
+            b.put(Number88.get88LittleEnd(inputDb));
+            b.put(Number88.get88LittleEnd(outputDb));
+            return (ByteBuffer) b.position(0);
         }
     }
 

@@ -153,6 +153,10 @@ public class Drc implements HiFiToyObject, Cloneable, Serializable {
         return timeConst17;
     }
 
+    public DrcCoef getCoef17() {
+        return coef17;
+    }
+
     @Override
     public byte getAddress() {
         return TAS5558.DRC1_CONTROL_REG;
