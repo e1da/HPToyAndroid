@@ -51,7 +51,7 @@ public class CompressorActivity extends Activity implements SeekBar.OnSeekBarCha
     private boolean yHysteresisFlag = false;
     private Point prevTranslation;
     private Point firstTap = new Point(0, 0);
-    private Point delta = new Point(0,0);
+    private PointF delta = new PointF(0.0f,0.0f);
     long prevTime = 0;
 
     @Override
@@ -136,8 +136,13 @@ public class CompressorActivity extends Activity implements SeekBar.OnSeekBarCha
     public void setTitleInfo() {
         DrcCoef.DrcPoint p = drc.getCoef17().getPoints().get(compressorView.activePoint);
 
+        float inputDb = ((p.getInputDb() < -23.9f) && (p.getInputDb() > -24.1f)) ?
+                                                            0.0f : p.getInputDb() + 24.0f;
+        float outputDb = ((p.getOutputDb() < -23.9f) && (p.getOutputDb() > -24.1f)) ?
+                                                            0.0f : p.getOutputDb() + 24.0f;
+
         setTitle(String.format(Locale.getDefault(), "in: %.1fdB  out: %.1fdB",
-                            p.getInputDb() + 24.0f, p.getOutputDb() + 24.0f));
+                            inputDb, outputDb));
     }
 
     public void updateViews() {
@@ -183,15 +188,19 @@ public class CompressorActivity extends Activity implements SeekBar.OnSeekBarCha
 
         //action up and down handlers
         if (event.getAction() == MotionEvent.ACTION_UP){
+            //Log.d(TAG, "ACTION_UP");
             v.performClick();
         }
         if (event.getAction() == MotionEvent.ACTION_DOWN){
+            //Log.d(TAG, "ACTION_DOWN");
 
             currentTap.x = (int)event.getX();
             currentTap.y = (int)event.getY();
             firstTap.x = currentTap.x;
             firstTap.y = currentTap.y;
             prevTranslation = new Point(0, 0);
+            delta.x = 0;
+            delta.y = 0;
 
             xHysteresisFlag = false;
             yHysteresisFlag = false;
@@ -203,6 +212,7 @@ public class CompressorActivity extends Activity implements SeekBar.OnSeekBarCha
         //moved handler
         if (event.getAction() == MotionEvent.ACTION_MOVE){
             if (event.getEventTime() - prevTime > 40){//time period should be >= 40ms
+                //Log.d(TAG, "ACTION_MOVE");
                 prevTime = event.getEventTime();
 
                 currentTap.x = (int)event.getX();
@@ -210,24 +220,29 @@ public class CompressorActivity extends Activity implements SeekBar.OnSeekBarCha
                 Point translation = new Point(currentTap.x - firstTap.x,
                                                 currentTap.y - firstTap.y);
 
-                delta.x -= (int)delta.x;
-                delta.y -= (int)delta.y;
+                //delta.x -= (int)delta.x;
+                //delta.y -= (int)delta.y;
 
                 if (((Math.abs(translation.x) > compressorView.width * 0.05) || (xHysteresisFlag)) &&
                         (!yHysteresisFlag)) {
 
                     xHysteresisFlag = true;
 
-                    delta.x = (translation.x -  prevTranslation.x) / 8;
+                    delta.x += (float)(translation.x -  prevTranslation.x) / 12;
                     delta.y = 0;
-                }
-                if (((Math.abs(translation.y) > compressorView.height * 0.05) || (yHysteresisFlag)) &&
+
+                } else if (((Math.abs(translation.y) > compressorView.height * 0.05) || (yHysteresisFlag)) &&
                         (!xHysteresisFlag)){
 
                     yHysteresisFlag = true;
 
                     delta.x = 0;
-                    delta.y = (translation.y -  prevTranslation.y) / 8;
+                    delta.y += (float)(translation.y -  prevTranslation.y) / 12;
+
+                } else {
+                    delta.x = 0;
+                    delta.y = 0;
+
                 }
 
                 DrcCoef.DrcPoint np;
@@ -260,16 +275,19 @@ public class CompressorActivity extends Activity implements SeekBar.OnSeekBarCha
         return true;
     }
 
-    public DrcCoef.DrcPoint updateDrcPoint(DrcCoef.DrcPoint p, Point delta) {
+    public DrcCoef.DrcPoint updateDrcPoint(DrcCoef.DrcPoint p, PointF delta) {
         float newPX = compressorView.dbToPixelX(p.getInputDb()) + delta.x;
         float newPY = compressorView.dbToPixelY(p.getOutputDb()) + delta.y;
 
         DrcCoef.DrcPoint np = new DrcCoef.DrcPoint(compressorView.pixelXToDb(newPX),
                                                     compressorView.pixelYToDb(newPY));
 
+        delta.x = newPX - compressorView.dbToPixelX(np.getInputDb());
+        delta.y = newPY - compressorView.dbToPixelY(np.getOutputDb());
+
         //add magnet for point = [-24, -24]
-        if ((np.getInputDb() < -23.9) && (np.getInputDb() > -24.1)) np.setInputDb(-24.0f);
-        if ((np.getOutputDb() < -23.9) && (np.getOutputDb() > -24.1)) np.setOutputDb(-24.0f);
+        //if ((np.getInputDb() < -23.95f) && (np.getInputDb() > -24.05f)) np.setInputDb(-24.0f);
+        //if ((np.getOutputDb() < -23.95f) && (np.getOutputDb() > -24.05f)) np.setOutputDb(-24.0f);
 
         return np;
     }

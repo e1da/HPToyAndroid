@@ -211,7 +211,7 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
                 if (filters.isActiveNullLP()) {
                     float dy = translation.y - prevTranslation.y;
 
-                    if (dy > 400) {
+                    if (dy > 300) {
                         filters.upOrderFor(BIQUAD_LOWPASS);
                         prevTranslation.y = translation.y;
                     }
@@ -219,7 +219,7 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
                 } else if (filters.isActiveNullHP()) {
                     float dy = translation.y - prevTranslation.y;
 
-                    if (dy > 400) {
+                    if (dy > 300) {
                         filters.upOrderFor(BIQUAD_HIGHPASS);
                         prevTranslation.y = translation.y;
                     }
@@ -294,13 +294,13 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
         // update order or volume
         if ((type == BIQUAD_HIGHPASS) || (type == BIQUAD_LOWPASS))  {
             if (!xHysteresisFlag) {
-                if (dy < -400 ) {
+                if (dy < -300 ) {
                     filters.downOrderFor(type); // decrement order
 
                     yHysteresisFlag = true;
                     prevTranslation.y = translation.y;
 
-                } else if (dy > 400 ) {
+                } else if (dy > 300 ) {
                     filters.upOrderFor(type); // increment order
 
                     yHysteresisFlag = true;

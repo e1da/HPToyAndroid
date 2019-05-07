@@ -290,6 +290,7 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
             Uri uri = intent.getData();
             if (uri == null) return;
 
+
             HiFiToyPreset importPreset = new HiFiToyPreset();
             if (importPreset.importFromXml(uri)){
                 //check duplicate name

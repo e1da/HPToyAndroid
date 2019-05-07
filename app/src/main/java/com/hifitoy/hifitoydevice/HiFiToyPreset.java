@@ -352,7 +352,10 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
             InputStream in;
 
             if ( (scheme.equals("file")) && (uri.getPath() != null) ) {
-                in = new FileInputStream(new File(uri.getPath()));
+
+                //in = new FileInputStream(new File(uri.getPath()));
+                ContentResolver resolver = ApplicationContext.getInstance().getContext().getContentResolver();
+                in = resolver.openInputStream(uri);
 
             } else if (scheme.equals("content")) { // else "content"
                 ContentResolver resolver = ApplicationContext.getInstance().getContext().getContentResolver();
