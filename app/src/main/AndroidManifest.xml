@@ -21,7 +21,7 @@
 
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.hifitoy.fileprovider"
+            android:authorities="${applicationId}.fileprovider"
             android:grantUriPermissions="true"
             android:exported="false">
             <meta-data
@@ -69,7 +69,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".activities.options.AutoOffActivity"
-            android:label="Auto Off and Clipping"
+            android:label="@string/auto_off_title"
             android:screenOrientation="portrait" />
         <activity
             android:name=".activities.options.AdvertiseActivity"

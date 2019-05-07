@@ -37,4 +37,6 @@
 
     <string name="right_arrow">\u232A</string>
 
+    <string name="auto_off_title">Auto Off and Clipping</string>
+
 </resources>

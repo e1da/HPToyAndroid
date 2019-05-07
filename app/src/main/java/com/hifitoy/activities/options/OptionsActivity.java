@@ -96,6 +96,7 @@ public class OptionsActivity extends Activity implements View.OnClickListener {
         autoOff_outl                = findViewById(R.id.autoOff_outl);
         advertiseMode_outl          = findViewById(R.id.advertiseMode_outl);
 
+
         deviceNameLayout_outl.setOnClickListener(this);
         restoreFactorySettings_outl.setOnClickListener(this);
         changePairingCode_outl.setOnClickListener(this);

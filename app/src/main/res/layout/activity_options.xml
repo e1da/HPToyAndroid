@@ -218,7 +218,7 @@
                         android:layout_centerVertical="true"
                         android:layout_marginLeft="20dp"
                         android:layout_weight="1"
-                        android:text="Auto Off and Clipping"
+                        android:text="@string/auto_off_title"
                         android:textSize="20sp" />
                 </RelativeLayout>
 

@@ -17,8 +17,8 @@
 
 -(041919)add Biquad coefs input ui on Filters menu
 
--(040619)rename auto off and clipping -> Clip settings
++(040619)rename auto off and clipping -> Clip settings
 +(040619)check sensivity on compressor menu
 +(040619)fix bug when open xml preset from WeChat 
 +(040619)xover menu. up sensivity when chase pass filter`s order
--(040619)need gradle config for build hptoy and hifitoy release builds
++(040619)need gradle config for build hptoy and hifitoy release builds
