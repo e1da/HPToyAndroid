@@ -68,11 +68,11 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     // HiFiToy CHARACTERISTICS, pointer to all characteristics
     private List<HiFiToyObject> characteristics;
 
-    private Filters     filters;
-    private Volume      masterVolume;
-    private BassTreble  bassTreble;
-    private Loudness    loudness;
-    private Drc         drc;
+    public Filters     filters;
+    public Volume      masterVolume;
+    public BassTreble  bassTreble;
+    public Loudness    loudness;
+    public Drc         drc;
 
     public HiFiToyPreset() {
         characteristics = new ArrayList<>();

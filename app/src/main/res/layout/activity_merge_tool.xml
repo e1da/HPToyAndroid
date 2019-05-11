@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:layout_weight="1"
+        android:background="#444444"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentEnd="false"
+        android:gravity="center_vertical"
+        android:layout_weight="1"
+        android:background="#333333"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:textAlignment="center"
+        android:text="PRESET ELEMENT" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_weight="1">
+
+        <Button
+            android:id="@+id/prevBtn_outl"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:text="Previous"/>
+
+        <TextView
+            android:id="@+id/presetElementLabel_outl"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="false"
+            android:gravity="center_vertical"
+            android:layout_weight="1"
+            android:background="#000000"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:textAlignment="center"
+            android:text="Volume" />
+
+        <Button
+            android:id="@+id/nextBtn_outl"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:text="Next"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:layout_weight="1"
+        android:background="#444444"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentEnd="false"
+        android:gravity="center_vertical"
+        android:layout_weight="1"
+        android:background="#333333"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:textAlignment="center"
+        android:text="PLEASE CHOOSE SOURCE PRESET" />
+
+    <RadioGroup
+        android:id="@+id/presetRadioGroup_outl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="30dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+
+
+    </RadioGroup>
+
+</LinearLayout>

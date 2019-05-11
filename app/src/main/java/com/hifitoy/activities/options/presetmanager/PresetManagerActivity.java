@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
+import com.hifitoy.activities.options.presetmanager.mergetool.MergeToolActivity;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
@@ -45,6 +46,9 @@ public class PresetManagerActivity extends ListActivity {
         //show back button
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+        // Initializes list view adapter.
+        mPresetListAdapter = new PresetListAdapter();
     }
 
     @Override
@@ -53,12 +57,8 @@ public class PresetManagerActivity extends ListActivity {
         ApplicationContext.getInstance().setContext(this);
         registerReceiver(broadcastReceiver, makeIntentFilter());
 
-        // Initializes list view adapter.
-        if (mPresetListAdapter == null){
-            mPresetListAdapter = new PresetListAdapter();
-        }
+        // Set list view adapter.
         setListAdapter(mPresetListAdapter);
-
         mPresetListAdapter.notifyDataSetChanged();
 
     }
@@ -91,9 +91,14 @@ public class PresetManagerActivity extends ListActivity {
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-        Intent intent = new Intent(this, PresetDetailActivity.class);
-        intent.putExtra("presetPosition", position);
-        startActivity(intent);
+        if (position == mPresetListAdapter.getCount() - 1) {
+            Intent intent = new Intent(this, MergeToolActivity.class);
+            startActivity(intent);
+        } else {
+            Intent intent = new Intent(this, PresetDetailActivity.class);
+            intent.putExtra("presetPosition", position);
+            startActivity(intent);
+        }
     }
 
 
@@ -138,7 +143,7 @@ public class PresetManagerActivity extends ListActivity {
 
         @Override
         public int getCount() {
-            return HiFiToyPresetManager.getInstance().size();
+            return HiFiToyPresetManager.getInstance().size() + 1;
         }
 
         @Override
@@ -155,34 +160,33 @@ public class PresetManagerActivity extends ListActivity {
         public View getView(int i, View view, ViewGroup viewGroup) {
             TextView presetName_outl;
 
-            if (view == null) {
+            if (i == getCount() - 1) {
+                view = getLayoutInflater().inflate(R.layout.merge_tool_item, null);
+
+            } else {
                 view = getLayoutInflater().inflate(R.layout.preset_list_item, null);
                 presetName_outl = view.findViewById(R.id.preset_name);
-                view.setTag(presetName_outl);
-            } else {
-                presetName_outl = (TextView) view.getTag();
+
+                HiFiToyPreset preset = HiFiToyPresetManager.getInstance().getPreset(i);
+                String key = HiFiToyPresetManager.getInstance().getKey(i);
+                String activeKey = HiFiToyControl.getInstance().getActiveDevice().getActiveKeyPreset();
+
+                //set color
+                if (key.equals(activeKey)) {
+                    presetName_outl.setTextColor(0xFFFFFFFF);
+                } else {
+                    presetName_outl.setTextColor(0xFFA0A0A0);
+                }
+
+                //set text
+                String presetName;
+                if (preset.getName().length() > 23) {
+                    presetName = preset.getName().substring(0, 20) + "...";
+                } else {
+                    presetName = preset.getName();
+                }
+                presetName_outl.setText(presetName);
             }
-
-            HiFiToyPreset preset = HiFiToyPresetManager.getInstance().getPreset(i);
-            String key = HiFiToyPresetManager.getInstance().getKey(i);
-            String activeKey = HiFiToyControl.getInstance().getActiveDevice().getActiveKeyPreset();
-
-            //set color
-            if (key.equals(activeKey)){
-                presetName_outl.setTextColor(0xFFFFFFFF);
-            } else {
-                presetName_outl.setTextColor(0xFFA0A0A0);
-            }
-
-            //set text
-            String presetName;
-            if (preset.getName().length() > 23){
-                presetName = preset.getName().substring(0, 20) + "...";
-            } else {
-                presetName = preset.getName();
-            }
-            presetName_outl.setText(presetName);
-
 
 
             return view;

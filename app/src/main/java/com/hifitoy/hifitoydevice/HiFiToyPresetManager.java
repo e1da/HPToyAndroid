@@ -110,6 +110,10 @@ public class HiFiToyPresetManager {
         description();
     }
 
+    public boolean isPresetExist(String key) {
+        return getPreset(key) != null;
+    }
+
     public HiFiToyPreset getPreset(String key){
         return presetMap.get(key);
     }

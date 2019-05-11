@@ -95,6 +95,10 @@
             android:name=".activities.compressor.TimeConstActivity"
             android:label="Time const"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.options.presetmanager.mergetool.MergeToolActivity"
+            android:label="Merge tool"
+            android:screenOrientation="portrait" />
 
     </application>
 
