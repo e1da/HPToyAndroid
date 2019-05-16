@@ -5,8 +5,6 @@ android {
     defaultConfig {
         minSdkVersion 23
         targetSdkVersion 26
-        versionCode 1
-        versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -21,10 +19,14 @@ android {
     flavorDimensions "version"
     productFlavors {
         hifitoy {
+            versionCode 2
+            versionName "1.0.1"
             dimension "version"
             applicationId "com.hifitoy"
         }
         hptoy {
+            versionCode 2
+            versionName "1.0.1"
             dimension "version"
             applicationId "com.hptoy"
         }

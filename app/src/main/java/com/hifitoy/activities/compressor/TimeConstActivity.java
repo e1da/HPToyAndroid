@@ -74,6 +74,12 @@ public class TimeConstActivity extends Activity implements SeekBar.OnSeekBarChan
         return super.onOptionsItemSelected(item);
     }
 
+    private void enabledSeekBarListener(boolean enabled) {
+        energySeekBar_outl.setOnSeekBarChangeListener(enabled ? this : null);
+        attackSeekBar_outl.setOnSeekBarChangeListener(enabled ? this : null);
+        decaySeekBar_outl.setOnSeekBarChangeListener(enabled ? this : null);
+    }
+
     private void initOutlets() {
         drc = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getDrc();
 
@@ -84,12 +90,12 @@ public class TimeConstActivity extends Activity implements SeekBar.OnSeekBarChan
         decayLabel_outl = findViewById(R.id.decayLabel_outl);
         decaySeekBar_outl = findViewById(R.id.decaySeekBar_outl);
 
-        energySeekBar_outl.setOnSeekBarChangeListener(this);
-        attackSeekBar_outl.setOnSeekBarChangeListener(this);
-        decaySeekBar_outl.setOnSeekBarChangeListener(this);
+        enabledSeekBarListener(true);
     }
 
     private void setupOutlets() {
+        enabledSeekBarListener(false);
+
         energyLabel_outl.setText(drc.getTimeConst17().getEnergyDescription());
         setSeekBar(energySeekBar_outl, drc.getTimeConst17().getEnergyPercent());
 
@@ -98,6 +104,8 @@ public class TimeConstActivity extends Activity implements SeekBar.OnSeekBarChan
 
         decayLabel_outl.setText(drc.getTimeConst17().getDecayDescription());
         setSeekBar(decaySeekBar_outl, drc.getTimeConst17().getDecayPercent());
+
+        enabledSeekBarListener(true);
     }
 
     @Override

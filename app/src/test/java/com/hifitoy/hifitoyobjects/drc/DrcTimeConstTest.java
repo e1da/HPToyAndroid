@@ -115,5 +115,19 @@ public class DrcTimeConstTest {
 
     }
 
+    @Test
+    public void testSetGetEnergy() {
+        dt0.setEnergyMS(0.8f);
+        float a = dt0.getEnergyMS();
+        System.out.println(dt0.getEnergyDescription());
+
+        dt0.setEnergyPercent(dt0.getEnergyPercent());
+        System.out.println(dt0.getEnergyDescription());
+        //System.out.println(String.format(Locale.getDefault(), "%f %f", a, dt0.getEnergyMS()));
+
+        dt0.setEnergyPercent(dt0.getEnergyPercent());
+        System.out.println(dt0.getEnergyDescription());
+    }
+
 
 }
