@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
@@ -64,6 +65,8 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //ViewGroup holder = new ViewGroup();
 
         filterView = new FilterView(this);
         filterView.setOnTouchListener(this);

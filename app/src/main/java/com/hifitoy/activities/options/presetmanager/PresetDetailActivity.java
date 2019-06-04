@@ -339,7 +339,8 @@ public class PresetDetailActivity extends Activity implements View.OnClickListen
 
         try {
             fileUri = FileProvider.getUriForFile(this,
-                                                "com.hifitoy.fileprovider", file);
+                    getString(R.string.fileprovider_authority), file);
+
         } catch (IllegalArgumentException e) {
             Log.d(TAG, "The selected file can't be shared: " + file.toString());
         }
@@ -348,7 +349,7 @@ public class PresetDetailActivity extends Activity implements View.OnClickListen
         if (fileUri != null){
             //start E-Mail export view
             Intent sendIntent = new Intent(Intent.ACTION_SEND);
-            sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Preset from HiFiToy");
+            sendIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.export_extra_subject));
             sendIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
             sendIntent.setType("application/tpr");
             //startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.string_to)));
