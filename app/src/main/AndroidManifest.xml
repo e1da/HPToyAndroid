@@ -99,6 +99,10 @@
             android:name=".activities.options.presetmanager.mergetool.MergeToolActivity"
             android:label="Merge tool"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.options.presetmanager.textimporttool.PresetTextImportActivity"
+            android:label="Text import"
+            android:screenOrientation="portrait" />
 
     </application>
 

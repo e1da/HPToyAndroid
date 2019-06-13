@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
 import com.hifitoy.activities.options.presetmanager.mergetool.MergeToolActivity;
+import com.hifitoy.activities.options.presetmanager.textimporttool.PresetTextImportActivity;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
@@ -94,6 +95,11 @@ public class PresetManagerActivity extends ListActivity {
         if (position == mPresetListAdapter.getCount() - 1) {
             Intent intent = new Intent(this, MergeToolActivity.class);
             startActivity(intent);
+
+        } else if (position == mPresetListAdapter.getCount() - 2) {
+            Intent intent = new Intent(this, PresetTextImportActivity.class);
+            startActivity(intent);
+
         } else {
             Intent intent = new Intent(this, PresetDetailActivity.class);
             intent.putExtra("presetPosition", position);
@@ -143,12 +149,15 @@ public class PresetManagerActivity extends ListActivity {
 
         @Override
         public int getCount() {
-            return HiFiToyPresetManager.getInstance().size() + 1;
+            return HiFiToyPresetManager.getInstance().size() + 2;
         }
 
         @Override
         public Object getItem(int i) {
-            return HiFiToyPresetManager.getInstance().getPreset(i);
+            if (i < HiFiToyPresetManager.getInstance().size()) {
+                return HiFiToyPresetManager.getInstance().getPreset(i);
+            }
+            return null;
         }
 
         @Override
@@ -162,6 +171,9 @@ public class PresetManagerActivity extends ListActivity {
 
             if (i == getCount() - 1) {
                 view = getLayoutInflater().inflate(R.layout.merge_tool_item, null);
+
+            } else if (i == getCount() - 2) {
+                view = getLayoutInflater().inflate(R.layout.text_import_item, null);
 
             } else {
                 view = getLayoutInflater().inflate(R.layout.preset_list_item, null);

@@ -1,3 +1,5 @@
+psw: 111111
+
 +clip ui
  
 +(032219)test and fix bugs Xml export/import

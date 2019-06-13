@@ -42,6 +42,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.io.StringReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -341,6 +342,9 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         if (index != -1){
             filename = filename.substring(0, index);
         }
+        //check preset name
+        filename = checkPresetName(filename);
+        if (filename == null) return false;
 
         //get scheme
         String scheme = uri.getScheme();
@@ -390,5 +394,53 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         }
 
         return false;
+    }
+
+    public boolean importFromXml(String xmlData, String presetName) {
+        if (xmlData == null) return false;
+
+        String n = checkPresetName(presetName);
+        if (n == null) return false;
+        name = n;
+
+        try {
+            //get xml parser
+            XmlPullParser xmlParser = Xml.newPullParser();
+            xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+            xmlParser.setInput(new StringReader(xmlData));
+
+            if (importFromXml(xmlParser)) {
+                return true;
+            }
+
+        } catch (XmlPullParserException e) {
+            Log.d(TAG, e.toString());
+
+        } catch (IOException e) {
+            Log.d(TAG, e.toString());
+        }
+
+        return false;
+    }
+
+    private String checkPresetName(String name) {
+        if (HiFiToyControl.getInstance().getActiveDevice().getActiveKeyPreset().equals(name)) {
+            String msg = String.format("Preset %s is exist and active. Import is not success.", name);
+            DialogSystem.getInstance().showDialog("Warning", msg, "Ok");
+            return null;
+        }
+
+        if (HiFiToyPresetManager.getInstance().getPreset(name) != null) {
+            int index = 1;
+            String modifyName;
+            do {
+                modifyName = name + String.format(Locale.getDefault(),"_%d", index++);
+
+            } while (HiFiToyPresetManager.getInstance().getPreset(modifyName) != null);
+
+            return modifyName;
+        }
+
+        return name;
     }
 }
