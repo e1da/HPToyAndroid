@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
+import com.hifitoy.activities.options.presetmanager.linkimporttool.LinkImportActivity;
 import com.hifitoy.activities.options.presetmanager.mergetool.MergeToolActivity;
 import com.hifitoy.activities.options.presetmanager.textimporttool.PresetTextImportActivity;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
@@ -100,6 +101,10 @@ public class PresetManagerActivity extends ListActivity {
             Intent intent = new Intent(this, PresetTextImportActivity.class);
             startActivity(intent);
 
+        } else if (position == mPresetListAdapter.getCount() - 3) {
+            Intent intent = new Intent(this, LinkImportActivity.class);
+            startActivity(intent);
+
         } else {
             Intent intent = new Intent(this, PresetDetailActivity.class);
             intent.putExtra("presetPosition", position);
@@ -149,7 +154,7 @@ public class PresetManagerActivity extends ListActivity {
 
         @Override
         public int getCount() {
-            return HiFiToyPresetManager.getInstance().size() + 2;
+            return HiFiToyPresetManager.getInstance().size() + 3;
         }
 
         @Override
@@ -174,6 +179,9 @@ public class PresetManagerActivity extends ListActivity {
 
             } else if (i == getCount() - 2) {
                 view = getLayoutInflater().inflate(R.layout.text_import_item, null);
+
+            } else if (i == getCount() - 3) {
+                view = getLayoutInflater().inflate(R.layout.direct_link_import_item, null);
 
             } else {
                 view = getLayoutInflater().inflate(R.layout.preset_list_item, null);

@@ -4,37 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_weight="1"
-        android:background="#444444"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:layout_weight="1"
-        android:background="#333333"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_weight="1"
-        android:background="#444444"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp" />
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:gravity="center_vertical"
         android:layout_marginLeft="20dp"
         android:layout_weight="1"
-        android:text="Text Import"
+        android:text="Text"
         android:textColor="#FFFFFF"
         android:textSize="20sp" />
 
