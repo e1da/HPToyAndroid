@@ -8,14 +8,17 @@
 package com.hifitoy.hifitoydevice;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.util.Log;
 
 import com.hifitoy.ApplicationContext;
+import com.hifitoy.R;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -56,18 +59,48 @@ public class HiFiToyPresetManager {
 
         } catch(FileNotFoundException f) {
             Log.d(TAG, "HiFiToyPresetMap.dat is not found.");
+            restoreFromBundle();
+
+        } catch (IOException w) {
+            w.printStackTrace();
+            restoreFromBundle();
+
+        } catch (ClassNotFoundException w) {
+            w.printStackTrace();
+            restoreFromBundle();
+
+        }
+
+    }
+
+    private void restoreFromBundle() {
+        Context context = ApplicationContext.getInstance().getContext();
+
+        try {
+            InputStream is = context.getResources().openRawResource(R.raw.presets);
+            ObjectInputStream ois = new ObjectInputStream(is);
+            presetList = (LinkedList<HiFiToyPreset>)ois.readObject();
+
+            is.close();
+            Log.d(TAG, "Restore HiFiToyPresetMap from bundle.");
+
+            store();
+
+        } catch(Resources.NotFoundException f) {
+            Log.d(TAG, "HiFiToyPresetMap.dat is not found in bundle.");
 
             //create default preset
             presetList.clear();
             setPreset(new HiFiToyPreset());
 
-            Log.d(TAG, "Create HiFiToyPresetMap.");
+            Log.d(TAG, "Create null HiFiToyPresetMap.");
 
         } catch (IOException w) {
             w.printStackTrace();
         } catch (ClassNotFoundException w) {
             w.printStackTrace();
         }
+
 
     }
 

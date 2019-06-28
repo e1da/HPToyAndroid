@@ -198,12 +198,8 @@ public class PresetManagerActivity extends ListActivity {
                 }
 
                 //set text
-                if (presetName.length() > 23) {
-                    String pn = presetName.substring(0, 20) + "...";
-                    presetName_outl.setText(pn);
-                } else {
-                    presetName_outl.setText(presetName);
-                }
+                presetName_outl.setText(presetName);
+
             }
 
 
