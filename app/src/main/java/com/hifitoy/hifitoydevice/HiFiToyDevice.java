@@ -151,7 +151,7 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
         importPreset.setName(Calendar.getInstance().getTime().toString());
 
         if (importPreset.importFromDataBufs(peripheralData.getDataBufs())) {
-            HiFiToyPresetManager.getInstance().setPreset(importPreset.getName(), importPreset);
+            HiFiToyPresetManager.getInstance().setPreset(importPreset);
             setActiveKeyPreset(importPreset.getName());
 
             Log.d(TAG, "Preset import success.");

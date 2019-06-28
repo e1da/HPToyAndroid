@@ -8,6 +8,6 @@
 package com.hifitoy.hifitoydevice;
 
 public interface StoreInterface {
-    public boolean restore(String filename, String key);
-    public void store(String filename, String key);
+    boolean restore(String filename, String key);
+    void store(String filename, String key);
 }

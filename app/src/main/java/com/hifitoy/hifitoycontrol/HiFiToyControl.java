@@ -150,7 +150,8 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                     break;
             }
         }
-    };
+    }
+
     private ConnectionState state = new ConnectionState();
 
     private BlePacketQueue packets = new BlePacketQueue();

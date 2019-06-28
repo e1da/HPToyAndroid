@@ -301,7 +301,7 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
                     name = importPreset.getName() + "_" + Integer.toString(count);
                 }
                 importPreset.setName(name);
-                HiFiToyPresetManager.getInstance().setPreset(importPreset.getName(), importPreset);
+                HiFiToyPresetManager.getInstance().setPreset(importPreset);
 
                 DialogSystem.getInstance().showDialog("Info",
                         "Add " + importPreset.getName() + " preset", "Ok");

@@ -159,7 +159,6 @@ public class TAS5558 {
     public final static byte CH7_VOLUME_REG     = (byte) 0xD7;
     public final static byte CH8_VOLUME_REG     = (byte) 0xD8;
     public final static byte MASTER_VOLUME_REG  = (byte) 0xD9;
-;
     public final static byte BASS_FILTER_SET_REG        = (byte) 0xDA;
     public final static byte BASS_FILTER_INDEX_REG      = (byte) 0xDB;
     public final static byte TREBLE_FILTER_SET_REG      = (byte) 0xDC;

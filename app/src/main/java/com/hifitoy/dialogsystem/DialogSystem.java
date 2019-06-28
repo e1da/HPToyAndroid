@@ -333,13 +333,13 @@ public class DialogSystem {
 
     /*====================== OnClickDialog Interfaces ===============================*/
     public interface OnClickDialog {
-        public void onPositiveClick();
-        public void onNegativeClick();
+        void onPositiveClick();
+        void onNegativeClick();
     }
 
     public interface OnClickTextDialog {
-        public void onPositiveClick(String text);
-        public void onNegativeClick(String text);
+        void onPositiveClick(String text);
+        void onNegativeClick(String text);
     }
 
 }

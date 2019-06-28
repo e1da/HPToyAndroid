@@ -40,7 +40,6 @@ public class PresetDetailActivity extends Activity implements View.OnClickListen
     final static String TAG = "HiFiToy";
 
     HiFiToyPreset preset;
-    String    key;
 
     LinearLayout    presetNameLayout_outl;
     TextView        presetName_outl;
@@ -67,7 +66,6 @@ public class PresetDetailActivity extends Activity implements View.OnClickListen
             position = 0;
         }
         preset = HiFiToyPresetManager.getInstance().getPreset(position);
-        key = HiFiToyPresetManager.getInstance().getKey(position);
 
     }
 
@@ -132,13 +130,14 @@ public class PresetDetailActivity extends Activity implements View.OnClickListen
         presetName_outl.setText(presetName);
 
         HiFiToyDevice activeDevice = HiFiToyControl.getInstance().getActiveDevice();
-        if (key.equals(activeDevice.getActiveKeyPreset())){
+        if (preset.getName().equals(activeDevice.getActiveKeyPreset())){
             setActivePresetLayout_outl.setVisibility(View.GONE);
         } else {
             setActivePresetLayout_outl.setVisibility(View.VISIBLE);
         }
 
-        if ( (key.equals("DefaultPreset")) || (key.equals(activeDevice.getActiveKeyPreset())) ) {
+        if ( (preset.getName().equals("DefaultPreset")) ||
+                (preset.getName().equals(activeDevice.getActiveKeyPreset())) ) {
             deletePresetLayout_outl.setVisibility(View.INVISIBLE);
         } else {
             deletePresetLayout_outl.setVisibility(View.VISIBLE);
@@ -166,7 +165,7 @@ public class PresetDetailActivity extends Activity implements View.OnClickListen
     }
 
     void showChangePresetNameDialog(){
-        if (key.equals("DefaultPreset")){//rename is not available for DefaultPreset
+        if (preset.getName().equals("DefaultPreset")){//rename is not available for DefaultPreset
             return;
         }
 
@@ -192,13 +191,13 @@ public class PresetDetailActivity extends Activity implements View.OnClickListen
     private void setActivePreset(){
         final HiFiToyDevice device = HiFiToyControl.getInstance().getActiveDevice();
 
-        if (key.equals(device.getActiveKeyPreset())){
+        if (preset.getName().equals(device.getActiveKeyPreset())){
             return;
         }
 
         DialogSystem.OnClickDialog dialogListener = new DialogSystem.OnClickDialog() {
             public void onPositiveClick(){
-                device.setActiveKeyPreset(key);
+                device.setActiveKeyPreset(preset.getName());
 
                 preset.storeToPeripheral();
             }
@@ -217,14 +216,14 @@ public class PresetDetailActivity extends Activity implements View.OnClickListen
     private void deletePreset(){
         HiFiToyDevice device = HiFiToyControl.getInstance().getActiveDevice();
 
-        if ( (key.equals("DefaultPreset")) || (key.equals(device.getActiveKeyPreset())) ) {
+        if ( (preset.getName().equals("DefaultPreset")) || (preset.getName().equals(device.getActiveKeyPreset())) ) {
             return;
         }
 
         DialogSystem.OnClickDialog dialogListener = new DialogSystem.OnClickDialog() {
             public void onPositiveClick(){
 
-                HiFiToyPresetManager.getInstance().removePreset(key);
+                HiFiToyPresetManager.getInstance().removePreset(preset.getName());
                 finish();
 
             }

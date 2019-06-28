@@ -129,7 +129,7 @@ public class PresetManagerActivity extends ListActivity {
             //restore current preset
             HiFiToyPresetManager.getInstance().restore();
             //add new preset to list and store
-            HiFiToyPresetManager.getInstance().setPreset(preset.getName(), preset);
+            HiFiToyPresetManager.getInstance().setPreset(preset);
 
         } catch (CloneNotSupportedException e){
             Log.d(TAG, "DspPreset.clone() exception.");
@@ -187,25 +187,23 @@ public class PresetManagerActivity extends ListActivity {
                 view = getLayoutInflater().inflate(R.layout.preset_list_item, null);
                 presetName_outl = view.findViewById(R.id.preset_name);
 
-                HiFiToyPreset preset = HiFiToyPresetManager.getInstance().getPreset(i);
-                String key = HiFiToyPresetManager.getInstance().getKey(i);
-                String activeKey = HiFiToyControl.getInstance().getActiveDevice().getActiveKeyPreset();
+                String presetName = HiFiToyPresetManager.getInstance().getPreset(i).getName();
+                String activeName = HiFiToyControl.getInstance().getActiveDevice().getActiveKeyPreset();
 
                 //set color
-                if (key.equals(activeKey)) {
+                if (presetName.equals(activeName)) {
                     presetName_outl.setTextColor(0xFFFFFFFF);
                 } else {
                     presetName_outl.setTextColor(0xFFA0A0A0);
                 }
 
                 //set text
-                String presetName;
-                if (preset.getName().length() > 23) {
-                    presetName = preset.getName().substring(0, 20) + "...";
+                if (presetName.length() > 23) {
+                    String pn = presetName.substring(0, 20) + "...";
+                    presetName_outl.setText(pn);
                 } else {
-                    presetName = preset.getName();
+                    presetName_outl.setText(presetName);
                 }
-                presetName_outl.setText(presetName);
             }
 
 

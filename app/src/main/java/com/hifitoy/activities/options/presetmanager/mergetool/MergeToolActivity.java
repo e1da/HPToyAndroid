@@ -184,7 +184,7 @@ public class MergeToolActivity extends Activity {
                         mergePreset.setName(name);
 
                         if (!HiFiToyPresetManager.getInstance().isPresetExist(name)) {
-                            HiFiToyPresetManager.getInstance().setPreset(mergePreset.getName(), mergePreset);
+                            HiFiToyPresetManager.getInstance().setPreset(mergePreset);
                             Toast.makeText(getApplicationContext(),
                                     "Success.", Toast.LENGTH_SHORT).show();
 
@@ -209,7 +209,8 @@ public class MergeToolActivity extends Activity {
             DialogSystem.getInstance().showTextDialog(dialogListener, title, "Ok", "Cancel");
         }
 
-    };
+    }
+
     private MergeTool mergeTool;
 
     @Override

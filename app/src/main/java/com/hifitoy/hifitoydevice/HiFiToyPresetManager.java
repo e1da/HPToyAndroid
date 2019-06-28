@@ -9,11 +9,9 @@ package com.hifitoy.hifitoydevice;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.hifitoy.ApplicationContext;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -21,14 +19,14 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
 
 public class HiFiToyPresetManager {
     private static final String TAG = "HiFiToy";
     private static HiFiToyPresetManager instance;
 
-    private Map<String, HiFiToyPreset> presetMap = new HashMap<String, HiFiToyPreset>();
+    private List<HiFiToyPreset> presetList = new LinkedList<HiFiToyPreset>();
 
     public static synchronized HiFiToyPresetManager getInstance(){
         if (instance == null){
@@ -40,7 +38,7 @@ public class HiFiToyPresetManager {
     private HiFiToyPresetManager(){
         restore();
         if (getPreset("DefaultPreset") == null) {
-            setPreset("DefaultPreset", new HiFiToyPreset());
+            setPreset(new HiFiToyPreset());
         }
     }
 
@@ -51,7 +49,7 @@ public class HiFiToyPresetManager {
         try {
             FileInputStream fis = context.openFileInput("HiFiToyPresetMap.dat");
             ObjectInputStream is = new ObjectInputStream(fis);
-            presetMap = (HashMap<String, HiFiToyPreset>)is.readObject();
+            presetList = (LinkedList<HiFiToyPreset>)is.readObject();
 
             is.close();
             Log.d(TAG, "Restore HiFiToyPresetMap.");
@@ -60,9 +58,8 @@ public class HiFiToyPresetManager {
             Log.d(TAG, "HiFiToyPresetMap.dat is not found.");
 
             //create default preset
-            presetMap.clear();
-            HiFiToyPreset preset = new HiFiToyPreset();
-            setPreset("DefaultPreset", preset);
+            presetList.clear();
+            setPreset(new HiFiToyPreset());
 
             Log.d(TAG, "Create HiFiToyPresetMap.");
 
@@ -80,7 +77,7 @@ public class HiFiToyPresetManager {
             FileOutputStream fos = context.openFileOutput("HiFiToyPresetMap.dat",
                     Context.MODE_PRIVATE);
             ObjectOutputStream os = new ObjectOutputStream(fos);
-            os.writeObject(presetMap);
+            os.writeObject(presetList);
             os.close();
             Log.d(TAG, "Store HiFiToyPresetMap.");
 
@@ -93,63 +90,74 @@ public class HiFiToyPresetManager {
 
     //map methods: count/remove/get/set
     public int size() {
-        return presetMap.size();
+        return presetList.size();
     }
 
-    public void removePreset(String key) {
-        presetMap.remove(key);
+    public void removePreset(String name) {
+        for (int i = 0; i < presetList.size(); i++) {
+            HiFiToyPreset p = presetList.get(i);
 
+            if (p.getName().equals(name)) {
+                presetList.remove(i);
+
+                store();
+                description();
+                break;
+            }
+        }
+    }
+
+    public void setPreset(HiFiToyPreset preset){
+        //must be clone!!!
+
+        for (int i = 0; i < presetList.size(); i++) {
+            HiFiToyPreset p = presetList.get(i);
+
+            if (p.getName().equals(preset.getName())) {
+                presetList.set(i, preset);
+
+                store();
+                description();
+                return;
+            }
+        }
+
+        presetList.add(preset);
         store();
         description();
     }
 
-    public void setPreset(String key, HiFiToyPreset preset){
-        presetMap.put(key, preset);//must be clone!!!
+    public boolean isPresetExist(String name) {
+        for (HiFiToyPreset p : presetList) {
+            if (p.getName().equals(name)) {
+                return true;
+            }
+        }
 
-        store();
-        description();
+        return false;
     }
 
-    public boolean isPresetExist(String key) {
-        return getPreset(key) != null;
-    }
-
-    public HiFiToyPreset getPreset(String key){
-        return presetMap.get(key);
-    }
-
-    public HiFiToyPreset getPreset(int position){
-        if (position < size()){
-            Object[] presetArray = presetMap.values().toArray();
-            return (HiFiToyPreset)presetArray[position];
+    public HiFiToyPreset getPreset(String name){
+        for (HiFiToyPreset p : presetList) {
+            if (p.getName().equals(name)) {
+                return p;
+            }
         }
         return null;
     }
 
-    public HiFiToyPreset getDefaultDspPreset(){
-        HiFiToyPreset preset = getPreset("DefaultPreset");
-        if (preset == null) {
-            preset = new HiFiToyPreset();
-            setPreset("DefaultPreset", preset);
-        }
-
-        return preset;
-    }
-
-    public String getKey(int position){
+    public HiFiToyPreset getPreset(int position){
         if (position < size()){
-            Object[] keys = presetMap.keySet().toArray();
-            return (String)keys[position];
+            return presetList.get(position);
         }
         return null;
     }
 
     public void description() {
-        Log.d(TAG, "=============== <PresetMap> ======================");
-        for (Map.Entry<String, HiFiToyPreset> entry: presetMap.entrySet()) {
-            Log.d(TAG, "key=" + entry.getKey() +
-                            " name=" + entry.getValue().getInfo());
+        Log.d(TAG, "=============== <PresetList> ======================");
+        for (HiFiToyPreset p : presetList) {
+            Log.d(TAG, "name=" + p.getInfo());
         }
-        Log.d(TAG, "================</PresetMap>======================");
+        Log.d(TAG, "================</PresetList>======================");
     }
 }
