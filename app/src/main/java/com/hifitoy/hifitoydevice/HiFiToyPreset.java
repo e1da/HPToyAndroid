@@ -128,7 +128,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     }
 
     public void setDefault() {
-        name = "DefaultPreset";
+        name = "No processing";
 
         //Filters
         filters = new Filters(TAS5558.BIQUAD_FILTER_REG, (byte)(TAS5558.BIQUAD_FILTER_REG + 7));

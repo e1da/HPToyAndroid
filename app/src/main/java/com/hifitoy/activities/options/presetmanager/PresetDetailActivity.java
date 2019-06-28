@@ -136,7 +136,7 @@ public class PresetDetailActivity extends Activity implements View.OnClickListen
             setActivePresetLayout_outl.setVisibility(View.VISIBLE);
         }
 
-        if ( (preset.getName().equals("DefaultPreset")) ||
+        if ( (preset.getName().equals("No processing")) ||
                 (preset.getName().equals(activeDevice.getActiveKeyPreset())) ) {
             deletePresetLayout_outl.setVisibility(View.INVISIBLE);
         } else {
@@ -165,7 +165,7 @@ public class PresetDetailActivity extends Activity implements View.OnClickListen
     }
 
     void showChangePresetNameDialog(){
-        if (preset.getName().equals("DefaultPreset")){//rename is not available for DefaultPreset
+        if (preset.getName().equals("No processing")){//rename is not available for No processing
             return;
         }
 
@@ -216,7 +216,7 @@ public class PresetDetailActivity extends Activity implements View.OnClickListen
     private void deletePreset(){
         HiFiToyDevice device = HiFiToyControl.getInstance().getActiveDevice();
 
-        if ( (preset.getName().equals("DefaultPreset")) || (preset.getName().equals(device.getActiveKeyPreset())) ) {
+        if ( (preset.getName().equals("No processing")) || (preset.getName().equals(device.getActiveKeyPreset())) ) {
             return;
         }
 

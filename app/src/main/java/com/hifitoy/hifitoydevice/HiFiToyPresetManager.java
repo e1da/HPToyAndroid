@@ -37,7 +37,7 @@ public class HiFiToyPresetManager {
 
     private HiFiToyPresetManager(){
         restore();
-        if (getPreset("DefaultPreset") == null) {
+        if (getPreset("No processing") == null) {
             setPreset(new HiFiToyPreset());
         }
     }

@@ -51,7 +51,7 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
     public void setDefault() {
         mac = "demo";
         name = "Demo";
-        activeKeyPreset = "DefaultPreset";
+        activeKeyPreset = "No processing";
 
         pairingCode = 0;
         audioSource = new AudioSource();
@@ -129,7 +129,7 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
         audioSource = new AudioSource();
         advertiseMode = new AdvertiseMode();
         energyConfig = new EnergyConfig();
-        setActiveKeyPreset("DefaultPreset");
+        setActiveKeyPreset("No processing");
 
         PeripheralData peripheralData = new PeripheralData(this);
         peripheralData.exportWithDialog("Restore factory...");
