@@ -33,10 +33,11 @@ import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETR
 public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Serializable {
     private static final String TAG = "HiFiToy";
 
-    private String  mac;
-    private String  name;
-    private String  activeKeyPreset;
-    private int     pairingCode;
+    private String                  mac;
+    private String                  name;
+    private String                  activeKeyPreset;
+    private transient HiFiToyPreset activePreset = null;
+    private int                     pairingCode;
 
     private AudioSource       audioSource;
     private AdvertiseMode     advertiseMode;
@@ -87,15 +88,20 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
         return activeKeyPreset;
     }
     public boolean  setActiveKeyPreset(String key){
-        if (HiFiToyPresetManager.getInstance().getPreset(key) != null) {
+        HiFiToyPreset p = HiFiToyPresetManager.getInstance().getPreset(key);
+        if (p != null) {
             activeKeyPreset = key;
+            activePreset = p;
             HiFiToyDeviceManager.getInstance().store();
             return true;
         }
         return false;
     }
     public HiFiToyPreset getActivePreset() {
-        return HiFiToyPresetManager.getInstance().getPreset(activeKeyPreset);
+        if (activePreset == null) {
+            activePreset = HiFiToyPresetManager.getInstance().getPreset(activeKeyPreset);
+        }
+        return activePreset;
     }
 
     public AudioSource      getAudioSource() {

@@ -19,7 +19,8 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:logo="@android:color/transparent">
+        android:logo="@android:color/transparent"
+        android:fullBackupContent="false">
 
         <provider
             android:name="android.support.v4.content.FileProvider"

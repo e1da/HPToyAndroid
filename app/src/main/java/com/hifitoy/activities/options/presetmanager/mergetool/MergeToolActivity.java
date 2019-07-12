@@ -332,6 +332,7 @@ public class MergeToolActivity extends Activity {
 
             RadioButton btn = new RadioButton(this);
             btn.setText(preset.getName());
+
             btn.setTag(preset);
             presets.addView(btn);
         }

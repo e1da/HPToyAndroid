@@ -6,6 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+
+
     <View
         android:layout_width="fill_parent"
         android:layout_height="1dp"
@@ -81,17 +83,23 @@
         android:textAlignment="center"
         android:text="PLEASE CHOOSE SOURCE PRESET" />
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="5">
+
     <RadioGroup
         android:id="@+id/presetRadioGroup_outl"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="30dp"
-        android:layout_weight="1"
+        android:layout_weight="5"
         android:orientation="vertical">
-
-
-
     </RadioGroup>
+
+
+
+    </ScrollView>
 
 </LinearLayout>

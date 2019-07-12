@@ -430,17 +430,13 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
             return null;
         }
 
-        if (HiFiToyPresetManager.getInstance().getPreset(name) != null) {
-            int index = 1;
-            String modifyName;
-            do {
-                modifyName = name + String.format(Locale.getDefault(),"_%d", index++);
+        int index = 1;
+        String modifyName = name;
 
-            } while (HiFiToyPresetManager.getInstance().getPreset(modifyName) != null);
-
-            return modifyName;
+        while (HiFiToyPresetManager.getInstance().isPresetExist(modifyName)) {
+            modifyName = name + String.format(Locale.getDefault(),"_%d", index++);
         }
 
-        return name;
+        return modifyName;
     }
 }

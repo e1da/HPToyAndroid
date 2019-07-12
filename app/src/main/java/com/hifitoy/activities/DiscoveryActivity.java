@@ -296,7 +296,7 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
                 //check duplicate name
                 String name = importPreset.getName();
                 int count = 0;
-                while (HiFiToyPresetManager.getInstance().getPreset(name) != null){
+                while (HiFiToyPresetManager.getInstance().isPresetExist(name)){
                     count++;
                     name = importPreset.getName() + "_" + Integer.toString(count);
                 }

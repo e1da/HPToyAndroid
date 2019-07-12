@@ -40,7 +40,7 @@ public class HiFiToyPresetManager {
 
     private HiFiToyPresetManager(){
         restore();
-        if (getPreset("No processing") == null) {
+        if (!isPresetExist("No processing")) {
             setPreset(new HiFiToyPreset());
         }
     }
@@ -141,23 +141,28 @@ public class HiFiToyPresetManager {
     }
 
     public void setPreset(HiFiToyPreset preset){
-        //must be clone!!!
 
-        for (int i = 0; i < presetList.size(); i++) {
-            HiFiToyPreset p = presetList.get(i);
+        try {
 
-            if (p.getName().equals(preset.getName())) {
-                presetList.set(i, preset);
+            for (int i = 0; i < presetList.size(); i++) {
+                HiFiToyPreset p = presetList.get(i);
 
-                store();
-                description();
-                return;
+                if (p.getName().equals(preset.getName())) {
+                    presetList.set(i, preset.clone());
+
+                    store();
+                    description();
+                    return;
+                }
             }
-        }
 
-        presetList.add(preset);
-        store();
-        description();
+            presetList.add(preset.clone());
+            store();
+            description();
+
+        } catch (CloneNotSupportedException e) {
+            Log.d(TAG, e.toString());
+        }
     }
 
     public boolean isPresetExist(String name) {
@@ -173,7 +178,11 @@ public class HiFiToyPresetManager {
     public HiFiToyPreset getPreset(String name){
         for (HiFiToyPreset p : presetList) {
             if (p.getName().equals(name)) {
-                return p;
+                try {
+                    return p.clone();
+                } catch (CloneNotSupportedException e) {
+                    Log.d(TAG, e.toString());
+                }
             }
         }
         return null;
@@ -181,7 +190,11 @@ public class HiFiToyPresetManager {
 
     public HiFiToyPreset getPreset(int position){
         if (position < size()){
-            return presetList.get(position);
+            try {
+                return presetList.get(position).clone();
+            } catch (CloneNotSupportedException e) {
+                Log.d(TAG, e.toString());
+            }
         }
         return null;
     }

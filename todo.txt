@@ -1,26 +1,4 @@
 psw: 111111
 
-+clip ui
- 
-+(032219)test and fix bugs Xml export/import
-
-+(032319)add progress bar for import/export presets
-
-+(032819)ble packet queue maybe bug. FIX BUG
-
-+(032819)check when app goto wait mode (maybe need service used). DIDN`T FIND PROBLEM
-
-
 -(041819)preset name should be without spaces else import preset fail
-
--(041919)add preset merge tool
-
-+(041919)add Compressor menu
-
 -(041919)add Biquad coefs input ui on Filters menu
-
-+(040619)rename auto off and clipping -> Clip settings
-+(040619)check sensivity on compressor menu
-+(040619)fix bug when open xml preset from WeChat 
-+(040619)xover menu. up sensivity when chase pass filter`s order
-+(040619)need gradle config for build hptoy and hifitoy release builds
