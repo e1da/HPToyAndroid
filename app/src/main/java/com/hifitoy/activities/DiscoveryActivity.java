@@ -52,8 +52,7 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
                             Manifest.permission.BLUETOOTH_ADMIN,
                             Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION,
-                            Manifest.permission.READ_EXTERNAL_STORAGE,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            Manifest.permission.READ_EXTERNAL_STORAGE},
                     1);
 
         mLeDeviceListAdapter = new LeDeviceListAdapter();
@@ -102,12 +101,6 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
                             Log.d(TAG, "permission.READ_EXTERNAL_STORAGE is not granted.");
                         }
                         break;
-                    case Manifest.permission.WRITE_EXTERNAL_STORAGE:
-                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                            Log.d(TAG, "permission.WRITE_EXTERNAL_STORAGE is not granted.");
-                        }
-                        break;
-
 
                 }
             }

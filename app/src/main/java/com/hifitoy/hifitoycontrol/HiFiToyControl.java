@@ -203,7 +203,10 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     }
 
     public void startDiscovery(DiscoveryDelegate discoveryDelegate) {
-        if ( (!isBleEnabled()) || (bleFinder.isDiscovering()) ) return;
+        if ( (!isBleEnabled()) || (bleFinder.isDiscovering()) ) {
+            this.discoveryDelegate = discoveryDelegate;
+            return;
+        }
 
         bleFinder.setBleFinderDelegate(this);
         this.discoveryDelegate = discoveryDelegate;
@@ -707,7 +710,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         if (state.getState() == ConnectionState.RECONNECTING) {
             if (activeDevice.getMac().equals(deviceAddress)) {
                 connect(activeDevice);
-                stopDiscovery();
+                if (discoveryDelegate == null) stopDiscovery();
             }
         }
 
