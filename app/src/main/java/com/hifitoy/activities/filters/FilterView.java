@@ -57,6 +57,8 @@ public class FilterView extends View {
     public int maxFreq = 20000;
     public int minFreq = 20;
 
+    public boolean drawFilterEnabled = true;
+
 
     public FilterView(Context context) {
         super(context);
@@ -448,8 +450,13 @@ public class FilterView extends View {
         super.onDraw(canvas);
 
         refreshCoef(canvas);
+
+        FiltersBackground.getInstance().drawInRect(canvas,
+                new Rect(freqToPixel(20), (int)dbToPixel(15), freqToPixel(20000), (int)dbToPixel(-30)));
+
         drawGrid(canvas);
         drawGridUnit(canvas);
-        drawFilter(canvas);
+
+        if (drawFilterEnabled) drawFilter(canvas);
     }
 }

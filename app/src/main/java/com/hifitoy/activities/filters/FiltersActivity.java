@@ -12,12 +12,18 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -32,6 +38,8 @@ import com.hifitoy.hifitoyobjects.Biquad;
 import com.hifitoy.hifitoyobjects.Filters;
 import com.hifitoy.hifitoyobjects.PassFilter;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Locale;
 
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Order.BIQUAD_ORDER_1;
@@ -61,12 +69,13 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
     private double deltaFreq;
 
     MenuItem enabledParam_outl;
+    MenuItem typeScale_outl;
+
+    private State state;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        //ViewGroup holder = new ViewGroup();
 
         filterView = new FilterView(this);
         filterView.setOnTouchListener(this);
@@ -74,6 +83,8 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
         filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
         filterView.filters = filters;
         setContentView(filterView);
+
+        state = new State();
 
         mDetector = new GestureDetector(this, new TapGestureListener());
         mScaleDetector = new ScaleGestureDetector(this, new ScaleGestureListener());
@@ -96,16 +107,37 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
         registerReceiver(broadcastReceiver, makeIntentFilter());
 
         filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
+        registerForContextMenu(filterView);
         updateViews();
+
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.filters_menu, menu);
-        enabledParam_outl = menu.findItem(R.id.enabled_parametrics);
-        enabledParam_outl.setTitle(filters.isPEQEnabled() ? "PEQ On" : "PEQ Off");
+        if (state.getState() == State.FILTERS_STATE) {
+            getMenuInflater().inflate(R.menu.filters_menu, menu);
+            enabledParam_outl = menu.findItem(R.id.enabled_parametrics);
+            enabledParam_outl.setTitle(filters.isPEQEnabled() ? "PEQ On" : "PEQ Off");
+
+            filterView.drawFilterEnabled = true;
+
+        } else {
+            getMenuInflater().inflate(R.menu.background_menu, menu);
+            filterView.drawFilterEnabled = false;
+            typeScale_outl = menu.findItem(R.id.type_scale);
+            typeScale_outl.setTitle(FiltersBackground.getInstance().getScaleTypeString());
+        }
 
         return true;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ContextMenu.ContextMenuInfo menuInfo)
+    {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.filters_popupmenu, menu);
     }
 
 
@@ -128,13 +160,82 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
                                 "Horizontal slide changes a frequency, vertical one controls PEQ's gain or LPF/HPF's order. " +
                                 "Zoomin-zoomout to control Q of PEQ.", "Close");
                 break;
+            case R.id.mirror_bitmap:
+                FiltersBackground.getInstance().mirrorX();
+                filterView.invalidate();
+                break;
+            case R.id.type_scale:
+                FiltersBackground.getInstance().invertScaleType();
+                typeScale_outl.setTitle(FiltersBackground.getInstance().getScaleTypeString());
+                break;
+
+            case R.id.done_bitmap:
+                state.setState(State.FILTERS_STATE);
+                updateViews();
+                break;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.set_background:
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(android.content.Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), 1);
+                //yScale = false;
+                break;
+            case R.id.clear_background:
+                FiltersBackground.getInstance().clearBitmap();
+                updateViews();
+                break;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if ( (resultCode == RESULT_OK) && (requestCode == 1) ) {
+
+            Uri selectedImageUri = data.getData();
+            if (selectedImageUri != null) {
+
+                String selectedImagePath = selectedImageUri.getPath();
+                Log.d(TAG, selectedImagePath);
+
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
+                    FiltersBackground.getInstance().setBitmap(bitmap);
+
+                    state.setState(State.BACKGROUND_STATE);
+                    updateViews();
+
+                } catch (FileNotFoundException e) {
+                    Log.d(TAG, "File not found exception");
+                } catch (IOException e) {
+                    Log.d(TAG, "IO exception");
+                }
+
+
+            } else {
+                Log.d(TAG, "Not select image.");
+            }
+
+        } else {
+            Log.d(TAG, "Not get result");
+        }
+    }
+
     public void setTitleInfo() {
+        if (state.getState() == State.BACKGROUND_STATE) {
+            setTitle("Filters menu");
+            return;
+        }
+
         Biquad b = filters.getActiveBiquad();
         byte type = b.getParams().getTypeValue();
 
@@ -211,24 +312,29 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
                 currentTap.y = (int)event.getY();
                 Point translation = new Point(currentTap.x - firstTap.x,currentTap.y - firstTap.y);
 
-                if (filters.isActiveNullLP()) {
-                    float dy = translation.y - prevTranslation.y;
+                if (state.getState() == State.FILTERS_STATE) {
+                    if (filters.isActiveNullLP()) {
+                        float dy = translation.y - prevTranslation.y;
 
-                    if (dy > 300) {
-                        filters.upOrderFor(BIQUAD_LOWPASS);
-                        prevTranslation.y = translation.y;
+                        if (dy > 300) {
+                            filters.upOrderFor(BIQUAD_LOWPASS);
+                            prevTranslation.y = translation.y;
+                        }
+
+                    } else if (filters.isActiveNullHP()) {
+                        float dy = translation.y - prevTranslation.y;
+
+                        if (dy > 300) {
+                            filters.upOrderFor(BIQUAD_HIGHPASS);
+                            prevTranslation.y = translation.y;
+                        }
+
+                    } else {
+                        moved(filters.getActiveBiquad(), translation);
                     }
-
-                } else if (filters.isActiveNullHP()) {
-                    float dy = translation.y - prevTranslation.y;
-
-                    if (dy > 300) {
-                        filters.upOrderFor(BIQUAD_HIGHPASS);
-                        prevTranslation.y = translation.y;
-                    }
-
                 } else {
-                    moved(filters.getActiveBiquad(), translation);
+
+                    movedBackground(translation);
                 }
 
                 updateViews();
@@ -327,6 +433,17 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
         }
     }
 
+    private void movedBackground(Point translation) {
+        if ((Math.abs(translation.x) > filterView.width * 0.05) || (Math.abs(translation.y) > filterView.height * 0.05)) {
+            float dx = translation.x - prevTranslation.x;
+            float dy = translation.y - prevTranslation.y;
+
+            FiltersBackground.getInstance().setTranslate(new PointF(-dx, -dy));
+        }
+
+        prevTranslation = translation;
+    }
+
     class TapGestureListener extends GestureDetector.SimpleOnGestureListener {
         boolean update = false;
 
@@ -375,6 +492,14 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
                     updateViews();
                     update = true;
                 }
+            } else {
+
+                if (Build.VERSION.SDK_INT < 24) {
+                    filterView.performLongClick();
+                } else {
+                    filterView.performLongClick(tapPoint.x, tapPoint.y);
+                }
+
             }
 
         }
@@ -430,6 +555,43 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
 
             filters.setActiveBiquadIndex(tempIndex);
         }
+
+        //utility methods
+        private boolean checkCrossParamFilters(Biquad biquad, float pointX) {
+            return (Math.abs(pointX - filterView.freqToPixel(biquad.getParams().getFreq())) < 50);
+        }
+
+        private boolean checkCrossPassFilters(int startX, int endX, Point tapPoint) {
+
+            for (int pX = startX; pX < endX; pX += 8){
+                float ampl = filters.getAFR(filterView.pixelToFreq(pX));
+                float pY = filterView.dbToPixel(filterView.amplToDb(ampl));
+
+                if (Math.sqrt(Math.pow(tapPoint.x - pX, 2) + Math.pow(tapPoint.y - pY, 2)) < 50) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private boolean checkCross(Biquad biquad, Point tapPoint) {
+
+            if (biquad.getParams().getTypeValue() == BIQUAD_HIGHPASS) {
+                int startX = filterView.freqToPixel(filterView.minFreq);
+                int endX = filterView.getHPBorderPixel();
+                return checkCrossPassFilters(startX, endX, tapPoint);
+
+            } else if (biquad.getParams().getTypeValue() == BIQUAD_LOWPASS) {
+                int startX = filterView.getLPBorderPixel();
+                int endX = filterView.freqToPixel(filterView.maxFreq);
+                return checkCrossPassFilters(startX, endX, tapPoint);
+
+            }
+
+            //parametric, allpass
+            return checkCrossParamFilters(biquad, tapPoint.x);
+        }
     }
 
     class ScaleGestureListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
@@ -440,54 +602,22 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
 
         public boolean onScale(ScaleGestureDetector detector) {
             //Log.d(TAG, "onScale");
-            Biquad b = filters.getActiveBiquad();
-            if (b.getParams().getTypeValue() != BIQUAD_PARAMETRIC) return true;
+            if (state.getState() == State.FILTERS_STATE) {
+                Biquad b = filters.getActiveBiquad();
+                if (b.getParams().getTypeValue() != BIQUAD_PARAMETRIC) return true;
 
-            float q = b.getParams().getQFac() / detector.getScaleFactor();
-            b.getParams().setQFac(q);
-            b.sendToPeripheral(false);
+                float q = b.getParams().getQFac() / detector.getScaleFactor();
+                b.getParams().setQFac(q);
+                b.sendToPeripheral(false);
+
+            } else {
+                FiltersBackground.getInstance().setScale(detector.getScaleFactor());
+            }
 
             updateViews();
             return true;
         }
 
-    }
-
-    //utility methods
-    private boolean checkCrossParamFilters(Biquad biquad, float pointX) {
-        return (Math.abs(pointX - filterView.freqToPixel(biquad.getParams().getFreq())) < 50);
-    }
-
-    private boolean checkCrossPassFilters(int startX, int endX, Point tapPoint) {
-
-        for (int pX = startX; pX < endX; pX += 8){
-            float ampl = filters.getAFR(filterView.pixelToFreq(pX));
-            float pY = filterView.dbToPixel(filterView.amplToDb(ampl));
-
-            if (Math.sqrt(Math.pow(tapPoint.x - pX, 2) + Math.pow(tapPoint.y - pY, 2)) < 50) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private boolean checkCross(Biquad biquad, Point tapPoint) {
-
-        if (biquad.getParams().getTypeValue() == BIQUAD_HIGHPASS) {
-            int startX = filterView.freqToPixel(filterView.minFreq);
-            int endX = filterView.getHPBorderPixel();
-            return checkCrossPassFilters(startX, endX, tapPoint);
-
-        } else if (biquad.getParams().getTypeValue() == BIQUAD_LOWPASS) {
-            int startX = filterView.getLPBorderPixel();
-            int endX = filterView.freqToPixel(filterView.maxFreq);
-            return checkCrossPassFilters(startX, endX, tapPoint);
-
-        }
-
-        //parametric, allpass
-        return checkCrossParamFilters(biquad, tapPoint.x);
     }
 
     private static IntentFilter makeIntentFilter() {
@@ -507,6 +637,35 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
             }
         }
     };
+
+    //utility class
+    private class State {
+        private final static int FILTERS_STATE = 0;
+        private final static int BACKGROUND_STATE = 1;
+
+        private int state;
+
+        public State() {
+            state = FILTERS_STATE;
+        }
+
+        public void setState(int state) {
+            if (state > BACKGROUND_STATE) state = BACKGROUND_STATE;
+            if (state < FILTERS_STATE) state = FILTERS_STATE;
+
+            if (this.state != state) {
+                invalidateOptionsMenu();
+
+                this.state = state;
+            }
+        }
+
+        public int getState() {
+            return state;
+        }
+
+
+    }
 
 
 }

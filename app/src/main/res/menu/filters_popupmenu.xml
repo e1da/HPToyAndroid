@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <group android:id="@+id/menugroup1" >
+        <item
+            android:id="@+id/set_background"
+            android:title="Set background"
+            android:showAsAction="ifRoom|withText"/>
+        <item
+            android:id="@+id/clear_background"
+            android:title="Clear"
+            android:showAsAction="ifRoom|withText"/>
+    </group>
+
+
+</menu>
