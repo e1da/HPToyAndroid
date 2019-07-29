@@ -165,6 +165,21 @@ public class HiFiToyPresetManager {
         }
     }
 
+    public boolean renamePreset(String oldName, String newName) {
+        for (int i = 0; i < presetList.size(); i++) {
+            HiFiToyPreset p = presetList.get(i);
+
+            if (p.getName().equals(oldName)) {
+                p.setName(newName);
+
+                store();
+                description();
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean isPresetExist(String name) {
         for (HiFiToyPreset p : presetList) {
             if (p.getName().equals(name)) {

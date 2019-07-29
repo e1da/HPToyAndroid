@@ -172,10 +172,18 @@ public class PresetDetailActivity extends Activity implements View.OnClickListen
         DialogSystem.OnClickTextDialog dialogListener = new DialogSystem.OnClickTextDialog() {
             public void onPositiveClick(String name){
                 if (name.length() > 0) {
-                    preset.setName(name);
-                    HiFiToyPresetManager.getInstance().store();
 
-                    presetName_outl.setText(name);
+                    if (HiFiToyPresetManager.getInstance().renamePreset(preset.getName(), name)) {
+                        //TODO: not good implemantetion
+                        HiFiToyDevice d = HiFiToyControl.getInstance().getActiveDevice();
+                        if (d.getActiveKeyPreset().equals(preset.getName())) {
+                            d.forceSetActiveKeyPreset(name);
+                        }
+
+                        preset.setName(name);
+                        presetName_outl.setText(name);
+                    }
+
                 } else {
                     Toast.makeText(getApplicationContext(),
                             "Name field is empty.", Toast.LENGTH_SHORT).show();

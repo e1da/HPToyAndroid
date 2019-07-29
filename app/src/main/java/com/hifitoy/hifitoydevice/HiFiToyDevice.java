@@ -97,6 +97,10 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
         }
         return false;
     }
+    public void forceSetActiveKeyPreset(String key){
+        activeKeyPreset = key;
+        HiFiToyDeviceManager.getInstance().store();
+    }
     public HiFiToyPreset getActivePreset() {
         if (activePreset == null) {
             activePreset = HiFiToyPresetManager.getInstance().getPreset(activeKeyPreset);
