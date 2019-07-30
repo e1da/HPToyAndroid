@@ -438,7 +438,7 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
             float dx = translation.x - prevTranslation.x;
             float dy = translation.y - prevTranslation.y;
 
-            FiltersBackground.getInstance().setTranslate(new PointF(-dx, -dy));
+            FiltersBackground.getInstance().setTranslate(new PointF(dx, dy));
         }
 
         prevTranslation = translation;
