@@ -11,6 +11,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -105,6 +106,29 @@ public class BiquadTest {
             System.out.println(e.toString());
             fail("IO Exception.");
         }
+
+    }
+
+    @Test
+    public void testCoefs() {
+        Biquad.BiquadParam p = b0.getParams();
+
+        p.setFreq((short)1017);
+        p.setQFac(1.41f);
+        p.setDbVolume(6.0f);
+
+        System.out.println(String.format(Locale.getDefault(), "coefs = %f %f %f %f %f",
+                p.getB0(), p.getB1(), p.getB2(), p.getA1(), p.getA2()));
+
+        ByteBuffer bb = b0.getDataBufs().get(0).getData();
+        int ib0 = bb.getInt();
+        int ib1 = bb.getInt();
+        int ib2 = bb.getInt();
+        int ia1 = bb.getInt();
+        int ia2 = bb.getInt();
+
+        System.out.println(String.format(Locale.getDefault(), "coefs = %x %x %x %x %x",
+                ib0, ib1, ib2, ia1, ia2));
 
     }
 }

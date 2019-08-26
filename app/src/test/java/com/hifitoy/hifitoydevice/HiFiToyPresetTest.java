@@ -3,6 +3,7 @@ package com.hifitoy.hifitoydevice;
 
 import android.util.Xml;
 
+import com.hifitoy.hifitoyobjects.Biquad;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import com.hifitoy.hifitoyobjects.HiFiToyObject;
 import com.hifitoy.hifitoyobjects.Volume;
@@ -69,6 +70,19 @@ public class HiFiToyPresetTest {
     @Test
     public void testImport() {
         p0.getVolume().setDb(-1.0f);
+        assertNotEquals(p0, p1);
+
+        if (!p1.importFromDataBufs(p0.getDataBufs())) {
+            fail("Import fail");
+        }
+
+        assertEquals(p0, p1);
+
+    }
+
+    @Test
+    public void testImport1() {
+        p0.getFilters().getBiquad((byte)6).getParams().setDbVolume(12.0f);
         assertNotEquals(p0, p1);
 
         if (!p1.importFromDataBufs(p0.getDataBufs())) {

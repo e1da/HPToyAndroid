@@ -694,11 +694,11 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
         //get binary
         public ByteBuffer getBinary() {
             ByteBuffer b = ByteBuffer.allocate(20);
-            b.put(Number523.get523BigEnd(params.b0));
-            b.put(Number523.get523BigEnd(params.b1));
-            b.put(Number523.get523BigEnd(params.b2));
-            b.put(Number523.get523BigEnd(params.a1));
-            b.put(Number523.get523BigEnd(params.a2));
+            b.put(Number523.get523BigEnd(b0));
+            b.put(Number523.get523BigEnd(b1));
+            b.put(Number523.get523BigEnd(b2));
+            b.put(Number523.get523BigEnd(a1));
+            b.put(Number523.get523BigEnd(a2));
 
             return b;
         }
