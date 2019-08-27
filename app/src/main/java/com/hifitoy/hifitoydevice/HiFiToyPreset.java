@@ -333,6 +333,32 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         return false;
     }
 
+    public boolean importFromXml(InputStream in, String filename) {
+        if (in == null) return false;
+
+        try {
+            //get xml parser
+            XmlPullParser xmlParser = Xml.newPullParser();
+            xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+            xmlParser.setInput(in, null);
+
+            if (importFromXml(xmlParser)) {
+                name = filename;
+                return true;
+            }
+
+        } catch (XmlPullParserException e) {
+            Log.d(TAG, e.toString());
+
+        } catch (IOException e) {
+            Log.d(TAG, e.toString());
+
+        }
+
+        return false;
+    }
+
+
     public boolean importFromXml(Uri uri) {
         if (uri == null) return false;
 
@@ -350,47 +376,15 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         String scheme = uri.getScheme();
         if (scheme == null) return false;
 
-
         try {
             //get file input stream
-            InputStream in;
+            ContentResolver resolver = ApplicationContext.getInstance().getContext().getContentResolver();
+            InputStream in = resolver.openInputStream(uri);
 
-            if ( (scheme.equals("file")) && (uri.getPath() != null) ) {
-
-                //in = new FileInputStream(new File(uri.getPath()));
-                ContentResolver resolver = ApplicationContext.getInstance().getContext().getContentResolver();
-                in = resolver.openInputStream(uri);
-
-            } else if (scheme.equals("content")) { // else "content"
-                ContentResolver resolver = ApplicationContext.getInstance().getContext().getContentResolver();
-                //ParcelFileDescriptor fd = resolver.openFileDescriptor(uri, "r");
-                //if (fd == null) return false;
-
-                in = resolver.openInputStream(uri);//new FileInputStream(fd.getFileDescriptor());
-
-            } else {
-                return false;
-            }
-
-            //get xml parser
-            XmlPullParser xmlParser = Xml.newPullParser();
-            xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            xmlParser.setInput(in, null);
-
-            if (importFromXml(xmlParser)) {
-                name = filename;
-                return true;
-            }
+            return importFromXml(in, filename);
 
         } catch (FileNotFoundException e) {
             Log.d(TAG, e.toString());
-
-        } catch (XmlPullParserException e) {
-            Log.d(TAG, e.toString());
-
-        } catch (IOException e) {
-            Log.d(TAG, e.toString());
-
         }
 
         return false;
