@@ -668,10 +668,10 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     }
     public void startPairedProccess(int pairingCode) {
         byte[] d = {    CommonCommand.ESTABLISH_PAIR,
-                (byte)(pairingCode >> 24),
-                (byte)(pairingCode >> 16),
+                (byte)(pairingCode),
                 (byte)(pairingCode >> 8),
-                (byte)(pairingCode) };
+                (byte)(pairingCode >> 16),
+                (byte)(pairingCode >> 24) };
 
         sendDataToDsp(d, true);
     }
