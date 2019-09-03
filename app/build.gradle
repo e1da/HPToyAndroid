@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 26
     defaultConfig {
-        minSdkVersion 23
+        minSdkVersion 21
         targetSdkVersion 26
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -25,8 +25,8 @@ android {
             applicationId "com.hifitoy"
         }
         hptoy {
-            versionCode 10
-            versionName "1.0.9"
+            versionCode 11
+            versionName "1.1.0"
             dimension "version"
             applicationId "com.hptoy"
         }

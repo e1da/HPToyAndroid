@@ -160,6 +160,9 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
                                 "Horizontal slide changes a frequency, vertical one controls PEQ's gain or LPF/HPF's order. " +
                                 "Zoomin-zoomout to control Q of PEQ.", "Close");
                 break;
+            case R.id.show_coef:
+                Log.d(TAG, "Show Coef");
+                break;
             case R.id.mirror_bitmap:
                 FiltersBackground.getInstance().mirrorX();
                 filterView.invalidate();
