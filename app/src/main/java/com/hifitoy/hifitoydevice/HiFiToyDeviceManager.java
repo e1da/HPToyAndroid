@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,6 +54,10 @@ public class HiFiToyDeviceManager {
             return deviceMap.get(key);
         }
         return null;
+    }
+
+    public Collection<HiFiToyDevice> getDevices() {
+        return deviceMap.values();
     }
 
     public void description(){

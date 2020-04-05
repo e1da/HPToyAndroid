@@ -16,6 +16,9 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
+    lintOptions {
+        checkReleaseBuilds false
+    }
     flavorDimensions "version"
     productFlavors {
         hifitoy {

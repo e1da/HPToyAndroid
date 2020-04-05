@@ -28,6 +28,7 @@ import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
+import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 import com.hifitoy.xml.XmlData;
@@ -35,6 +36,7 @@ import com.hifitoy.xml.XmlData;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collection;
 
 public class PresetDetailActivity extends Activity implements View.OnClickListener{
     final static String TAG = "HiFiToy";
@@ -231,6 +233,13 @@ public class PresetDetailActivity extends Activity implements View.OnClickListen
         DialogSystem.OnClickDialog dialogListener = new DialogSystem.OnClickDialog() {
             public void onPositiveClick(){
 
+                //check if remove preset is active for anyone device
+                Collection<HiFiToyDevice> devs = HiFiToyDeviceManager.getInstance().getDevices();
+                for (HiFiToyDevice dev : devs) {
+                    if ( dev.getActivePreset().getName().equals(preset.getName()) ) {
+                        dev.setActiveKeyPreset("No processing");
+                    }
+                }
                 HiFiToyPresetManager.getInstance().removePreset(preset.getName());
                 finish();
 
