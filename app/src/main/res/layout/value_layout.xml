@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/ValueWidget_NameLabel_outl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:fontFamily="sans-serif-thin"
+        android:gravity="center_vertical"
+        android:text="Name:"
+        android:textAlignment="textEnd"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/ValueWidget_ValueLabel_outl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.5"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center_vertical"
+        android:text="0.0"
+        android:textAlignment="center"
+        android:textColor="@color/colorActiveMain"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/ValueWidget_UnitLabel_outl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:fontFamily="sans-serif-thin"
+        android:gravity="center_vertical"
+        android:text="Unit"
+        android:textAlignment="textStart"
+        android:textSize="12sp" />
+</LinearLayout>
