@@ -12,4 +12,9 @@
 
     <string name="fileprovider_authority">com.hptoy.fileprovider</string>
     <string name="export_extra_subject">Preset from HPToy</string>
+
+    <string-array name="inputtype">
+        <item name="gui">GUI</item>
+        <item name="text">TEXT</item>
+    </string-array>
 </resources>

@@ -7,4 +7,6 @@
     <color name="colorMain">#6000FFFF</color>
     <color name="colorActiveMain">#8000FFFF</color>
     <color name="colorSeekBar">#FF00B0B0</color>
+    <color name="colorOrange">#FFFF8000</color>
+    <color name="colorBrown">#FF996633</color>
 </resources>

@@ -430,17 +430,46 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
 
             update(b0, b1, b2, a1, a2);
         }
+        public void setB0(float b0) {
+            if (getTypeValue() == Type.BIQUAD_USER) {
+                this.b0 = b0;
+            }
+        }
         public float getB0(){
             return b0;
+        }
+
+        public void setB1(float b1) {
+            if (getTypeValue() == Type.BIQUAD_USER) {
+                this.b1 = b1;
+            }
         }
         public float getB1(){
             return b1;
         }
+
+        public void setB2(float b2) {
+            if (getTypeValue() == Type.BIQUAD_USER) {
+                this.b2 = b2;
+            }
+        }
         public float getB2(){
             return b2;
         }
+
+        public void setA1(float a1) {
+            if (getTypeValue() == Type.BIQUAD_USER) {
+                this.a1 = a1;
+            }
+        }
         public float getA1(){
             return a1;
+        }
+
+        public void setA2(float a2) {
+            if (getTypeValue() == Type.BIQUAD_USER) {
+                this.a2 = a2;
+            }
         }
         public float getA2(){
             return a2;

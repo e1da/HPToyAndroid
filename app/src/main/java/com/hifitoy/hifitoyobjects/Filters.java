@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_ALLPASS;
+import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_BANDPASS;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_HIGHPASS;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_LOWPASS;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_OFF;
@@ -361,7 +362,7 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
             b.setEnabled(isPEQEnabled());
             b.getParams().setTypeValue(BIQUAD_PARAMETRIC);
 
-            short freq = getBetterNewFreq();
+            short freq = getBetterNewFreqForBiquad(b);
             b.getParams().setFreq((freq != -1) ? freq : 100);
 
             b.getParams().setQFac(1.41f);
@@ -425,13 +426,19 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
         if (!getActiveBiquad().isEnabled()) nextActiveBiquadIndex();
     }
 
-    private short getBetterNewFreq() {
+    public short getBetterNewFreqForBiquad(Biquad b) {
         ArrayList<Short> freqs = new ArrayList<>();
         short freq = -1;
 
         //get freqs from all params, hp, lp
         for (int i = 0; i < 7; i++) {
-            if (biquads[i].isEnabled()) {
+            byte bType = biquads[i].getParams().getTypeValue();
+            boolean enabled = biquads[i].isEnabled();
+            boolean typeCondition = (bType == BIQUAD_HIGHPASS) || (bType == BIQUAD_LOWPASS) ||
+                                    (bType == BIQUAD_PARAMETRIC) || (bType == BIQUAD_BANDPASS);
+            boolean biquadCondition = (b == null) || (biquads[i] != b);
+
+            if ( (enabled) && (typeCondition) && (biquadCondition)) {
                 freqs.add(biquads[i].getParams().getFreq());
             }
         }
