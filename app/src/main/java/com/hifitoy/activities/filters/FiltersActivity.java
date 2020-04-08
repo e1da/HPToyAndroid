@@ -8,96 +8,79 @@ package com.hifitoy.activities.filters;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.Point;
-import android.graphics.PointF;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
-import android.view.ContextMenu;
-import android.view.GestureDetector;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
-import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
+import com.hifitoy.activities.filters.config_fragment.BiquadConfigFragment;
+import com.hifitoy.activities.filters.filter_fragment.FiltersBackground;
+import com.hifitoy.activities.filters.filter_fragment.FiltersFragment;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoyobjects.Biquad;
 import com.hifitoy.hifitoyobjects.Filters;
 import com.hifitoy.hifitoyobjects.PassFilter;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Locale;
 
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Order.BIQUAD_ORDER_1;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Order.BIQUAD_ORDER_2;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_ALLPASS;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_HIGHPASS;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_LOWPASS;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_OFF;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_USER;
 
-public class FiltersActivity extends Activity implements View.OnTouchListener {
+public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpdateView {
     private static String TAG = "HiFiToy";
 
-    private Filters filters;
-    private FilterView filterView;
-    private GestureDetector mDetector;
-    private ScaleGestureDetector mScaleDetector;
-
-    private boolean scaleInProccess = false;
-    long prevTime = 0;
-
-    private boolean xHysteresisFlag = false;
-    private boolean yHysteresisFlag = false;
-    private Point prevTranslation;
-    private Point firstTap = new Point(0, 0);
-    private double deltaFreq;
+    private Filters filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
 
     MenuItem enabledParam_outl;
     MenuItem typeScale_outl;
 
-    private State state;
+    LinearLayout ll;
+    boolean visibleSubview = false;
+
+    FiltersFragment filtersFragment;
+    BiquadConfigFragment biquadConfigFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        filterView = new FilterView(this);
-        filterView.setOnTouchListener(this);
-
-        filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
-        filterView.filters = filters;
-        setContentView(filterView);
-
-        state = new State();
-
-        mDetector = new GestureDetector(this, new TapGestureListener());
-        mScaleDetector = new ScaleGestureDetector(this, new ScaleGestureListener());
-
         //show back button
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+        ll = new LinearLayout(this);
+        ll.setOrientation(LinearLayout.HORIZONTAL);
+        ll.setId(1234);
+
+        filtersFragment = new FiltersFragment();
+        biquadConfigFragment = new BiquadConfigFragment();
+
+        FragmentTransaction fTrans = getFragmentManager().beginTransaction();
+        fTrans.add(ll.getId(), filtersFragment, "filtersFragment").commit();
+
+        fTrans = getFragmentManager().beginTransaction();
+        fTrans.add(ll.getId(), biquadConfigFragment, "biquadConfigFragment").commit();
+
+        setContentView(ll);
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(broadcastReceiver);
+        ViewUpdater.getInstance().removeUpdateView(this);
     }
 
     @Override
@@ -106,38 +89,31 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
         ApplicationContext.getInstance().setContext(this);
         registerReceiver(broadcastReceiver, makeIntentFilter());
 
+        ViewUpdater.getInstance().addUpdateView(this);
+        ViewUpdater.getInstance().update();
+
+        setVisibleSubview(visibleSubview);
+
         filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
-        registerForContextMenu(filterView);
-        updateViews();
+        ViewUpdater.getInstance().update();
 
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (state.getState() == State.FILTERS_STATE) {
+
+        if (filtersFragment.getStateValue() == FiltersFragment.State.FILTERS_STATE) {
             getMenuInflater().inflate(R.menu.filters_menu, menu);
             enabledParam_outl = menu.findItem(R.id.enabled_parametrics);
             enabledParam_outl.setTitle(filters.isPEQEnabled() ? "PEQ On" : "PEQ Off");
 
-            filterView.drawFilterEnabled = true;
-
         } else {
             getMenuInflater().inflate(R.menu.background_menu, menu);
-            filterView.drawFilterEnabled = false;
             typeScale_outl = menu.findItem(R.id.type_scale);
             typeScale_outl.setTitle(FiltersBackground.getInstance().getScaleTypeString());
         }
 
         return true;
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-                                    ContextMenu.ContextMenuInfo menuInfo)
-    {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.filters_popupmenu, menu);
     }
 
 
@@ -151,7 +127,7 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
             case R.id.enabled_parametrics:
                 filters.setPEQEnabled(!filters.isPEQEnabled());
                 enabledParam_outl.setTitle(filters.isPEQEnabled() ? "PEQ On" : "PEQ Off");
-                updateViews();
+                ViewUpdater.getInstance().update();
                 break;
 
             case R.id.filters_info:
@@ -161,11 +137,13 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
                                 "Zoomin-zoomout to control Q of PEQ.", "Close");
                 break;
             case R.id.show_coef:
-                Log.d(TAG, "Show Coef");
+                visibleSubview = !visibleSubview;
+                setVisibleSubview(visibleSubview);
+                ll.invalidate();
                 break;
             case R.id.mirror_bitmap:
                 FiltersBackground.getInstance().mirrorX();
-                filterView.invalidate();
+                ViewUpdater.getInstance().update();
                 break;
             case R.id.type_scale:
                 FiltersBackground.getInstance().invertScaleType();
@@ -173,8 +151,7 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
                 break;
 
             case R.id.done_bitmap:
-                state.setState(State.FILTERS_STATE);
-                updateViews();
+                filtersFragment.setStateValue(FiltersFragment.State.FILTERS_STATE);
                 break;
 
             default:
@@ -184,57 +161,12 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
     }
 
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.set_background:
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(android.content.Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), 1);
-                //yScale = false;
-                break;
-            case R.id.clear_background:
-                FiltersBackground.getInstance().clearBitmap();
-                updateViews();
-                break;
-        }
-        return super.onContextItemSelected(item);
-    }
-
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if ( (resultCode == RESULT_OK) && (requestCode == 1) ) {
-
-            Uri selectedImageUri = data.getData();
-            if (selectedImageUri != null) {
-
-                String selectedImagePath = selectedImageUri.getPath();
-                Log.d(TAG, selectedImagePath);
-
-                try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
-                    FiltersBackground.getInstance().setBitmap(bitmap);
-
-                    state.setState(State.BACKGROUND_STATE);
-                    updateViews();
-
-                } catch (FileNotFoundException e) {
-                    Log.d(TAG, "File not found exception");
-                } catch (IOException e) {
-                    Log.d(TAG, "IO exception");
-                }
-
-
-            } else {
-                Log.d(TAG, "Not select image.");
-            }
-
-        } else {
-            Log.d(TAG, "Not get result");
-        }
+    public void updateView() {
+        setTitleInfo();
     }
 
     public void setTitleInfo() {
-        if (state.getState() == State.BACKGROUND_STATE) {
+        if (filtersFragment.getStateValue() == FiltersFragment.State.BACKGROUND_STATE) {
             setTitle("Filters menu");
             return;
         }
@@ -269,358 +201,27 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
         }
     }
 
-    public void updateViews() {
-        setTitleInfo();
-        filterView.invalidate();
-    }
+    private void setVisibleSubview(boolean show) {
+        ViewGroup.LayoutParams lp0;
+        ViewGroup.LayoutParams lp1;
 
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        Point currentTap = new Point(0, 0);
+        if (show) {
+            lp0 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT, 0.5f);
 
-        //action up and down handlers
-        if (event.getAction() == MotionEvent.ACTION_UP){
-            v.performClick();
+            lp1 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT, 1.0f);
 
-            scaleInProccess = false;
-        }
-        if (event.getAction() == MotionEvent.ACTION_DOWN){
+        } else {
+            lp0 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT, 0.0f);
 
-            currentTap.x = (int)event.getX();
-            currentTap.y = (int)event.getY();
-            firstTap.x = currentTap.x;
-            firstTap.y = currentTap.y;
-            prevTranslation = new Point(0, 0);
-
-            xHysteresisFlag = false;
-            yHysteresisFlag = false;
-            deltaFreq = 0;
+            lp1 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT, 1.0f);
         }
 
-        //run scale detector
-        mScaleDetector.onTouchEvent(event);
-        //return if scale active
-        if (scaleInProccess){
-            return true;
-        }
-        //run double tap and longpress handler
-        mDetector.onTouchEvent(event);
-
-        //moved handler
-        if (event.getAction() == MotionEvent.ACTION_MOVE){
-            if (event.getEventTime() - prevTime > 40){//time period should be >= 40ms
-                prevTime = event.getEventTime();
-
-                currentTap.x = (int)event.getX();
-                currentTap.y = (int)event.getY();
-                Point translation = new Point(currentTap.x - firstTap.x,currentTap.y - firstTap.y);
-
-                if (state.getState() == State.FILTERS_STATE) {
-                    if (filters.isActiveNullLP()) {
-                        float dy = translation.y - prevTranslation.y;
-
-                        if (dy > 300) {
-                            filters.upOrderFor(BIQUAD_LOWPASS);
-                            prevTranslation.y = translation.y;
-                        }
-
-                    } else if (filters.isActiveNullHP()) {
-                        float dy = translation.y - prevTranslation.y;
-
-                        if (dy > 300) {
-                            filters.upOrderFor(BIQUAD_HIGHPASS);
-                            prevTranslation.y = translation.y;
-                        }
-
-                    } else {
-                        moved(filters.getActiveBiquad(), translation);
-                    }
-                } else {
-
-                    movedBackground(translation);
-                }
-
-                updateViews();
-            }
-        }
-        return true;
-    }
-
-    private void moved(Biquad biquad, Point translation) {
-        byte type = biquad.getParams().getTypeValue();
-        if ((type == BIQUAD_OFF) || (type == BIQUAD_USER)) return;
-
-        float dx = (float)(translation.x -  prevTranslation.x) / 4;
-        float dy = translation.y -  prevTranslation.y;
-
-        //update freq
-        if (((Math.abs(translation.x) > filterView.width * 0.05) || (xHysteresisFlag)) && (!yHysteresisFlag)) {
-            xHysteresisFlag = true;
-
-
-            deltaFreq -= (int)deltaFreq; //get fraction part
-            float freqPix = filterView.freqToPixel(biquad.getParams().getFreq());
-            deltaFreq += filterView.pixelToFreq(freqPix + dx) - biquad.getParams().getFreq();
-
-            //NSLog(@"dx=%f delta=%f", dx, delta_freq);
-
-            if (Math.abs(deltaFreq) >= 1.0) {
-
-                if (type == BIQUAD_HIGHPASS) {
-                    PassFilter hp = filters.getHighpass();
-                    PassFilter lp = filters.getLowpass();
-
-                    short newFreq = (short)(hp.getFreq() + deltaFreq);
-                    if ((lp != null) && (newFreq > lp.getFreq())) newFreq = lp.getFreq();
-
-                    if (hp.getFreq() != newFreq) {
-                        hp.setFreq(newFreq);
-                        //ble send
-                        hp.sendToPeripheral(false);
-                    }
-
-                } else if (type == BIQUAD_LOWPASS) {
-                    PassFilter hp = filters.getHighpass();
-                    PassFilter lp = filters.getLowpass();
-
-                    short newFreq = (short)(lp.getFreq() + deltaFreq);
-                    if ((hp != null) && (newFreq < hp.getFreq())) newFreq = hp.getFreq();
-
-                    if (lp.getFreq() != newFreq) {
-                        lp.setFreq(newFreq);
-                        //ble send
-                        lp.sendToPeripheral(false);
-                    }
-
-                } else { // parametric allpass
-                    short oldFreq = biquad.getParams().getFreq();
-                    biquad.getParams().setFreq((short)(oldFreq + deltaFreq));
-                    //ble send
-                    biquad.sendToPeripheral(false);
-                }
-            }
-
-        }
-        prevTranslation.x = translation.x;
-
-        // update order or volume
-        if ((type == BIQUAD_HIGHPASS) || (type == BIQUAD_LOWPASS))  {
-            if (!xHysteresisFlag) {
-                if (dy < -300 ) {
-                    filters.downOrderFor(type); // decrement order
-
-                    yHysteresisFlag = true;
-                    prevTranslation.y = translation.y;
-
-                } else if (dy > 300 ) {
-                    filters.upOrderFor(type); // increment order
-
-                    yHysteresisFlag = true;
-                    prevTranslation.y = translation.y;
-                }
-            }
-
-        } else if (type == BIQUAD_PARAMETRIC) {
-
-            if (((Math.abs(translation.y) > filterView.height * 0.1) || (yHysteresisFlag)) && (!xHysteresisFlag)){
-                yHysteresisFlag = true;
-
-                float newVolInPix = filterView.dbToPixel(biquad.getParams().getDbVolume()) + dy / 4.0f;
-                biquad.getParams().setDbVolume(filterView.pixelToDb(newVolInPix));
-
-                //ble send
-                biquad.sendToPeripheral(false);
-
-            }
-            prevTranslation.y = translation.y;
-        }
-    }
-
-    private void movedBackground(Point translation) {
-        if ((Math.abs(translation.x) > filterView.width * 0.05) || (Math.abs(translation.y) > filterView.height * 0.05)) {
-            float dx = translation.x - prevTranslation.x;
-            float dy = translation.y - prevTranslation.y;
-
-            FiltersBackground.getInstance().setTranslate(new PointF(dx, dy));
-        }
-
-        prevTranslation = translation;
-    }
-
-    class TapGestureListener extends GestureDetector.SimpleOnGestureListener {
-        boolean update = false;
-
-        @Override
-        public boolean onDown(MotionEvent e) {
-            Log.d(TAG, "onDown");
-            update = false;
-            return true;
-        }
-
-        @Override
-        public void onLongPress(MotionEvent e) {
-            //Log.d(TAG, "onLongPress " + e.getX() + " " + e.getY());
-            longPressHandler(new Point((int)e.getX(), (int)e.getY()));
-        }
-
-        @Override
-        public boolean onDoubleTap(MotionEvent e) {
-            //Log.d(TAG, "onDoubleTap " + e.getX() + " " + e.getY());
-            selectActiveFilter(new Point((int)e.getX(), (int)e.getY()));
-            return true;
-        }
-
-        private void longPressHandler(Point tapPoint) {
-            if ( (filters.isActiveNullHP()) || (filters.isActiveNullLP()) ) return;
-            Biquad b = filters.getActiveBiquad();
-
-            if ( (!update) && (checkCrossParamFilters(b, tapPoint.x)) ) {
-                if (b.getParams().getTypeValue() == BIQUAD_PARAMETRIC) {
-                    b.setEnabled(true);
-                    b.getParams().setOrderValue(BIQUAD_ORDER_1);
-                    b.getParams().setTypeValue(BIQUAD_ALLPASS);
-
-                    b.sendToPeripheral(true);
-                    updateViews();
-                    update = true;
-
-                } else if (b.getParams().getTypeValue() == BIQUAD_ALLPASS) {
-                    b.setEnabled(filters.isPEQEnabled());
-                    b.getParams().setOrderValue(BIQUAD_ORDER_2);
-                    b.getParams().setTypeValue(BIQUAD_PARAMETRIC);
-                    b.getParams().setQFac(1.41f);
-                    b.getParams().setDbVolume(0.0f);
-
-                    b.sendToPeripheral(true);
-                    updateViews();
-                    update = true;
-                }
-            } else {
-
-                if (Build.VERSION.SDK_INT < 24) {
-                    filterView.performLongClick();
-                } else {
-                    filterView.performLongClick(tapPoint.x, tapPoint.y);
-                }
-
-            }
-
-        }
-
-        private void selectActiveFilter(Point tapPoint) {
-            byte tempIndex = filters.getActiveBiquadIndex();
-
-            if (filters.getLowpass() == null) {
-                PointF p = new PointF(filterView.freqToPixel(filterView.maxFreq),
-                        filterView.dbToPixel(filters.getAFR(filterView.maxFreq)));
-
-                //check cross
-                if ( (Math.abs(p.x - tapPoint.x) < 100) && (Math.abs(p.y - tapPoint.y) < 100) ) {
-                    filters.setActiveNullLP(true);
-                    updateViews();
-                    return;
-                } else {
-                    filters.setActiveNullLP(false);
-                }
-            }
-
-            if (filters.getHighpass() == null) {
-                PointF p = new PointF(filterView.freqToPixel(filterView.minFreq),
-                        filterView.dbToPixel(filters.getAFR(filterView.minFreq)));
-
-                //check cross
-                if ( (Math.abs(p.x - tapPoint.x) < 100) && (Math.abs(p.y - tapPoint.y) < 100) ) {
-                    filters.setActiveNullHP(true);
-                    updateViews();
-                    return;
-                } else {
-                    filters.setActiveNullHP(false);
-                }
-            }
-
-
-            for (int u = 0; u < filters.getBiquadLength(); u++){
-                filters.nextActiveBiquadIndex();
-                Biquad b = filters.getActiveBiquad();
-
-                byte type = b.getParams().getTypeValue();
-
-                if ((type != BIQUAD_LOWPASS) && (type != BIQUAD_HIGHPASS) && (type != BIQUAD_PARAMETRIC) && (type != BIQUAD_ALLPASS)) {
-                    continue;
-                }
-
-
-                if (checkCross(b, tapPoint)) {
-                    updateViews();
-                    return;
-                }
-            }
-
-            filters.setActiveBiquadIndex(tempIndex);
-        }
-
-        //utility methods
-        private boolean checkCrossParamFilters(Biquad biquad, float pointX) {
-            return (Math.abs(pointX - filterView.freqToPixel(biquad.getParams().getFreq())) < 50);
-        }
-
-        private boolean checkCrossPassFilters(int startX, int endX, Point tapPoint) {
-
-            for (int pX = startX; pX < endX; pX += 8){
-                float ampl = filters.getAFR(filterView.pixelToFreq(pX));
-                float pY = filterView.dbToPixel(filterView.amplToDb(ampl));
-
-                if (Math.sqrt(Math.pow(tapPoint.x - pX, 2) + Math.pow(tapPoint.y - pY, 2)) < 50) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private boolean checkCross(Biquad biquad, Point tapPoint) {
-
-            if (biquad.getParams().getTypeValue() == BIQUAD_HIGHPASS) {
-                int startX = filterView.freqToPixel(filterView.minFreq);
-                int endX = filterView.getHPBorderPixel();
-                return checkCrossPassFilters(startX, endX, tapPoint);
-
-            } else if (biquad.getParams().getTypeValue() == BIQUAD_LOWPASS) {
-                int startX = filterView.getLPBorderPixel();
-                int endX = filterView.freqToPixel(filterView.maxFreq);
-                return checkCrossPassFilters(startX, endX, tapPoint);
-
-            }
-
-            //parametric, allpass
-            return checkCrossParamFilters(biquad, tapPoint.x);
-        }
-    }
-
-    class ScaleGestureListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        public boolean onScaleBegin(ScaleGestureDetector detector) {
-            scaleInProccess = true;
-            return true;
-        }
-
-        public boolean onScale(ScaleGestureDetector detector) {
-            //Log.d(TAG, "onScale");
-            if (state.getState() == State.FILTERS_STATE) {
-                Biquad b = filters.getActiveBiquad();
-                if (b.getParams().getTypeValue() != BIQUAD_PARAMETRIC) return true;
-
-                float q = b.getParams().getQFac() / detector.getScaleFactor();
-                b.getParams().setQFac(q);
-                b.sendToPeripheral(false);
-
-            } else {
-                FiltersBackground.getInstance().setScale(detector.getScaleFactor());
-            }
-
-            updateViews();
-            return true;
-        }
-
+        filtersFragment.getView().setLayoutParams(lp0);
+        biquadConfigFragment.getView().setLayoutParams(lp1);
     }
 
     private static IntentFilter makeIntentFilter() {
@@ -640,35 +241,6 @@ public class FiltersActivity extends Activity implements View.OnTouchListener {
             }
         }
     };
-
-    //utility class
-    private class State {
-        private final static int FILTERS_STATE = 0;
-        private final static int BACKGROUND_STATE = 1;
-
-        private int state;
-
-        public State() {
-            state = FILTERS_STATE;
-        }
-
-        public void setState(int state) {
-            if (state > BACKGROUND_STATE) state = BACKGROUND_STATE;
-            if (state < FILTERS_STATE) state = FILTERS_STATE;
-
-            if (this.state != state) {
-                invalidateOptionsMenu();
-
-                this.state = state;
-            }
-        }
-
-        public int getState() {
-            return state;
-        }
-
-
-    }
 
 
 }
