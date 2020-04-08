@@ -4,7 +4,7 @@
  *   Created by Artem Khlyupin on 04/16/2019.
  *   Copyright © 2019 Artem Khlyupin. All rights reserved.
  */
-package com.hifitoy.activities.filters;
+package com.hifitoy.activities.filters.filter_fragment;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -14,11 +14,10 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.graphics.Point;
-import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.util.Log;
 import android.view.View;
+
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.Biquad;
 import com.hifitoy.hifitoyobjects.Filters;

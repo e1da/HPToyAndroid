@@ -4,7 +4,7 @@
  *   Created by Artem Khlyupin on 04/04/2020.
  *   Copyright © 2020 Artem Khlyupin. All rights reserved.
  */
-package com.hifitoy.activities.filters.biquad_config;
+package com.hifitoy.activities.filters.config_fragment;
 
 import android.app.FragmentTransaction;
 import android.os.Bundle;
@@ -19,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.hifitoy.R;
+import com.hifitoy.activities.filters.ViewUpdater;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoyobjects.Biquad;
 import com.hifitoy.hifitoyobjects.Biquad.BiquadParam;
@@ -32,7 +33,7 @@ import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETR
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_HIGHPASS;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_LOWPASS;
 
-public class BiquadConfigFragment extends Fragment {
+public class BiquadConfigFragment extends Fragment implements ViewUpdater.IFilterUpdateView {
     private final String TAG = "HiFiToy";
 
     private Button                  prevBiquadButton;
@@ -65,7 +66,7 @@ public class BiquadConfigFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 filters.decActiveBiquadIndex();
-                updateOutlets();
+                ViewUpdater.getInstance().update();
             }
         });
 
@@ -73,7 +74,7 @@ public class BiquadConfigFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 filters.incActiveBiquadIndex();
-                updateOutlets();
+                ViewUpdater.getInstance().update();
             }
         });
 
@@ -122,15 +123,24 @@ public class BiquadConfigFragment extends Fragment {
                     b.sendToPeripheral(true);
                 }
 
-                updateOutlets();
+                ViewUpdater.getInstance().update();
             }
         });
-        updateOutlets();
+
+        ViewUpdater.getInstance().addUpdateView(this);
+        ViewUpdater.getInstance().update();
 
         return v;
     }
 
-    public void updateOutlets() {
+    @Override
+    public void onPause() {
+        super.onPause();
+        ViewUpdater.getInstance().removeUpdateView(this);
+    }
+
+    @Override
+    public void updateView() {
         biquadLabel.setText("BIQUAD #" + Integer.toString(filters.getActiveBiquadIndex()));
 
         int index = (filters.getActiveBiquad().getParams().getTypeValue() == BIQUAD_USER) ? 1 : 0;

@@ -1,4 +1,4 @@
-package com.hifitoy.activities.filters;
+package com.hifitoy.activities.filters.filter_fragment;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -6,7 +6,6 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.Rect;
-import android.util.Log;
 
 public class FiltersBackground {
     private static String TAG = "HiFiToy";

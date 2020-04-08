@@ -4,7 +4,7 @@
  *   Created by Artem Khlyupin on 04/04/2020.
  *   Copyright © 2020 Artem Khlyupin. All rights reserved.
  */
-package com.hifitoy.activities.filters.biquad_config;
+package com.hifitoy.activities.filters.config_fragment;
 
 import android.app.Fragment;
 import android.os.Bundle;
@@ -12,11 +12,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
+import com.hifitoy.activities.filters.ViewUpdater;
 import com.hifitoy.dialogsystem.KeyboardDialog;
 import com.hifitoy.dialogsystem.KeyboardNumber;
 import com.hifitoy.dialogsystem.KeyboardNumber.NumberType;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoyobjects.Biquad;
 import com.hifitoy.hifitoyobjects.Biquad.BiquadParam;
 import com.hifitoy.hifitoyobjects.Filters;
 import com.hifitoy.widgets.ValueWidget;
@@ -24,7 +27,9 @@ import com.hifitoy.R;
 
 import java.util.Locale;
 
-public class TextConfigFragment extends Fragment implements View.OnClickListener, KeyboardDialog.OnResultListener {
+public class TextConfigFragment extends Fragment implements View.OnClickListener,
+                                                        KeyboardDialog.OnResultListener,
+                                                        ViewUpdater.IFilterUpdateView {
     private final String TAG = "HiFiToy";
 
     private ValueWidget b0Widget;
@@ -32,6 +37,7 @@ public class TextConfigFragment extends Fragment implements View.OnClickListener
     private ValueWidget b2Widget;
     private ValueWidget a1Widget;
     private ValueWidget a2Widget;
+    private Button      syncCoefButton;
 
     private Filters filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
 
@@ -49,6 +55,7 @@ public class TextConfigFragment extends Fragment implements View.OnClickListener
         b2Widget = v.findViewById(R.id.b2Widget_outl);
         a1Widget = v.findViewById(R.id.a1Widget_outl);
         a2Widget = v.findViewById(R.id.a2Widget_outl);
+        syncCoefButton = v.findViewById(R.id.syncCoefButton_outl);
 
         b0Widget.setOnClickListener(this);
         b1Widget.setOnClickListener(this);
@@ -56,12 +63,28 @@ public class TextConfigFragment extends Fragment implements View.OnClickListener
         a1Widget.setOnClickListener(this);
         a2Widget.setOnClickListener(this);
 
-        updateOutlets();
+        syncCoefButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Biquad b = filters.getActiveBiquad();
+                b.sendToPeripheral(true);
+            }
+        });
+
+        ViewUpdater.getInstance().addUpdateView(this);
+        ViewUpdater.getInstance().update();
 
         return v;
     }
 
-    public void updateOutlets() {
+    @Override
+    public void onPause() {
+        super.onPause();
+        ViewUpdater.getInstance().removeUpdateView(this);
+    }
+
+    @Override
+    public void updateView() {
         BiquadParam bp = filters.getActiveBiquad().getParams();
 
         b0Widget.setText("B0:", String.format(Locale.getDefault(), "%.6f", bp.getB0()), "");
@@ -126,7 +149,7 @@ public class TextConfigFragment extends Fragment implements View.OnClickListener
                 bp.setA2(rs);
 
             }
-            updateOutlets();
+            ViewUpdater.getInstance().update();
 
         } catch (NumberFormatException e) {
                 Log.d(TAG, e.toString());
