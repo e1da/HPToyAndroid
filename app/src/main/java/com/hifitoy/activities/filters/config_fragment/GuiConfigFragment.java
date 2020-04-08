@@ -61,10 +61,15 @@ public class GuiConfigFragment extends Fragment implements View.OnClickListener,
         qFacWidget.setOnClickListener(this);
         volumeWidget.setOnClickListener(this);
 
+        return v;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
         ViewUpdater.getInstance().addUpdateView(this);
         ViewUpdater.getInstance().update();
-
-        return v;
     }
 
     @Override

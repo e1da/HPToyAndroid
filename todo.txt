@@ -1,6 +1,11 @@
 psw: 111111
 
--(041819)preset name should be without spaces else import preset fail
--(041919)add Biquad coefs input ui on Filters menu
-
 -(082919)app crashes if you try to adjust volume right before connection established
+
+(040920)
+-[fix bug] when adjust xover -> draw bug;
+-[fix bug] background image not correct on small size view;
+-[feature] background image adjust relative 1kHz, 0db;
+-[feature] add dialog when send text coefficients;
+-[feature] check why slow open filters menu;
+-[test] test with real hardware

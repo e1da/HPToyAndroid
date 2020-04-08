@@ -36,6 +36,8 @@ import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_LOWPASS;
 public class BiquadConfigFragment extends Fragment implements ViewUpdater.IFilterUpdateView {
     private final String TAG = "HiFiToy";
 
+    ViewGroup.LayoutParams          lp;
+
     private Button                  prevBiquadButton;
     private TextView                biquadLabel;
     private Button                  nextBiquadButton;
@@ -127,16 +129,33 @@ public class BiquadConfigFragment extends Fragment implements ViewUpdater.IFilte
             }
         });
 
+        return v;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (lp != null) {
+            getView().setLayoutParams(lp);
+        }
+
         ViewUpdater.getInstance().addUpdateView(this);
         ViewUpdater.getInstance().update();
 
-        return v;
     }
 
     @Override
     public void onPause() {
         super.onPause();
+
+        FragmentTransaction fTrans = getFragmentManager().beginTransaction();
+        fTrans.remove(guiFragment);
+        fTrans.remove(textFragment);
+        fTrans.commit();
+
         ViewUpdater.getInstance().removeUpdateView(this);
+
     }
 
     @Override
@@ -163,5 +182,13 @@ public class BiquadConfigFragment extends Fragment implements ViewUpdater.IFilte
         }
         fTrans.commit();
 
+    }
+
+    public void setLayoutParams(ViewGroup.LayoutParams lp) {
+        this.lp = lp;
+
+        if (getView() != null) {
+            getView().setLayoutParams(lp);
+        }
     }
 }

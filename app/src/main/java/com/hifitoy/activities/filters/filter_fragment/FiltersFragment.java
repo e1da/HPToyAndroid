@@ -6,15 +6,11 @@
  */
 package com.hifitoy.activities.filters.filter_fragment;
 
-import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.PointF;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
@@ -33,10 +29,6 @@ import com.hifitoy.hifitoyobjects.Biquad;
 import com.hifitoy.hifitoyobjects.Filters;
 import com.hifitoy.hifitoyobjects.PassFilter;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import static android.app.Activity.RESULT_OK;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Order.BIQUAD_ORDER_1;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Order.BIQUAD_ORDER_2;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_ALLPASS;
@@ -48,6 +40,8 @@ import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_USER;
 
 public class FiltersFragment extends Fragment implements View.OnTouchListener, ViewUpdater.IFilterUpdateView {
     private static String TAG = "HiFiToy";
+
+    ViewGroup.LayoutParams  lp;
 
     private Filters filters;
     private FilterView filterView;
@@ -63,7 +57,11 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
     private Point firstTap = new Point(0, 0);
     private double deltaFreq;
 
-    private State state;
+    OnSetBackgroundListener setBackgroundListener;
+
+    public interface OnSetBackgroundListener {
+        void onSetBackground();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -79,18 +77,25 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
         mDetector = new GestureDetector(getActivity(), new TapGestureListener());
         mScaleDetector = new ScaleGestureDetector(getActivity(), new ScaleGestureListener());
 
-        state = new State();
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        return filterView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (lp != null) {
+            getView().setLayoutParams(lp);
+        }
+
         ViewUpdater.getInstance().addUpdateView(this);
         ViewUpdater.getInstance().update();
-
-        return filterView;
     }
 
     @Override
@@ -112,10 +117,9 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
     public boolean onContextItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.set_background:
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(android.content.Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), 1);
+                if (setBackgroundListener != null) {
+                    setBackgroundListener.onSetBackground();
+                }
                 break;
 
             case R.id.clear_background:
@@ -124,39 +128,6 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
                 break;
         }
         return super.onContextItemSelected(item);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if ( (resultCode == RESULT_OK) && (requestCode == 1) ) {
-
-            Uri selectedImageUri = data.getData();
-            if (selectedImageUri != null) {
-
-                String selectedImagePath = selectedImageUri.getPath();
-                Log.d(TAG, selectedImagePath);
-
-                try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), data.getData());
-                    FiltersBackground.getInstance().setBitmap(bitmap);
-
-                    state.setValue(State.BACKGROUND_STATE);
-                    ViewUpdater.getInstance().update();
-
-                } catch (FileNotFoundException e) {
-                    Log.d(TAG, "File not found exception");
-                } catch (IOException e) {
-                    Log.d(TAG, "IO exception");
-                }
-
-
-            } else {
-                Log.d(TAG, "Not select image.");
-            }
-
-        } else {
-            Log.d(TAG, "Not get result");
-        }
     }
 
     @Override
@@ -200,29 +171,24 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
                 currentTap.y = (int)event.getY();
                 Point translation = new Point(currentTap.x - firstTap.x,currentTap.y - firstTap.y);
 
-                if (state.getValue() == State.FILTERS_STATE) {
-                    if (filters.isActiveNullLP()) {
-                        float dy = translation.y - prevTranslation.y;
+                if (filters.isActiveNullLP()) {
+                    float dy = translation.y - prevTranslation.y;
 
-                        if (dy > 300) {
-                            filters.upOrderFor(BIQUAD_LOWPASS);
-                            prevTranslation.y = translation.y;
-                        }
-
-                    } else if (filters.isActiveNullHP()) {
-                        float dy = translation.y - prevTranslation.y;
-
-                        if (dy > 300) {
-                            filters.upOrderFor(BIQUAD_HIGHPASS);
-                            prevTranslation.y = translation.y;
-                        }
-
-                    } else {
-                        moved(filters.getActiveBiquad(), translation);
+                    if (dy > 300) {
+                        filters.upOrderFor(BIQUAD_LOWPASS);
+                        prevTranslation.y = translation.y;
                     }
-                } else {
 
-                    movedBackground(translation);
+                } else if (filters.isActiveNullHP()) {
+                    float dy = translation.y - prevTranslation.y;
+
+                    if (dy > 300) {
+                        filters.upOrderFor(BIQUAD_HIGHPASS);
+                        prevTranslation.y = translation.y;
+                    }
+
+                } else {
+                    moved(filters.getActiveBiquad(), translation);
                 }
 
                 ViewUpdater.getInstance().update();
@@ -319,17 +285,6 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
             }
             prevTranslation.y = translation.y;
         }
-    }
-
-    private void movedBackground(Point translation) {
-        if ((Math.abs(translation.x) > filterView.width * 0.05) || (Math.abs(translation.y) > filterView.height * 0.05)) {
-            float dx = translation.x - prevTranslation.x;
-            float dy = translation.y - prevTranslation.y;
-
-            FiltersBackground.getInstance().setTranslate(new PointF(dx, dy));
-        }
-
-        prevTranslation = translation;
     }
 
     class TapGestureListener extends GestureDetector.SimpleOnGestureListener {
@@ -490,17 +445,12 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
 
         public boolean onScale(ScaleGestureDetector detector) {
             //Log.d(TAG, "onScale");
-            if (state.getValue() == State.FILTERS_STATE) {
-                Biquad b = filters.getActiveBiquad();
-                if (b.getParams().getTypeValue() != BIQUAD_PARAMETRIC) return true;
+            Biquad b = filters.getActiveBiquad();
+            if (b.getParams().getTypeValue() != BIQUAD_PARAMETRIC) return true;
 
-                float q = b.getParams().getQFac() / detector.getScaleFactor();
-                b.getParams().setQFac(q);
-                b.sendToPeripheral(false);
-
-            } else {
-                FiltersBackground.getInstance().setScale(detector.getScaleFactor());
-            }
+            float q = b.getParams().getQFac() / detector.getScaleFactor();
+            b.getParams().setQFac(q);
+            b.sendToPeripheral(false);
 
             ViewUpdater.getInstance().update();
             return true;
@@ -508,47 +458,21 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
 
     }
 
-    public void setStateValue(int stateValue) {
-        state.setValue(stateValue);
-    }
-    public int getStateValue() {
-        return state.getValue();
-    }
-
     @Override
     public void updateView() {
         filterView.invalidate();
     }
 
-    //utility class
-    public class State {
-        public final static int FILTERS_STATE = 0;
-        public final static int BACKGROUND_STATE = 1;
+    public void setLayoutParams(ViewGroup.LayoutParams lp) {
+        this.lp = lp;
 
-        private int state;
-
-        State() {
-            state = FILTERS_STATE;
+        if (getView() != null) {
+            getView().setLayoutParams(lp);
         }
+    }
 
-        void setValue(int state) {
-            if (state > BACKGROUND_STATE) state = BACKGROUND_STATE;
-            if (state < FILTERS_STATE) state = FILTERS_STATE;
-
-            if (this.state != state) {
-                this.state = state;
-                filterView.drawFilterEnabled = (state == FILTERS_STATE);
-
-                getActivity().invalidateOptionsMenu();
-                ViewUpdater.getInstance().update();
-            }
-        }
-
-        int getValue() {
-            return state;
-        }
-
-
+    public void setBackgroundListener(OnSetBackgroundListener backgroundListener) {
+        this.setBackgroundListener = backgroundListener;
     }
 
 

@@ -66,15 +66,21 @@ public class TextConfigFragment extends Fragment implements View.OnClickListener
         syncCoefButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //TODO:add dialog
                 Biquad b = filters.getActiveBiquad();
                 b.sendToPeripheral(true);
             }
         });
 
+        return v;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
         ViewUpdater.getInstance().addUpdateView(this);
         ViewUpdater.getInstance().update();
-
-        return v;
     }
 
     @Override
