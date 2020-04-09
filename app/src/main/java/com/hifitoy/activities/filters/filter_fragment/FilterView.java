@@ -226,7 +226,7 @@ public class FilterView extends View {
             canvas.drawText(dbString, freqToPixel(minFreq) - 5, dbToPixel(i) + textHeight / 2, p);
         }
     }
-
+    
     private void drawFilterShadow(Canvas c, Path path) {
         //get last point
         PathMeasure measure = new PathMeasure(path, false);
@@ -315,7 +315,7 @@ public class FilterView extends View {
             List<Point> allPoints;
 
             if ((activePoints.size() > 0) && (points.size() > 0)) {
-                if (points.get(0).x < activePoints.get(0).x) {
+                if (points.get(0).x <= activePoints.get(0).x) {
                     allPoints = new ArrayList<>(points);
                     allPoints.addAll(activePoints);
                 } else {
