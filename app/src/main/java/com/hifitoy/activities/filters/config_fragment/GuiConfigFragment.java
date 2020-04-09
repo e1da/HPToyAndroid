@@ -34,8 +34,7 @@ import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_LOWPASS;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC;
 
 public class GuiConfigFragment extends Fragment implements View.OnClickListener,
-                                                            KeyboardDialog.OnResultListener,
-                                                            ViewUpdater.IFilterUpdateView {
+                                                            KeyboardDialog.OnResultListener {
     private final String TAG = "HiFiToy";
 
     private ValueWidget freqWidget;
@@ -67,18 +66,14 @@ public class GuiConfigFragment extends Fragment implements View.OnClickListener,
     @Override
     public void onResume() {
         super.onResume();
-
-        ViewUpdater.getInstance().addUpdateView(this);
-        ViewUpdater.getInstance().update();
+        updateView();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        ViewUpdater.getInstance().removeUpdateView(this);
     }
 
-    @Override
     public void updateView() {
         BiquadParam bp = filters.getActiveBiquad().getParams();
 

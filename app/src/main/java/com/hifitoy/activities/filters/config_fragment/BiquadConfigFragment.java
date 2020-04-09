@@ -140,6 +140,11 @@ public class BiquadConfigFragment extends Fragment implements ViewUpdater.IFilte
             getView().setLayoutParams(lp);
         }
 
+        FragmentTransaction fTrans = getFragmentManager().beginTransaction();
+        fTrans.add(biquadData.getId(), guiFragment, "guiFragment");
+        fTrans.add(biquadData.getId(), textFragment, "textFragment");
+        fTrans.commit();
+
         ViewUpdater.getInstance().addUpdateView(this);
         ViewUpdater.getInstance().update();
 
@@ -160,7 +165,7 @@ public class BiquadConfigFragment extends Fragment implements ViewUpdater.IFilte
 
     @Override
     public void updateView() {
-        biquadLabel.setText("BIQUAD #" + Integer.toString(filters.getActiveBiquadIndex()));
+        biquadLabel.setText("BIQUAD #" + Integer.toString(filters.getActiveBiquadIndex() + 1));
 
         int index = (filters.getActiveBiquad().getParams().getTypeValue() == BIQUAD_USER) ? 1 : 0;
         biquadInputTypeWidget.check(index);
@@ -168,17 +173,18 @@ public class BiquadConfigFragment extends Fragment implements ViewUpdater.IFilte
         FragmentTransaction fTrans = getFragmentManager().beginTransaction();
 
         if (index == 1) {
-            fTrans.remove(guiFragment);
-            if (getFragmentManager().findFragmentByTag("textFragment") == null) {
-                fTrans.add(biquadData.getId(), textFragment, "textFragment");
+            fTrans.hide(guiFragment);
+            fTrans.show(textFragment);
+            if (textFragment.isResumed()) {
+                textFragment.updateView();
             }
 
         } else {
-            fTrans.remove(textFragment);
-            if (getFragmentManager().findFragmentByTag("guiFragment") == null) {
-                fTrans.add(biquadData.getId(), guiFragment, "guiFragment");
+            fTrans.hide(textFragment);
+            fTrans.show(guiFragment);
+            if (guiFragment.isResumed()) {
+                guiFragment.updateView();
             }
-
         }
         fTrans.commit();
 

@@ -14,13 +14,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.hifitoy.activities.filters.ViewUpdater;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.dialogsystem.KeyboardDialog;
 import com.hifitoy.dialogsystem.KeyboardNumber;
 import com.hifitoy.dialogsystem.KeyboardNumber.NumberType;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoyobjects.Biquad;
 import com.hifitoy.hifitoyobjects.Biquad.BiquadParam;
 import com.hifitoy.hifitoyobjects.Filters;
 import com.hifitoy.widgets.ValueWidget;
@@ -29,8 +27,7 @@ import com.hifitoy.R;
 import java.util.Locale;
 
 public class TextConfigFragment extends Fragment implements View.OnClickListener,
-                                                        KeyboardDialog.OnResultListener,
-                                                        ViewUpdater.IFilterUpdateView {
+                                                        KeyboardDialog.OnResultListener {
     private final String TAG = "HiFiToy";
 
     private ValueWidget b0Widget;
@@ -75,20 +72,16 @@ public class TextConfigFragment extends Fragment implements View.OnClickListener
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-
-        ViewUpdater.getInstance().addUpdateView(this);
-        ViewUpdater.getInstance().update();
-    }
-
-    @Override
     public void onPause() {
         super.onPause();
-        ViewUpdater.getInstance().removeUpdateView(this);
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        updateView();
+    }
+
     public void updateView() {
         BiquadParam bp = filters.getActiveBiquad().getParams();
 
@@ -154,7 +147,7 @@ public class TextConfigFragment extends Fragment implements View.OnClickListener
                 bp.setA2(rs);
 
             }
-            ViewUpdater.getInstance().update();
+            updateView();
 
         } catch (NumberFormatException e) {
                 Log.d(TAG, e.toString());
