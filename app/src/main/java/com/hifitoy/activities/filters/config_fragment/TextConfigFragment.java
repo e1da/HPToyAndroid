@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.hifitoy.activities.filters.ViewUpdater;
+import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.dialogsystem.KeyboardDialog;
 import com.hifitoy.dialogsystem.KeyboardNumber;
 import com.hifitoy.dialogsystem.KeyboardNumber.NumberType;
@@ -66,9 +67,7 @@ public class TextConfigFragment extends Fragment implements View.OnClickListener
         syncCoefButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO:add dialog
-                Biquad b = filters.getActiveBiquad();
-                b.sendToPeripheral(true);
+                DialogSystem.getInstance().showSyncBiquadCoefsDialog();
             }
         });
 

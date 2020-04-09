@@ -29,6 +29,7 @@ import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
 import com.hifitoy.hifitoydevice.PeripheralData;
+import com.hifitoy.hifitoyobjects.Biquad;
 
 public class DialogSystem {
 
@@ -325,10 +326,22 @@ public class DialogSystem {
                 "Ok", "Cancel");
     }
 
-    /*-------------------------- Show import preset progress dialog -----------------------------*/
-    /*public void showImportPresetProgressBar(int maxPackets){
-        showProgressDialog("Import Preset...", maxPackets);
-    }*/
+    /*-------------------------- Show sync biquad dialog -----------------------------*/
+    public void showSyncBiquadCoefsDialog(){
+        OnClickDialog dialogListener = new OnClickDialog() {
+            public void onPositiveClick(){
+                Biquad b = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters().getActiveBiquad();
+                b.sendToPeripheral(true);
+                Toast.makeText(ApplicationContext.getInstance().getContext(),
+                        "Sync was successful!", Toast.LENGTH_SHORT).show();
+            }
+            public void onNegativeClick(){
+                //
+            }
+        };
+
+        showDialog(dialogListener, "Warning", "Are you sure want to sync biquad coefficients?", "Sync", "Cancel");
+    }
 
 
     /*====================== OnClickDialog Interfaces ===============================*/
