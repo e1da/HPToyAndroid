@@ -40,6 +40,7 @@ public class BackConfigFragment extends Fragment implements View.OnTouchListener
         filterView = new FilterView(getActivity());
         filterView.filters = null;
         filterView.drawFilterEnabled = false;
+        filterView.visibleRelativeCenter = true;
 
         filterView.setOnTouchListener(this);
         registerForContextMenu(filterView);
@@ -119,11 +120,11 @@ public class BackConfigFragment extends Fragment implements View.OnTouchListener
     }
 
     private void movedBackground(Point translation) {
-        if ((Math.abs(translation.x) > filterView.width * 0.05) || (Math.abs(translation.y) > filterView.height * 0.05)) {
+        if ((Math.abs(translation.x) > filterView.getWidth() * 0.05) || (Math.abs(translation.y) > filterView.getHeight() * 0.05)) {
             float dx = translation.x - prevTranslation.x;
             float dy = translation.y - prevTranslation.y;
 
-            FiltersBackground.getInstance().setTranslate(new PointF(dx, dy));
+            FiltersBackground.getInstance().setTranslate(new PointF(dx, dy), filterView.getSize());
         }
 
         prevTranslation = translation;

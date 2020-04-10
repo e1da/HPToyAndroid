@@ -71,6 +71,7 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
 
         filterView = new FilterView(getActivity());
         filterView.filters = filters;
+        filterView.visibleRelativeCenter = false;
         filterView.setOnTouchListener(this);
         registerForContextMenu(filterView);
 
@@ -205,7 +206,7 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
         float dy = translation.y -  prevTranslation.y;
 
         //update freq
-        if (((Math.abs(translation.x) > filterView.width * 0.05) || (xHysteresisFlag)) && (!yHysteresisFlag)) {
+        if (((Math.abs(translation.x) > filterView.getWidth() * 0.05) || (xHysteresisFlag)) && (!yHysteresisFlag)) {
             xHysteresisFlag = true;
 
 
@@ -273,7 +274,7 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
 
         } else if (type == BIQUAD_PARAMETRIC) {
 
-            if (((Math.abs(translation.y) > filterView.height * 0.1) || (yHysteresisFlag)) && (!xHysteresisFlag)){
+            if (((Math.abs(translation.y) > filterView.getHeight() * 0.1) || (yHysteresisFlag)) && (!xHysteresisFlag)){
                 yHysteresisFlag = true;
 
                 float newVolInPix = filterView.dbToPixel(biquad.getParams().getDbVolume()) + dy / 4.0f;

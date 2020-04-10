@@ -14,8 +14,10 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.util.Size;
 import android.view.View;
 
 import com.hifitoy.hifitoyobjects.BinaryOperation;
@@ -40,9 +42,6 @@ public class FilterView extends View {
     private final int MAX_VIEW_DB = 15;
     private final int DELTA_X = 8;
 
-    public int width;
-    public int height;
-
     private int border_left;
     private int border_right;
     private int border_top;
@@ -57,10 +56,15 @@ public class FilterView extends View {
     public int minFreq = 20;
 
     public boolean drawFilterEnabled = true;
+    public boolean visibleRelativeCenter = false;
 
 
     public FilterView(Context context) {
         super(context);
+    }
+
+    public Size getSize() {
+        return new Size(getWidth(), getHeight());
     }
 
     public int freqToPixel(int freq){
@@ -88,7 +92,7 @@ public class FilterView extends View {
     }
 
     public int getLPBorderPixel() {
-        int startPixel = width - border_right;
+        int startPixel = getWidth() - border_right;
         double prev_y = filters.getAFR(pixelToFreq(startPixel));
         int extremumPixel = startPixel - 1;
 
@@ -108,7 +112,7 @@ public class FilterView extends View {
         double prev_y = filters.getAFR(pixelToFreq(startPixel));
         int extremumPixel = startPixel + 1;
 
-        while (extremumPixel < (width - border_right)){
+        while (extremumPixel < (getWidth() - border_right)){
             double y = filters.getAFR(pixelToFreq(extremumPixel));
             if ( y < prev_y ){
                 break;
@@ -121,8 +125,6 @@ public class FilterView extends View {
 
 
     private void refreshCoef(Canvas canvas){
-        width = canvas.getWidth();
-        height = canvas.getHeight();
 
         border_left = 50;
         border_right = 20;
@@ -137,7 +139,7 @@ public class FilterView extends View {
 
          */
 
-        a_coef = (double)(width - (border_left + border_right)) / (Math.log10(maxFreq) - Math.log10(minFreq));
+        a_coef = (double)(getWidth() - (border_left + border_right)) / (Math.log10(maxFreq) - Math.log10(minFreq));
         b_coef = border_left - a_coef * Math.log10(minFreq);
 
         /*	15*c_coef + d_coef = border_top
@@ -146,8 +148,8 @@ public class FilterView extends View {
          *  15*c_coef + height - border_bottom + 30*c_coef = border_top
          *  c_coef = (border_top + border_bottom - height) / (15 + 30)
          */
-        c_coef = (double)(border_top + border_bottom - height) / (MAX_VIEW_DB - MIN_VIEW_DB);
-        d_coef = height - border_bottom - MIN_VIEW_DB * c_coef;
+        c_coef = (double)(border_top + border_bottom - getHeight()) / (MAX_VIEW_DB - MIN_VIEW_DB);
+        d_coef = getHeight() - border_bottom - MIN_VIEW_DB * c_coef;
     }
 
     private void drawGrid(Canvas canvas) {
@@ -159,7 +161,7 @@ public class FilterView extends View {
         //draw vertical lines
         while (freq <= maxFreq){
             float[] p = new float[]{    freqToPixel(freq), border_top,
-                                        freqToPixel(freq), height - border_bottom };
+                                        freqToPixel(freq), getHeight() - border_bottom };
             points = BinaryOperation.concatData(points, p);
 
             if (freq >= 100) weight = 100;
@@ -172,7 +174,7 @@ public class FilterView extends View {
         //draw horizontal line
         for (int i = MAX_VIEW_DB; i >= MIN_VIEW_DB; i -= 5){
             float[] p = new float[]{    border_left, dbToPixel(i),
-                                        width - border_right, dbToPixel(i) };
+                                        getWidth() - border_right, dbToPixel(i) };
 
             points = BinaryOperation.concatData(points, p);
         }
@@ -208,7 +210,7 @@ public class FilterView extends View {
                 p.setTypeface(Typeface.create("Arial", Typeface.BOLD));
 
                 int textWidth = (i != 0) ? getTextBound(freqString, p).width() : 0;
-                canvas.drawText(freqString, freqToPixel(drawFreq) - textWidth / 2, 	height - 0.2f * border_bottom, p);
+                canvas.drawText(freqString, freqToPixel(drawFreq) - textWidth / 2, 	getHeight() - 0.2f * border_bottom, p);
             }
         }
 
@@ -235,11 +237,11 @@ public class FilterView extends View {
         measure.getPosTan(measure.getLength(), lastPoint, null);
 
 
-        if (lastPoint[0] < width - border_right) {
+        if (lastPoint[0] < getWidth() - border_right) {
             path.lineTo(lastPoint[0], dbToPixel(MIN_VIEW_DB));
-            path.lineTo(width - border_right, dbToPixel(MIN_VIEW_DB));
+            path.lineTo(getWidth() - border_right, dbToPixel(MIN_VIEW_DB));
         }
-        path.lineTo(width - border_right, dbToPixel(0.0f));
+        path.lineTo(getWidth() - border_right, dbToPixel(0.0f));
         path.lineTo(border_left, dbToPixel(0.0f));
 
         //get first point
@@ -285,7 +287,7 @@ public class FilterView extends View {
         List<Point> points = new ArrayList<>();
 
         //prepare vertices
-        for (int i = border_left; i <= width - border_right; i += DELTA_X){
+        for (int i = border_left; i <= getWidth() - border_right; i += DELTA_X){
             float ampl = filters.getAFR(pixelToFreq(i));
             float db = amplToDb(ampl);
             if ( (db < MIN_VIEW_DB) || (db > MAX_VIEW_DB) ) continue;
@@ -388,7 +390,7 @@ public class FilterView extends View {
             Path path = new Path();
 
             path.moveTo(freqToPixel(b.getParams().getFreq()), border_top);
-            path.lineTo(freqToPixel(b.getParams().getFreq()), height - border_bottom);
+            path.lineTo(freqToPixel(b.getParams().getFreq()), getHeight() - border_bottom);
             c.drawPath(path, p);
         }
 
@@ -408,15 +410,15 @@ public class FilterView extends View {
                 p.setColor(0xFF996633); // brown
             }
 
-            float ampl = filters.getAFR(pixelToFreq(width - border_right));
+            float ampl = filters.getAFR(pixelToFreq(getWidth() - border_right));
             float db = amplToDb(ampl);
             if ((db >= MIN_VIEW_DB) && (db <= MAX_VIEW_DB)) {
                 //c.drawCircle(width - border_right, dbToPixel(db), TAP_RADIUS, p);
                 Path path = new Path();
-                path.moveTo(width - border_right, dbToPixel(db) - 20);
-                path.lineTo(width - border_right, dbToPixel(db) + 20);
-                path.lineTo(width - border_right - 40, dbToPixel(db) + 3);
-                path.lineTo(width - border_right - 40, dbToPixel(db) - 3);
+                path.moveTo(getWidth() - border_right, dbToPixel(db) - 20);
+                path.lineTo(getWidth() - border_right, dbToPixel(db) + 20);
+                path.lineTo(getWidth() - border_right - 40, dbToPixel(db) + 3);
+                path.lineTo(getWidth() - border_right - 40, dbToPixel(db) - 3);
                 c.drawPath(path, p);
             }
         }
@@ -443,6 +445,26 @@ public class FilterView extends View {
         }
     }
 
+    private void drawRelativeCenter(Canvas c) {
+        if (!visibleRelativeCenter) return;
+
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setColor(0xFFFF8000); // orange
+        paint.setStrokeWidth(6);
+
+        //prepare color settings
+        Point center = new Point(freqToPixel(1000), (int)dbToPixel(0));
+        int radius = 20;
+
+        Path path = new Path();
+        path.moveTo(center.x - radius, center.y);
+        path.lineTo(center.x + radius, center.y);
+        path.moveTo(center.x, center.y - radius);
+        path.lineTo(center.x, center.y + radius);
+
+        c.drawPath(path, paint);
+    }
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -451,11 +473,14 @@ public class FilterView extends View {
         refreshCoef(canvas);
 
         FiltersBackground.getInstance().drawInRect(canvas,
-                new Rect(freqToPixel(20), (int)dbToPixel(15), freqToPixel(20000), (int)dbToPixel(-30)));
+                new Rect(freqToPixel(20), (int)dbToPixel(15), freqToPixel(20000), (int)dbToPixel(-30)),
+                new Point(freqToPixel(1000) - freqToPixel(20), (int)(dbToPixel(0.0f) - dbToPixel(15))) );
 
         drawGrid(canvas);
         drawGridUnit(canvas);
 
         if (drawFilterEnabled) drawFilter(canvas);
+
+        drawRelativeCenter(canvas);
     }
 }

@@ -4,8 +4,8 @@ psw: 111111
 
 (040920)
 +[fix bug] when adjust xover -> draw bug;
--[fix bug] background image not correct on small size view;
--[feature] background image adjust relative 1kHz, 0db;
++[fix bug] background image not correct on small size view;
++[feature] background image adjust relative 1kHz, 0db;
 +[feature] add dialog when send text coefficients;
 -[feature] check why slow open filters menu;
 -[test] test with real hardware

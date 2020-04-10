@@ -1,21 +1,29 @@
+/*
+ *   FilterBackground.java
+ *
+ *   Created by Artem Khlyupin on 07/24/2019.
+ *   Copyright © 2020 Artem Khlyupin. All rights reserved.
+ */
 package com.hifitoy.activities.filters.filter_fragment;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.util.Log;
+import android.util.Size;
 
 public class FiltersBackground {
     private static String TAG = "HiFiToy";
     private static FiltersBackground instance;
 
     private Bitmap  bitmap;
-    private Rect    src;
     private boolean scaleTypeX;
     private PointF  scale;
-    private PointF  translate;
+    private PointF  relativeTranslate;
 
 
     public FiltersBackground() {
@@ -36,10 +44,9 @@ public class FiltersBackground {
     public void setBitmap(Bitmap bitmap) {
         this.bitmap = bitmap;
 
-        src = (bitmap != null) ? new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()) : null;
         scaleTypeX = true;
         scale = new PointF(1.0f, 1.0f);
-        translate = new PointF(0.0f, 0.0f);
+        relativeTranslate = new PointF(0.0f, 0.0f);
     }
 
     public void clearBitmap() {
@@ -89,65 +96,64 @@ public class FiltersBackground {
         }
     }
 
-    public void setTranslate(PointF deltaTranslate) {
+    public void setTranslate(PointF deltaTranslate, Size rectSize) {
         if (bitmap == null) return;
 
-        translate.x += deltaTranslate.x / 4;
-        translate.y += deltaTranslate.y / 4;
+        relativeTranslate.x += deltaTranslate.x / 4 / rectSize.getWidth();
+        relativeTranslate.y += deltaTranslate.y / 4 / rectSize.getWidth();
 
     }
 
-    public void drawInRect(Canvas c, Rect dst) {
-        if ((bitmap == null) || (src == null) || (dst == null)) return;
-
-        //c.drawBitmap(bitmap, src, dst, new Paint());
-
-        Bitmap b = scaleToRect(bitmap, dst);
-        if (translate.x > 0) {
-            if (translate.y > 0) {
-                c.drawBitmap(b, dst.left + translate.x, dst.top + translate.y, new Paint());
-            } else {
-                c.drawBitmap(b, dst.left + translate.x, dst.top, new Paint());
-            }
-
-        } else {
-
-            if (translate.y > 0) {
-                c.drawBitmap(b, dst.left, dst.top + translate.y, new Paint());
-            } else {
-                c.drawBitmap(b, dst.left, dst.top, new Paint());
-            }
-        }
+    public Point getTranslate(Size rectSize) {
+        return new Point((int)(relativeTranslate.x * rectSize.getWidth()),
+                            (int)(relativeTranslate.y * rectSize.getHeight()));
     }
 
-    private Bitmap scaleToRect(Bitmap b, Rect dstView) {
+    public void drawInRect(Canvas c, Rect dst, Point baseCenter) {
+        if ((bitmap == null) || (dst == null)) return;
 
-        float ratioX = (float)dstView.width() / b.getWidth();
-        float ratioY = (float)dstView.height() / b.getHeight();
+        //calc ratio between dstView and bitmap rects
+        float ratioX = (float)dst.width() / bitmap.getWidth();
+        float ratioY = (float)dst.height() / bitmap.getHeight();
 
+        //matrix transform bitmap to dstView depending on scale and translate params
         Matrix matrix = new Matrix();
-        matrix.postScale(ratioX * scale.x, ratioY * scale.y);
-        Bitmap bb =  Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(), matrix, true);
+        matrix.setScale(ratioX * scale.x, ratioY * scale.y);
 
-        float offsetX = 0;
-        float offsetY = 0;
+        Point translate = getTranslate(new Size(dst.width(), dst.height()));
 
-        float width = Math.min(bb.getWidth(), Math.max(dstView.width() - translate.x, 1));
-        float height = Math.min(bb.getHeight(), Math.max(dstView.height() - translate.y, 1));
+        Point center = new Point(baseCenter.x - translate.x, baseCenter.y - translate.y);
+        Point scaleCenter = new Point((int)(center.x * scale.x), (int)(center.y * scale.y));
+        Point deltaCenter = new Point(center.x - scaleCenter.x, center.y - scaleCenter.y);
 
-        if (translate.x < 0) {
-            offsetX = Math.min(Math.abs(translate.x) * scale.x, bb.getWidth() - 1);
-            width = Math.max(bb.getWidth() - offsetX, 1);
-            if (width > dstView.width()) width = dstView.width();
+        matrix.postTranslate(deltaCenter.x, deltaCenter.y);
 
+        Bitmap bb =  Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+        //clip bounds
+        int left = dst.left + deltaCenter.x + translate.x;
+        int top = dst.top + deltaCenter.y + translate.y;
+        int w = bb.getWidth();
+        int h = bb.getHeight();
+
+        int offsetX = (left < dst.left) ? dst.left - left : 0;
+        int offsetY = (top < dst.top) ? dst.top - top : 0;
+
+        left += offsetX;
+        w -= offsetX;
+        if (w + left - dst.left > dst.width()) {
+            w = dst.width() - left + dst.left;
         }
-        if (translate.y < 0) {
-            offsetY = Math.min(Math.abs(translate.y) * scale.y, bb.getHeight() - 1);
-            height = Math.max(bb.getHeight() - offsetY, 1);
-            if (height > dstView.height()) height = dstView.height();
 
+        top += offsetY;
+        h -= offsetY;
+        if (h + top - dst.top > dst.height()) {
+            h = dst.height() - top + dst.top;
         }
 
-        return Bitmap.createBitmap(bb, (int)offsetX, (int)offsetY, (int)width, (int)height);
+        bb =  Bitmap.createBitmap(bb, offsetX, offsetY, w, h);
+
+        //draw
+        c.drawBitmap(bb, left, top, new Paint());
     }
 }
