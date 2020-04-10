@@ -8,4 +8,7 @@ psw: 111111
 +[feature] background image adjust relative 1kHz, 0db;
 +[feature] add dialog when send text coefficients;
 -[feature] check why slow open filters menu;
--[test] test with real hardware
++[test] test with real hardware
+
+(041020)
++[feature] add keyboard input for main control activity

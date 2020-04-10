@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatImageView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +30,9 @@ import com.hifitoy.activities.filters.FiltersActivity;
 import com.hifitoy.activities.options.OptionsActivity;
 import com.hifitoy.activities.options.presetmanager.PresetManagerActivity;
 import com.hifitoy.dialogsystem.DialogSystem;
+import com.hifitoy.dialogsystem.KeyboardNumber;
+import com.hifitoy.dialogsystem.KeyboardNumber.NumberType;
+import com.hifitoy.dialogsystem.KeyboardDialog;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.AudioSource;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
@@ -43,7 +47,8 @@ import java.util.Locale;
 
 public class MainControlActivity extends Activity implements SeekBar.OnSeekBarChangeListener,
                                                                 View.OnClickListener,
-                                                                AudioSourceWidget.OnCheckedListener {
+                                                                AudioSourceWidget.OnCheckedListener,
+                                                                KeyboardDialog.OnResultListener {
     private static final String TAG = "HiFiToy";
 
     private HiFiToyDevice hifiToyDevice;
@@ -166,8 +171,13 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
         audioSourceInfo_outl.setOnClickListener(this);
         audioSource_outl.setOnCheckedListener(this);
         //volumeInfo_outl.setOnClickListener(this);
+        volumeLabel_outl.setOnClickListener(this);
         bassTrebleInfo_outl.setOnClickListener(this);
+        bassLabel_outl.setOnClickListener(this);
+        trebleLabel_outl.setOnClickListener(this);
         loudnessInfo_outl.setOnClickListener(this);
+        loudnessLabel_outl.setOnClickListener(this);
+        loudnessFreqLabel_outl.setOnClickListener(this);
         filtersInfo_outl.setOnClickListener(this);
         filtersActivity_outl.setOnClickListener(this);
         compressorInfo_outl.setOnClickListener(this);
@@ -205,39 +215,137 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
 
     public void onClick(View v) {
         Intent intent;
+        KeyboardNumber n;
+        BassTrebleChannel bassTreble;
+        HiFiToyPreset preset = hifiToyDevice.getActivePreset();
 
         switch (v.getId()) {
             case R.id.audio_source_info:
                 DialogSystem.getInstance().showDialog("Info", getString(R.string.audio_source_info), "Close");
                 break;
+
             /*case R.id.volume_control_info:
                 DialogSystem.getInstance().showDialog("Info", getString(R.string.volume_info), "Close");
                 break;*/
+
+            case R.id.volumeLabel_outl:
+                n = new KeyboardNumber(NumberType.FLOAT, preset.getVolume().getDb());
+                new KeyboardDialog(this, this, n, "volume").show();
+                break;
+
             case R.id.bass_treble_info:
                 DialogSystem.getInstance().showDialog("Info", getString(R.string.bass_treble_info), "Close");
                 break;
+
+            case R.id.bassLabel_outl:
+                bassTreble = preset.getBassTreble().getBassTreble127();
+                n = new KeyboardNumber(NumberType.INTEGER, bassTreble.getBassDb());
+                new KeyboardDialog(this, this, n, "bass").show();
+                break;
+
+            case R.id.trebleLabel_outl:
+                bassTreble = preset.getBassTreble().getBassTreble127();
+                n = new KeyboardNumber(NumberType.INTEGER, bassTreble.getTrebleDb());
+                new KeyboardDialog(this, this, n, "treble").show();
+                break;
+
             case R.id.loudness_info:
                 DialogSystem.getInstance().showDialog("Info", getString(R.string.loudness_info), "Close");
                 break;
+
+            case R.id.loudnessLabel_outl:
+                int perc = (int)(preset.getLoudness().getGain() * 100);
+                n = new KeyboardNumber(NumberType.POSITIVE_INTEGER, perc);
+                new KeyboardDialog(this, this, n, "loudness").show();
+                break;
+
+            case R.id.loudnessFreqLabel_outl:
+                n = new KeyboardNumber(NumberType.POSITIVE_INTEGER,
+                        preset.getLoudness().getBiquad().getParams().getFreq());
+                new KeyboardDialog(this, this, n, "loudnessFreq").show();
+                break;
+
             case R.id.filters_control_info:
                 DialogSystem.getInstance().showDialog("Info", getString(R.string.filters_info), "Close");
                 break;
+
             case R.id.filtersActivity_outl:
                 intent = new Intent(this, FiltersActivity.class);
                 startActivity(intent);
                 break;
+
             case R.id.compressor_control_info:
                 DialogSystem.getInstance().showDialog("Info", getString(R.string.compressor_info), "Close");
                 break;
+
             case R.id.compressorActivity_outl:
                 intent = new Intent(this, CompressorActivity.class);
                 startActivity(intent);
                 break;
+
             case R.id.optionsActivity_outl:
                 Intent intentActivity = new Intent(this, OptionsActivity.class);
                 startActivity(intentActivity);
                 break;
 
+        }
+    }
+
+    @Override
+    public void onKeyboardResult(String tag, KeyboardNumber result) {
+        HiFiToyPreset preset = hifiToyDevice.getActivePreset();
+
+        try {
+            if (tag.equals("volume")) {
+                float f = Float.parseFloat(result.getValue());
+                Volume v = preset.getVolume();
+
+                v.setDb(f);
+                v.sendToPeripheral(true);
+
+                setupOutlets();
+            }
+            if (tag.equals("bass")) {
+                int r = Integer.parseInt(result.getValue());
+                if (r > 127) r = 127; // TODO: fix bad solution
+                if (r < -128) r = -128;
+
+                preset.getBassTreble().getBassTreble127().setBassDb((byte)r);
+                preset.getBassTreble().sendToPeripheral(true);
+
+                setupOutlets();
+            }
+            if (tag.equals("treble")) {
+                int r = Integer.parseInt(result.getValue());
+                if (r > 127) r = 127; // TODO: fix bad solution
+                if (r < -128) r = -128;
+
+                preset.getBassTreble().getBassTreble127().setTrebleDb((byte)r);
+                preset.getBassTreble().sendToPeripheral(true);
+
+                setupOutlets();
+            }
+            if (tag.equals("loudness")) {
+                int r = Integer.parseInt(result.getValue());
+
+                preset.getLoudness().setGain((float)r / 100);
+                preset.getLoudness().sendToPeripheral(true);
+
+                setupOutlets();
+            }
+            if (tag.equals("loudnessFreq")) {
+                int r = Integer.parseInt(result.getValue());
+                if (r > 32767) r = 32767; // TODO: fix bad solution
+
+                Biquad b = preset.getLoudness().getBiquad();
+                b.getParams().setFreq((short)r);
+                b.sendToPeripheral(true);
+
+                setupOutlets();
+            }
+
+        } catch (NumberFormatException e) {
+            Log.d(TAG, e.toString());
         }
     }
 
