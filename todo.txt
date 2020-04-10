@@ -1,6 +1,6 @@
 psw: 111111
 
--(082919)app crashes if you try to adjust volume right before connection established
++(082919)app crashes if you try to adjust volume right before connection established
 
 (040920)
 +[fix bug] when adjust xover -> draw bug;

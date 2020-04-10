@@ -116,19 +116,17 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                     break;
                 case CONNECTING:
                     Log.d(TAG, "Connecting to GATT server");
-
                     break;
+
                 case RECONNECTING:
                     Log.d(TAG, "Re-connecting to GATT server");
                     startDiscovery(null);
                     break;
+
                 case CONNECTED:
                     Log.d(TAG, "Connected to GATT server.");
-
-                    // Attempts to discover services after successful connection.
-                    Log.d(TAG, "Attempting to start service discovery:" +
-                            mBluetoothGatt.discoverServices());
                     break;
+
                 case CONNECTION_READY:
                     String dialogMessage = DialogSystem.getInstance().getDialogMessage();
                     if ( (dialogMessage != null) && (dialogMessage.equals("Disconnected!")) ) {
@@ -296,7 +294,10 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
             }
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                state.setState(ConnectionState.CONNECTED);
+                // Attempts to discover services after successful connection.
+                Log.d(TAG, "Attempting to start service discovery:" +
+                        mBluetoothGatt.discoverServices());
+
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 disconnect();
 
@@ -345,6 +346,8 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
 
                 }
+
+                state.setState(ConnectionState.CONNECTED);
 
                 descriptorPackets = new ArrayDeque<BluetoothGattCharacteristic>();
                 descriptorPackets.add(FFF2_Char);
