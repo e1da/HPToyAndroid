@@ -6,6 +6,7 @@
  */
 package com.hifitoy.dialogsystem;
 
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 public class KeyboardNumber {
@@ -22,14 +23,17 @@ public class KeyboardNumber {
         this.value = Integer.toString(value);
     }
 
-    public KeyboardNumber(NumberType type, float value) {
-        this.type = type;
-        this.value = Float.toString(value);
-    }
-
     public KeyboardNumber(NumberType type, double value) {
         this.type = type;
-        this.value = Double.toString(value);
+
+        if (typeIsFloat()) {
+            this.value = String.format(Locale.getDefault(), "%.1f", value);
+        } else if (typeIsDouble()) {
+            this.value = String.format(Locale.getDefault(), "%.2f", value);
+        } else {
+            this.value = String.format(Locale.getDefault(), "%.6f", value);
+        }
+
     }
 
     public void putChar(char numChar) {
@@ -67,15 +71,29 @@ public class KeyboardNumber {
         return false;
     }
 
-    public boolean typeIsPositive() {
+    boolean typeIsPositive() {
         return (type == NumberType.POSITIVE_INTEGER) |
                 (type == NumberType.POSITIVE_FLOAT) |
                 (type == NumberType.POSITIVE_DOUBLE);
     }
 
-    public boolean typeIsInteger() {
+    boolean typeIsInteger() {
         return (type == NumberType.POSITIVE_INTEGER) |
                 (type == NumberType.INTEGER);
+    }
+
+    private boolean typeIsFloat() {
+        return (type == NumberType.POSITIVE_FLOAT) |
+                (type == NumberType.FLOAT);
+    }
+
+    private boolean typeIsDouble() {
+        return (type == NumberType.POSITIVE_DOUBLE) |
+                (type == NumberType.DOUBLE);
+    }
+
+    private boolean typeIsMaxReal() {
+        return (type == NumberType.MAX_REAL);
     }
 
     private boolean getPermissionForAddChar() {

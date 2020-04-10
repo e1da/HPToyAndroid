@@ -100,23 +100,23 @@ public class TextConfigFragment extends Fragment implements View.OnClickListener
 
         if (v == b0Widget) {
             tag = "b0";
-            n = new KeyboardNumber(NumberType.MAX_REAL, Float.toString(bp.getB0()));
+            n = new KeyboardNumber(NumberType.MAX_REAL, bp.getB0());
 
         } else if (v == b1Widget) {
             tag = "b1";
-            n = new KeyboardNumber(NumberType.MAX_REAL, Float.toString(bp.getB1()));
+            n = new KeyboardNumber(NumberType.MAX_REAL, bp.getB1());
 
         } else if (v == b2Widget) {
             tag = "b2";
-            n = new KeyboardNumber(NumberType.MAX_REAL, Float.toString(bp.getB2()));
+            n = new KeyboardNumber(NumberType.MAX_REAL, bp.getB2());
 
         } else if (v == a1Widget) {
             tag = "a1";
-            n = new KeyboardNumber(NumberType.MAX_REAL, Float.toString(bp.getA1()));
+            n = new KeyboardNumber(NumberType.MAX_REAL, bp.getA1());
 
         } else if (v == a2Widget) {
             tag = "a2";
-            n = new KeyboardNumber(NumberType.MAX_REAL, Float.toString(bp.getA2()));
+            n = new KeyboardNumber(NumberType.MAX_REAL, bp.getA2());
 
         } else {
             return;

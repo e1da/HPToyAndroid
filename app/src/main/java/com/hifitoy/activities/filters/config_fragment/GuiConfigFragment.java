@@ -103,15 +103,15 @@ public class GuiConfigFragment extends Fragment implements View.OnClickListener,
 
         if (v == freqWidget) {
             tag = "freq";
-            n = new KeyboardNumber(NumberType.POSITIVE_INTEGER, Integer.toString(bp.getFreq()));
+            n = new KeyboardNumber(NumberType.POSITIVE_INTEGER, bp.getFreq());
 
         } else if (v == qFacWidget) {
             tag = "q";
-            n = new KeyboardNumber(NumberType.POSITIVE_DOUBLE, Float.toString(bp.getQFac()));
+            n = new KeyboardNumber(NumberType.POSITIVE_DOUBLE, bp.getQFac());
 
         } else if (v == volumeWidget) {
             tag = "db";
-            n = new KeyboardNumber(NumberType.FLOAT, Float.toString(bp.getDbVolume()));
+            n = new KeyboardNumber(NumberType.FLOAT, bp.getDbVolume());
 
         } else {
             return;
