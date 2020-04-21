@@ -170,30 +170,29 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         return instance;
     }
 
-    public boolean init() {
+    public HiFiToyControl() {
         Context context = ApplicationContext.getInstance().getContext();
 
         if (!context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(context, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
-            return false;
         }
 
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
 
         mBluetoothAdapter = bluetoothManager.getAdapter();
-        if (mBluetoothAdapter == null) return false;
-
         bleFinder = new BleFinder(mBluetoothAdapter);
-        return true;
     }
 
+    public boolean isBleSupported() {
+        return mBluetoothAdapter != null;
+    }
 
     public boolean isBleEnabled() {
-        if ( (mBluetoothAdapter == null) || (!mBluetoothAdapter.isEnabled()) ) {
-            return false;
+        if ( (isBleSupported()) && (mBluetoothAdapter.isEnabled()) ) {
+            return true;
         }
-        return true;
+        return false;
     }
 
     public HiFiToyDevice getActiveDevice() {
@@ -231,9 +230,13 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         return ( (activeDevice != null) && (state.getState() == ConnectionState.CONNECTION_READY) );
     }
     public boolean connect(HiFiToyDevice device) {
-        if ( (!isBleEnabled()) || (device == null)) {
-            activeDevice = null;
-            return false;
+        Context context = ApplicationContext.getInstance().getContext();
+
+        //check if ble disabled or demo connect
+        if ( (!isBleEnabled()) || (device == null) || (device.getMac().equals("demo")) ) {
+            activeDevice = device;
+            Toast.makeText(context, R.string.demo_mode, Toast.LENGTH_SHORT).show();
+            return true;
         }
 
         if ( (activeDevice != null) &&
@@ -247,13 +250,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
             disconnect();
         }
 
-        Context context = ApplicationContext.getInstance().getContext();
-
         activeDevice = device;
-        if (activeDevice.getMac().equals("demo")) {
-            Toast.makeText(context, R.string.demo_mode, Toast.LENGTH_SHORT).show();
-            return true;
-        }
 
 
         //get device from macAddress

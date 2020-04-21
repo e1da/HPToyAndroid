@@ -121,7 +121,7 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
     }
 
     private void checkBleEnabled() {
-        if (HiFiToyControl.getInstance().init()) {
+        if (HiFiToyControl.getInstance().isBleSupported()) {
             if (!HiFiToyControl.getInstance().isBleEnabled()) {
                 //show ble enable request dialog
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -131,18 +131,14 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
                 HiFiToyControl.getInstance().startDiscovery(this);
 
             }
-        } else {
-            finish();
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) { // ble enabled dialog result
-            if (resultCode == Activity.RESULT_OK) {
+            if (HiFiToyControl.getInstance().isBleEnabled()) {
                 HiFiToyControl.getInstance().startDiscovery(this);
-            } else {
-                finish();
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
