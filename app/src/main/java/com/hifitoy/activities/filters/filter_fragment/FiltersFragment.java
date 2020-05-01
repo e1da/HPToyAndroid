@@ -61,6 +61,7 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
 
     public interface OnSetBackgroundListener {
         void onSetBackground();
+        void onFilterImport();
     }
 
     @Override
@@ -127,6 +128,13 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
                 FiltersBackground.getInstance().clearBitmap();
                 ViewUpdater.getInstance().update();
                 break;
+
+            case R.id.filter_import:
+                if (setBackgroundListener != null) {
+                    setBackgroundListener.onFilterImport();
+                }
+                break;
+
         }
         return super.onContextItemSelected(item);
     }

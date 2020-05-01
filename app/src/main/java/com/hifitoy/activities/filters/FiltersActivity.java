@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import com.hifitoy.ApplicationContext;
@@ -29,6 +30,7 @@ import com.hifitoy.activities.filters.config_fragment.BiquadConfigFragment;
 import com.hifitoy.activities.filters.filter_fragment.BackConfigFragment;
 import com.hifitoy.activities.filters.filter_fragment.FiltersBackground;
 import com.hifitoy.activities.filters.filter_fragment.FiltersFragment;
+import com.hifitoy.activities.filters.import_fragment.FilterImportFragment;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoyobjects.Biquad;
@@ -52,122 +54,112 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
     MenuItem enabledParam_outl;
     MenuItem typeScale_outl;
 
+    FrameLayout fl;
     LinearLayout ll;
 
     FiltersFragment         filtersFragment;
     BiquadConfigFragment    biquadConfigFragment;
     BackConfigFragment      backConfigFragment;
+    FilterImportFragment    filterImportFragment;
 
-    private DisplayState state;
+    private DisplayState state = new DisplayState();
 
     class DisplayState {
-        static final int FILTERS_DISPLAY_STATE             = 0;
-        static final int FILTERS_AND_CONFIG_DISPLAY_STATE  = 1;
-        static final int BACKGROUND_CONFIG_DISPLAY_STATE   = 2;
+        private boolean filterVisible           = true;
+        private boolean prevBiquadConfigVisible = false;
+        private boolean biquadConfigVisible     = false;
+        private boolean backConfigVisible       = false;
+        private boolean filterImportVisible     = false;
 
-        private int value;
-        private int prevValue;
-
-        public DisplayState() {
-            value = FILTERS_DISPLAY_STATE;
-            prevValue = FILTERS_DISPLAY_STATE;
-            prepareFragments();
+        //getters/setters
+        public boolean isBiquadConfigVisible() {
+            return biquadConfigVisible;
         }
-        public void setValue(int value) {
-            if ((value >= FILTERS_DISPLAY_STATE) &&
-                    (value <= BACKGROUND_CONFIG_DISPLAY_STATE) &&
-                    (value != this.value)) {
+        public void setBiquadConfigVisible(boolean visible) {
+            biquadConfigVisible = visible;
+            update();
+        }
+        public void toggleBiquadConfigVisible() {
+            setBiquadConfigVisible(!biquadConfigVisible);
+        }
 
-                prevValue = this.value;
-                this.value = value;
-                prepareFragments();
-                updateLayoutFragments();
+        public boolean isBackConfigVisible() {
+            return backConfigVisible;
+        }
+        public void setBackConfigVisible(boolean visible) {
+            backConfigVisible = visible;
+
+            if (backConfigVisible) {
+                filterVisible = false;
+                prevBiquadConfigVisible = biquadConfigVisible;
+                biquadConfigVisible = false;
+            } else {
+                filterVisible = true;
+                biquadConfigVisible = prevBiquadConfigVisible;
             }
+
+            update();
         }
 
-        public int getValue() {
-            return value;
+        public boolean isFilterImportVisible() {
+            return filterImportVisible;
+        }
+        public void setFilterImportVisible(boolean visible) {
+            filterImportVisible = visible;
+            update();
         }
 
-        void setPreviousValue() {
-            setValue(prevValue);
-        }
-
-        private void prepareFragments() {
+        //update: show or hide fragments and then set layout params
+        public void update() {
+            //show/hide fragments
             FragmentTransaction fTrans = getFragmentManager().beginTransaction();
 
-            if (value == FILTERS_DISPLAY_STATE) {
-
-                fTrans.remove(biquadConfigFragment);
-                fTrans.remove(backConfigFragment);
-                if (getFragmentManager().findFragmentByTag("filtersFragment") == null) {
-                    fTrans.add(ll.getId(), filtersFragment, "filtersFragment");
-                }
-                fTrans.commit();
-
-                if (prevValue == BACKGROUND_CONFIG_DISPLAY_STATE) {
-                    invalidateOptionsMenu();
-                }
-
-            } else if (value == FILTERS_AND_CONFIG_DISPLAY_STATE) {
-
-                fTrans.remove(backConfigFragment);
-                if (getFragmentManager().findFragmentByTag("filtersFragment") == null) {
-                    fTrans.add(ll.getId(), filtersFragment, "filtersFragment");
-                }
-                if (getFragmentManager().findFragmentByTag("biquadConfigFragment") == null) {
-                    fTrans.add(ll.getId(), biquadConfigFragment, "biquadConfigFragment");
-                }
-                fTrans.commit();
-
-                if (prevValue == BACKGROUND_CONFIG_DISPLAY_STATE) {
-                    invalidateOptionsMenu();
-                }
-
-            } else if (value == BACKGROUND_CONFIG_DISPLAY_STATE) {
-
-                fTrans.remove(biquadConfigFragment);
-                fTrans.remove(filtersFragment);
-                if (getFragmentManager().findFragmentByTag("backConfigFragment") == null) {
-                    fTrans.add(ll.getId(), backConfigFragment, "backConfigFragment");
-                }
-                fTrans.commit();
-
-                if (prevValue != BACKGROUND_CONFIG_DISPLAY_STATE) {
-                    invalidateOptionsMenu();
-                }
-
-            }
-        }
-
-        private void updateLayoutFragments() {
-            ViewGroup.LayoutParams lp0, lp1;
-
-            if (value == FILTERS_DISPLAY_STATE) {
-                lp0 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                            ViewGroup.LayoutParams.MATCH_PARENT, 1.0f);
-                filtersFragment.setLayoutParams(lp0);
-
-            } else if (value == FILTERS_AND_CONFIG_DISPLAY_STATE) {
-                lp0 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT, 0.5f);
-
-                lp1 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT, 1.0f);
-
-                filtersFragment.setLayoutParams(lp0);
-                biquadConfigFragment.setLayoutParams(lp1);
-
-            } else if (value == BACKGROUND_CONFIG_DISPLAY_STATE) {
-
-                lp0 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT, 1.0f);
-                backConfigFragment.setLayoutParams(lp0);
+            if (filterVisible) {
+                fTrans.show(filtersFragment);
+            } else {
+                fTrans.hide(filtersFragment);
             }
 
+            if (biquadConfigVisible) {
+                fTrans.show(biquadConfigFragment);
+            } else {
+                fTrans.hide(biquadConfigFragment);
+            }
+
+            if (backConfigVisible) {
+                fTrans.show(backConfigFragment);
+            } else {
+                fTrans.hide(backConfigFragment);
+            }
+
+            if (filterImportVisible) {
+                fTrans.show(filterImportFragment);
+            } else {
+                fTrans.hide(filterImportFragment);
+            }
+
+            fTrans.commit();
+
+            //set layout params or fragments
+            ViewGroup.LayoutParams lp0, lp1, lp2;
+
+            lp0 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT, 0.5f);
+
+            lp1 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT, 1.0f);
+
+            lp2 = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT);
+
+            filtersFragment.getView().setLayoutParams(lp0);
+            biquadConfigFragment.getView().setLayoutParams(lp1);
+            backConfigFragment.getView().setLayoutParams(lp2);
+            filterImportFragment.getView().setLayoutParams(lp2);
+
+            invalidateOptionsMenu();
             ViewUpdater.getInstance().update();
         }
-
     }
 
     @Override
@@ -178,18 +170,29 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        fl = new FrameLayout(this);
+        fl.setId(3456);
+
         ll = new LinearLayout(this);
         ll.setOrientation(LinearLayout.HORIZONTAL);
         ll.setId(1234);
 
-        filtersFragment         = new FiltersFragment();
+        fl.addView(ll);
+
+        filtersFragment = new FiltersFragment();
+        filtersFragment.setBackgroundListener(this);
+
         biquadConfigFragment    = new BiquadConfigFragment();
         backConfigFragment      = new BackConfigFragment();
+        filterImportFragment = new FilterImportFragment();
 
-        filtersFragment.setBackgroundListener(this);
-        state = new DisplayState();
+        FragmentTransaction fTrans = getFragmentManager().beginTransaction();
+        fTrans.add(ll.getId(), filtersFragment,         "filtersFragment");
+        fTrans.add(ll.getId(), biquadConfigFragment,    "biquadConfigFragment");
+        fTrans.add(fl.getId(), backConfigFragment,      "backConfigFragment");
+        fTrans.add(fl.getId(), filterImportFragment,    "filterImportFragment").commit();
 
-        setContentView(ll);
+        setContentView(fl);
     }
 
     @Override
@@ -207,16 +210,20 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
 
         filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
 
+        state.update();
         ViewUpdater.getInstance().addUpdateView(this);
         ViewUpdater.getInstance().update();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (state.getValue() == DisplayState.BACKGROUND_CONFIG_DISPLAY_STATE) {
+        if (state.isBackConfigVisible()) {
             getMenuInflater().inflate(R.menu.background_menu, menu);
             typeScale_outl = menu.findItem(R.id.type_scale);
             typeScale_outl.setTitle(FiltersBackground.getInstance().getScaleTypeString());
+
+        } else if (state.isFilterImportVisible()) {
+            getMenuInflater().inflate(R.menu.filter_import_menu, menu);
 
         } else {
             getMenuInflater().inflate(R.menu.filters_menu, menu);
@@ -248,13 +255,7 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
                 break;
 
             case R.id.show_coef:
-                if (state.getValue() == DisplayState.FILTERS_AND_CONFIG_DISPLAY_STATE) {
-                    state.setValue(DisplayState.FILTERS_DISPLAY_STATE);
-
-                } else if (state.getValue() == DisplayState.FILTERS_DISPLAY_STATE) {
-                    state.setValue(DisplayState.FILTERS_AND_CONFIG_DISPLAY_STATE);
-
-                }
+                state.toggleBiquadConfigVisible();
                 break;
 
             case R.id.mirror_bitmap:
@@ -268,7 +269,14 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
                 break;
 
             case R.id.done_bitmap:
-                state.setPreviousValue();
+                state.setBackConfigVisible(false);
+                break;
+
+            case R.id.accept_import_filter:
+                break;
+
+            case R.id.cancel_import_filter:
+                state.setFilterImportVisible(false);
                 break;
 
             default:
@@ -280,7 +288,7 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
     @Override
     public void updateView() {
         setTitleInfo();
-        ll.invalidate();
+        fl.invalidate();
     }
 
     @Override
@@ -289,6 +297,11 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
         intent.setType("image/*");
         intent.setAction(android.content.Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), 1);
+    }
+
+    @Override
+    public void onFilterImport() {
+        state.setFilterImportVisible(true);
     }
 
     @Override
@@ -305,7 +318,7 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
                     FiltersBackground.getInstance().setBitmap(bitmap);
 
-                    state.setValue(DisplayState.BACKGROUND_CONFIG_DISPLAY_STATE);
+                    state.setBackConfigVisible(true);
                     ViewUpdater.getInstance().update();
 
                 } catch (FileNotFoundException e) {
@@ -324,8 +337,12 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
     }
 
     public void setTitleInfo() {
-        if (state.getValue() == DisplayState.BACKGROUND_CONFIG_DISPLAY_STATE) {
+        if (state.isBackConfigVisible()) {
             setTitle("Filters menu");
+            return;
+
+        } else if (state.isFilterImportVisible()) {
+            setTitle("Import PEQs from preset list");
             return;
         }
 

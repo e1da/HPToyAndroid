@@ -10,6 +10,10 @@
             android:id="@+id/clear_background"
             android:title="Clear"
             android:showAsAction="ifRoom|withText"/>
+        <item
+            android:id="@+id/filter_import"
+            android:title="Import"
+            android:showAsAction="ifRoom|withText"/>
     </group>
 
 
