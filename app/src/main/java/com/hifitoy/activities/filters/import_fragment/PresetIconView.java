@@ -38,6 +38,7 @@ public class PresetIconView extends FrameLayout {
             filterView.filters = preset.getFilters();
             filterView.controlLineVisible = false;
             filterView.unitVisible = false;
+            filterView.allFilterActive = true;
 
             filterName = new TextView(context);
             filterName.setText(preset.getName());

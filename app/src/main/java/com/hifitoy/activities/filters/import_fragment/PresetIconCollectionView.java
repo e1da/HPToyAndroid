@@ -30,13 +30,14 @@ public class PresetIconCollectionView extends FrameLayout {
         String presetName = HiFiToyControl.getInstance().getActiveDevice().getActiveKeyPreset();
         activeIndex = presetManager.getPresetIndex(presetName);
 
-        setBackgroundColor(0xD0000000);
+        setBackgroundColor(0xF0000000);
 
         presetViews = new PresetIconView[presetManager.size()];
         for (int i = 0; i < presetManager.size(); i++) {
 
             HiFiToyPreset p = presetManager.getPreset(i);
             presetViews[i] = new PresetIconView(context, p);
+
 
             addView(presetViews[i]);
         }
@@ -53,7 +54,6 @@ public class PresetIconCollectionView extends FrameLayout {
 
     public void setTranslateX(int translateX) {
         this.translateX = translateX;
-        Log.d(TAG, "Trans=" + translateX);
     }
     public int getTranslateX() {
         return translateX;
@@ -78,9 +78,14 @@ public class PresetIconCollectionView extends FrameLayout {
             //if (center[i].x + wL / 2 < 0) continue;
             //if (center[i].x - wL / 2 > width) continue;
 
+            //set layout
             presetViews[i].setScale((float)viewWidth[i] / wL);
             presetViews[i].layout(viewCenter[i].x - wL / 2, viewCenter[i].y - height / 2,
                     viewCenter[i].x + wL / 2, viewCenter[i].y + height / 2);
+
+            //set alpha
+            float alpha = getIconAlpha(getWidth(), viewCenter[i].x);
+            presetViews[i].setAlpha(alpha);
         }
 
     }
@@ -141,5 +146,26 @@ public class PresetIconCollectionView extends FrameLayout {
 
         return (x > x1) ? (int)(k1 * x + b1) : (int)(k0 * x + b0);
 
+    }
+
+    private float getIconAlpha(int width, int x) {
+        // x = [0, width]
+        // when x0 = 0 -> alpha0 = 0
+        // when x1 = width / 2 -> alpha = 1
+        // when x2 = width -> alpha2 = alpha0
+        float k0 = 1.0f / (width / 3 - 0);
+        float b0 = 0.0f;
+
+        //k1 * x1 + b1 = 1
+        //k1 * x2 + b1 = 0
+        //b1 = 1 - k1 * x1
+        //k1 * x2 + 1 - k1 * x1 = 0
+        //k1 = -1 / (x2 - x1)
+        float k1 = -1.0f / (width - 2 * width / 3);
+        float b1 = 1.0f - k1 * 2 * width / 3;
+
+        if (x < width / 3) return k0 * x + b0;
+        if (x > 2 * width / 3) return k1 * x + b1;
+        return 1.0f;
     }
 }

@@ -55,9 +55,10 @@ public class FilterView extends View {
     public int minFreq = 20;
 
     public boolean drawFilterEnabled = true;
-    public boolean visibleRelativeCenter = false;
+    public boolean relativeCenterVisible = false;
     public boolean unitVisible = true;
     public boolean controlLineVisible = true;
+    public boolean allFilterActive = false;
 
 
     public FilterView(Context context) {
@@ -350,7 +351,9 @@ public class FilterView extends View {
         if (p != null) canvas.drawPath(p, paint);
 
         //draw normal stroke
-        paint.setARGB((int)(1.0f * 255), (int)(0.66f * 255), (int)(0.66f * 255), (int)(0.66f * 255));
+        if (!allFilterActive) {
+            paint.setARGB((int) (1.0f * 255), (int) (0.66f * 255), (int) (0.66f * 255), (int) (0.66f * 255));
+        }
         p = getPathFromList(points);
         if (p != null) canvas.drawPath(p, paint);
 
@@ -450,8 +453,6 @@ public class FilterView extends View {
     }
 
     private void drawRelativeCenter(Canvas c) {
-        if (!visibleRelativeCenter) return;
-
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
         paint.setColor(0xFFFF8000); // orange
@@ -481,10 +482,9 @@ public class FilterView extends View {
                 new Point(freqToPixel(1000) - freqToPixel(20), (int)(dbToPixel(0.0f) - dbToPixel(15))) );
 
         drawGrid(canvas);
-        if (unitVisible) drawGridUnit(canvas);
 
-        if (drawFilterEnabled) drawFilter(canvas);
-
-        drawRelativeCenter(canvas);
+        if (unitVisible)            drawGridUnit(canvas);
+        if (drawFilterEnabled)      drawFilter(canvas);
+        if (relativeCenterVisible)  drawRelativeCenter(canvas);
     }
 }

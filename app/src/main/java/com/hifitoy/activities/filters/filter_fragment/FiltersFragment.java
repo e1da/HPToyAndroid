@@ -72,7 +72,7 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
 
         filterView = new FilterView(getActivity());
         filterView.filters = filters;
-        filterView.visibleRelativeCenter = false;
+        filterView.relativeCenterVisible = false;
         filterView.setOnTouchListener(this);
         registerForContextMenu(filterView);
 
