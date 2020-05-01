@@ -106,6 +106,9 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
         }
         public void setFilterImportVisible(boolean visible) {
             filterImportVisible = visible;
+
+            filtersFragment.setEnabled(!visible);
+
             update();
         }
 

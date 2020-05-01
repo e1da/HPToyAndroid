@@ -200,6 +200,15 @@ public class HiFiToyPresetManager {
         return false;
     }
 
+    public int getPresetIndex(String name) {
+        for (int i = 0; i < size(); i++) {
+            if (presetList.get(i).getName().equals(name)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public HiFiToyPreset getPreset(String name){
         for (HiFiToyPreset p : presetList) {
             if (p.getName().equals(name)) {

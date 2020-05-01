@@ -139,6 +139,10 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
         return super.onContextItemSelected(item);
     }
 
+    public void setEnabled(boolean enabled) {
+        filterView.setEnabled(enabled);
+    }
+
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         Point currentTap = new Point(0, 0);
