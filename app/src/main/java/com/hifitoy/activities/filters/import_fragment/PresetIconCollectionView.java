@@ -8,6 +8,7 @@ import android.widget.FrameLayout;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
+import com.hifitoy.hifitoyobjects.Filters;
 
 public class PresetIconCollectionView extends FrameLayout {
     private final String TAG = "HiFiToy";
@@ -33,8 +34,10 @@ public class PresetIconCollectionView extends FrameLayout {
 
         presetViews = new PresetIconView[presetManager.size()];
         for (int i = 0; i < presetManager.size(); i++) {
-            int color = 0xFF000000 | (int)(Math.random() * 0xFFFFFF);
-            presetViews[i] = new PresetIconView(context, color);
+
+            HiFiToyPreset p = presetManager.getPreset(i);
+            presetViews[i] = new PresetIconView(context, p);
+
             addView(presetViews[i]);
         }
 

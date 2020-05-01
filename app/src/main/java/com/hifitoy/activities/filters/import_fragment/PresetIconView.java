@@ -7,31 +7,45 @@
 package com.hifitoy.activities.filters.import_fragment;
 
 import android.content.Context;
-import android.util.Log;
-import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
+
+import com.hifitoy.activities.filters.filter_fragment.FilterView;
+import com.hifitoy.hifitoydevice.HiFiToyPreset;
+import com.hifitoy.hifitoyobjects.Filters;
 
 public class PresetIconView extends FrameLayout {
 
     private final String TAG = "HiFiToy";
 
-    private View v;
+    private FilterView filterView;
+    private TextView filterName;
     private float scale = 1.0f;
 
     public PresetIconView(Context context) {
         super(context);
-        init(context, 0xFF000000);
+        init(context, null);
     }
 
-    public PresetIconView(Context context, int color) {
+    public PresetIconView(Context context, HiFiToyPreset preset) {
         super(context);
-        init(context, color);
+        init(context, preset);
     }
 
-    private void init(Context context, int color) {
-        v = new View(context);
-        v.setBackgroundColor(color);
-        addView(v);
+    private void init(Context context, HiFiToyPreset preset) {
+        if (preset != null) {
+            filterView = new FilterView(context);
+            filterView.filters = preset.getFilters();
+            filterView.controlLineVisible = false;
+            filterView.unitVisible = false;
+
+            filterName = new TextView(context);
+            filterName.setText(preset.getName());
+
+            addView(filterView);
+            addView(filterName);
+
+        }
     }
 
     @Override
@@ -41,8 +55,15 @@ public class PresetIconView extends FrameLayout {
         int w = (int)(getWidth() * scale);
         int h = w / 2;
 
-        v.layout(centerX - w / 2, centerY - h / 2,
+        filterView.layout(centerX - w / 2, centerY - h / 2,
                 centerX + w / 2, centerY + h / 2);
+
+        int borderLeft = filterView.getBorderLeft();
+        int borderRight = filterView.getBorderRight();
+        filterName.layout(centerX - w / 2 + borderLeft,
+                            centerY + h / 2,
+                            centerX + w / 2 - borderRight,
+                            centerY + h / 2 + h / 4);
 
     }
 

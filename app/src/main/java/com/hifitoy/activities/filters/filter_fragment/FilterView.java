@@ -14,7 +14,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.graphics.Point;
-import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.util.Size;
@@ -42,10 +41,10 @@ public class FilterView extends View {
     private final int MAX_VIEW_DB = 15;
     private final int DELTA_X = 8;
 
-    private int border_left;
-    private int border_right;
-    private int border_top;
-    private int border_bottom;
+    private int border_left     = 50;
+    private int border_right    = 20;
+    private int border_top      = 40;
+    private int border_bottom   = 40;
 
     private double a_coef;
     private double b_coef;
@@ -57,6 +56,8 @@ public class FilterView extends View {
 
     public boolean drawFilterEnabled = true;
     public boolean visibleRelativeCenter = false;
+    public boolean unitVisible = true;
+    public boolean controlLineVisible = true;
 
 
     public FilterView(Context context) {
@@ -123,13 +124,14 @@ public class FilterView extends View {
         return extremumPixel;
     }
 
+    public int getBorderLeft() {
+        return border_left;
+    }
+    public int getBorderRight() {
+        return border_right;
+    }
 
     private void refreshCoef(Canvas canvas){
-
-        border_left = 50;
-        border_right = 20;
-        border_top = 40/*init_height + 10*/;
-        border_bottom = 40;
 
         /*	a_coef*log10(MAX_FREQ)+b_coef = width - border_right
          a_coef*log10(MIN_FREQ)+b_coef = border_left
@@ -352,9 +354,11 @@ public class FilterView extends View {
         p = getPathFromList(points);
         if (p != null) canvas.drawPath(p, paint);
 
-        drawFreqLineForParametric(canvas);
-        drawFreqLineForAllpass(canvas);
-        drawPassFilterTap(canvas);
+        if (controlLineVisible) {
+            drawFreqLineForParametric(canvas);
+            drawFreqLineForAllpass(canvas);
+            drawPassFilterTap(canvas);
+        }
     }
 
     private void drawFreqLineForParametric(Canvas c) {
@@ -477,7 +481,7 @@ public class FilterView extends View {
                 new Point(freqToPixel(1000) - freqToPixel(20), (int)(dbToPixel(0.0f) - dbToPixel(15))) );
 
         drawGrid(canvas);
-        drawGridUnit(canvas);
+        if (unitVisible) drawGridUnit(canvas);
 
         if (drawFilterEnabled) drawFilter(canvas);
 
