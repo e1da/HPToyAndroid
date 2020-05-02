@@ -108,6 +108,8 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
         public void setFilterImportVisible(boolean visible) {
             filterImportVisible = visible;
 
+            getActionBar().setDisplayHomeAsUpEnabled(!visible);
+            getActionBar().setHomeButtonEnabled(!visible);
             filtersFragment.setEnabled(!visible);
 
             update();
@@ -200,6 +202,13 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
     }
 
     @Override
+    public void onBackPressed() {
+        if (!state.isFilterImportVisible()) {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(broadcastReceiver);
@@ -277,12 +286,14 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
                 break;
 
             case R.id.accept_import_filter:
-                acceptImportFilter();
+                updateFilter();
                 state.setFilterImportVisible(false);
                 break;
 
             case R.id.cancel_import_filter:
                 filterImportFragment.cancelUpdateFilters();
+
+                updateFilter();
                 state.setFilterImportVisible(false);
                 break;
 
@@ -292,7 +303,7 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
         return super.onOptionsItemSelected(item);
     }
 
-    private void acceptImportFilter() {
+    private void updateFilter() {
         filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
         filtersFragment.setFilters(filters);
     }

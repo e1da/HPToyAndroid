@@ -48,19 +48,21 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
 
-        HiFiToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
-        int i = HiFiToyPresetManager.getInstance().getPresetIndex(preset.getName());
-        presetCollectionView.setActiveIndex(i);
-        presetCollectionView.requestLayout();
+        if (!hidden) {
+            HiFiToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
+            int i = HiFiToyPresetManager.getInstance().getPresetIndex(preset.getName());
+            presetCollectionView.setActiveIndex(i);
+            presetCollectionView.requestLayout();
 
-        try {
-            tempFilters = preset.getFilters().clone();
+            try {
+                tempFilters = preset.getFilters().clone();
 
-        } catch (CloneNotSupportedException e) {
-            Log.d(TAG, e.toString());
+            } catch (CloneNotSupportedException e) {
+                Log.d(TAG, e.toString());
+            }
         }
     }
 
