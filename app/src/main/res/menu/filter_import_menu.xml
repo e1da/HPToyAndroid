@@ -8,7 +8,7 @@
         android:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/accept_import_filter"
-        android:title="Set"
+        android:title="Accept"
         android:orderInCategory="100"
         android:showAsAction="ifRoom|withText" />
 </menu>

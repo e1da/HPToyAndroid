@@ -2,13 +2,11 @@ package com.hifitoy.activities.filters.import_fragment;
 
 import android.content.Context;
 import android.graphics.Point;
-import android.util.Log;
 import android.widget.FrameLayout;
 
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
-import com.hifitoy.hifitoyobjects.Filters;
 
 public class PresetIconCollectionView extends FrameLayout {
     private final String TAG = "HiFiToy";
@@ -101,6 +99,10 @@ public class PresetIconCollectionView extends FrameLayout {
             }
         }
         return index;
+    }
+
+    public int getBiggerViewCenterX() {
+        return viewCenter[getBiggerViewIndex()].x;
     }
 
     private void updateViewCenter() {

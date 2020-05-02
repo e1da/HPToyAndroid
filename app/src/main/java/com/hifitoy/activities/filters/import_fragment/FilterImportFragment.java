@@ -6,6 +6,7 @@
  */
 package com.hifitoy.activities.filters.import_fragment;
 
+import android.animation.ValueAnimator;
 import android.app.Fragment;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -45,15 +46,25 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
         if (event.getAction() == MotionEvent.ACTION_UP){
             v.performClick();
 
-            //update active preset
+            //find index and translate to center of new preset
             int index = presetCollectionView.getBiggerViewIndex();
-            presetCollectionView.setActiveIndex(index);
-            //presetStorage.setActiveIndex(index);
+            int trans = presetCollectionView.getBiggerViewCenterX() - presetCollectionView.getWidth() / 2;
 
-            //redraw preset collection view
-            presetCollectionView.setTranslateX(0);
-            presetCollectionView.requestLayout();
+            //update active preset
+            presetCollectionView.setActiveIndex(index);
+
+            //smooth animation
+            ValueAnimator animator = ValueAnimator.ofInt(trans, 0);
+            animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    presetCollectionView.setTranslateX((int)animation.getAnimatedValue());
+                    presetCollectionView.requestLayout();
+                }
+            });
+            animator.start();
         }
+        
         if (event.getAction() == MotionEvent.ACTION_DOWN){
 
             currentTap.x = (int)event.getX();
