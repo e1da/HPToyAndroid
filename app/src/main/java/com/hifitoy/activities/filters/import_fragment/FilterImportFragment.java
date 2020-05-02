@@ -10,18 +10,27 @@ import android.animation.ValueAnimator;
 import android.app.Fragment;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoydevice.HiFiToyPreset;
+import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
+import com.hifitoy.hifitoyobjects.Filters;
+
 public class FilterImportFragment extends Fragment implements View.OnTouchListener {
+    private final String TAG = "HiFiToy";
 
     PresetIconCollectionView presetCollectionView;
 
     private long prevTime = 0;
     private Point firstTap = new Point(0, 0);
     private Point prevTranslation;
+
+    private Filters tempFilters;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,6 +48,23 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        HiFiToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
+        int i = HiFiToyPresetManager.getInstance().getPresetIndex(preset.getName());
+        presetCollectionView.setActiveIndex(i);
+        presetCollectionView.requestLayout();
+
+        try {
+            tempFilters = preset.getFilters().clone();
+
+        } catch (CloneNotSupportedException e) {
+            Log.d(TAG, e.toString());
+        }
+    }
+
+    @Override
     public boolean onTouch(View v, MotionEvent event) {
         Point currentTap = new Point(0, 0);
 
@@ -52,6 +78,8 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
 
             //update active preset
             presetCollectionView.setActiveIndex(index);
+            Filters f = HiFiToyPresetManager.getInstance().getPreset(index).getFilters();
+            updateFilters(f);
 
             //smooth animation
             ValueAnimator animator = ValueAnimator.ofInt(trans, 0);
@@ -59,12 +87,11 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
                     presetCollectionView.setTranslateX((int)animation.getAnimatedValue());
-                    presetCollectionView.requestLayout();
                 }
             });
             animator.start();
         }
-        
+
         if (event.getAction() == MotionEvent.ACTION_DOWN){
 
             currentTap.x = (int)event.getX();
@@ -84,11 +111,20 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
                 Point translation = new Point(currentTap.x - firstTap.x,currentTap.y - firstTap.y);
 
                 presetCollectionView.setTranslateX(translation.x);
-                presetCollectionView.requestLayout();
 
             }
         }
         return true;
+    }
+
+    private void updateFilters(Filters f) {
+        HiFiToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
+        preset.setFilters(f);
+        f.sendToPeripheral(true);
+    }
+
+    public void cancelUpdateFilters() {
+        updateFilters(tempFilters);
     }
 
 }

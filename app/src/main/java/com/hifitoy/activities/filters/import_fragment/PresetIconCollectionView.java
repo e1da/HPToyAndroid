@@ -1,3 +1,9 @@
+/*
+ *   PresetIconCollectionView.java
+ *
+ *   Created by Artem Khlyupin on 05/01/2020.
+ *   Copyright © 2020 Artem Khlyupin. All rights reserved.
+ */
 package com.hifitoy.activities.filters.import_fragment;
 
 import android.content.Context;
@@ -52,6 +58,7 @@ public class PresetIconCollectionView extends FrameLayout {
 
     public void setTranslateX(int translateX) {
         this.translateX = translateX;
+        requestLayout();
     }
     public int getTranslateX() {
         return translateX;

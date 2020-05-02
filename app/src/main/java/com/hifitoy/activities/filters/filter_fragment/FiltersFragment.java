@@ -70,9 +70,7 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
 
         filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
 
-        filterView = new FilterView(getActivity());
-        filterView.filters = filters;
-        filterView.relativeCenterVisible = false;
+        filterView = new FilterView(getActivity(), filters);
         filterView.setOnTouchListener(this);
         registerForContextMenu(filterView);
 
@@ -141,6 +139,11 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
 
     public void setEnabled(boolean enabled) {
         filterView.setEnabled(enabled);
+    }
+
+    public void setFilters(Filters f) {
+        filters = f;
+        filterView.setFilters(f);
     }
 
     @Override

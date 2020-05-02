@@ -33,6 +33,7 @@ import com.hifitoy.activities.filters.filter_fragment.FiltersFragment;
 import com.hifitoy.activities.filters.import_fragment.FilterImportFragment;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoyobjects.Biquad;
 import com.hifitoy.hifitoyobjects.Filters;
 import com.hifitoy.hifitoyobjects.PassFilter;
@@ -49,7 +50,7 @@ import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETR
 public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpdateView, FiltersFragment.OnSetBackgroundListener {
     private static String TAG = "HiFiToy";
 
-    private Filters filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
+    private Filters filters;
 
     MenuItem enabledParam_outl;
     MenuItem typeScale_outl;
@@ -276,9 +277,12 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
                 break;
 
             case R.id.accept_import_filter:
+                acceptImportFilter();
+                state.setFilterImportVisible(false);
                 break;
 
             case R.id.cancel_import_filter:
+                filterImportFragment.cancelUpdateFilters();
                 state.setFilterImportVisible(false);
                 break;
 
@@ -286,6 +290,11 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
                 return super.onOptionsItemSelected(item);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void acceptImportFilter() {
+        filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
+        filtersFragment.setFilters(filters);
     }
 
     @Override

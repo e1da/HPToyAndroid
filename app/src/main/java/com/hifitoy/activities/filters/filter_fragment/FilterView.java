@@ -34,7 +34,7 @@ import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETR
 public class FilterView extends View {
     private static String TAG = "HiFiToy";
 
-    public Filters filters;
+    private Filters filters;
     private int[] drawFreqUnitArray = new int[]{20, 100, 1000, 10000};
 
     private final int MIN_VIEW_DB = -30;
@@ -63,6 +63,15 @@ public class FilterView extends View {
 
     public FilterView(Context context) {
         super(context);
+        filters = null;
+    }
+    public FilterView(Context context, Filters filters) {
+        super(context);
+        this.filters = filters;
+    }
+
+    public void setFilters(Filters f) {
+        this.filters = f;
     }
 
     public Size getSize() {

@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import com.hifitoy.activities.filters.filter_fragment.FilterView;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
-import com.hifitoy.hifitoyobjects.Filters;
 
 public class PresetIconView extends FrameLayout {
 
@@ -34,8 +33,7 @@ public class PresetIconView extends FrameLayout {
 
     private void init(Context context, HiFiToyPreset preset) {
         if (preset != null) {
-            filterView = new FilterView(context);
-            filterView.filters = preset.getFilters();
+            filterView = new FilterView(context, preset.getFilters());
             filterView.controlLineVisible = false;
             filterView.unitVisible = false;
             filterView.allFilterActive = true;
