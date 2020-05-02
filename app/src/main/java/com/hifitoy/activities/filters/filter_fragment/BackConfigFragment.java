@@ -38,9 +38,8 @@ public class BackConfigFragment extends Fragment implements View.OnTouchListener
         super.onCreate(savedInstanceState);
 
         filterView = new FilterView(getActivity());
-        filterView.filters = null;
         filterView.drawFilterEnabled = false;
-        filterView.visibleRelativeCenter = true;
+        filterView.relativeCenterVisible = true;
 
         filterView.setOnTouchListener(this);
         registerForContextMenu(filterView);

@@ -14,7 +14,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.graphics.Point;
-import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.util.Size;
@@ -35,17 +34,17 @@ import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETR
 public class FilterView extends View {
     private static String TAG = "HiFiToy";
 
-    public Filters filters;
+    private Filters filters;
     private int[] drawFreqUnitArray = new int[]{20, 100, 1000, 10000};
 
     private final int MIN_VIEW_DB = -30;
     private final int MAX_VIEW_DB = 15;
     private final int DELTA_X = 8;
 
-    private int border_left;
-    private int border_right;
-    private int border_top;
-    private int border_bottom;
+    private int border_left     = 50;
+    private int border_right    = 20;
+    private int border_top      = 40;
+    private int border_bottom   = 40;
 
     private double a_coef;
     private double b_coef;
@@ -56,11 +55,23 @@ public class FilterView extends View {
     public int minFreq = 20;
 
     public boolean drawFilterEnabled = true;
-    public boolean visibleRelativeCenter = false;
+    public boolean relativeCenterVisible = false;
+    public boolean unitVisible = true;
+    public boolean controlLineVisible = true;
+    public boolean allFilterActive = false;
 
 
     public FilterView(Context context) {
         super(context);
+        filters = null;
+    }
+    public FilterView(Context context, Filters filters) {
+        super(context);
+        this.filters = filters;
+    }
+
+    public void setFilters(Filters f) {
+        this.filters = f;
     }
 
     public Size getSize() {
@@ -123,13 +134,14 @@ public class FilterView extends View {
         return extremumPixel;
     }
 
+    public int getBorderLeft() {
+        return border_left;
+    }
+    public int getBorderRight() {
+        return border_right;
+    }
 
     private void refreshCoef(Canvas canvas){
-
-        border_left = 50;
-        border_right = 20;
-        border_top = 40/*init_height + 10*/;
-        border_bottom = 40;
 
         /*	a_coef*log10(MAX_FREQ)+b_coef = width - border_right
          a_coef*log10(MIN_FREQ)+b_coef = border_left
@@ -348,13 +360,17 @@ public class FilterView extends View {
         if (p != null) canvas.drawPath(p, paint);
 
         //draw normal stroke
-        paint.setARGB((int)(1.0f * 255), (int)(0.66f * 255), (int)(0.66f * 255), (int)(0.66f * 255));
+        if (!allFilterActive) {
+            paint.setARGB((int) (1.0f * 255), (int) (0.66f * 255), (int) (0.66f * 255), (int) (0.66f * 255));
+        }
         p = getPathFromList(points);
         if (p != null) canvas.drawPath(p, paint);
 
-        drawFreqLineForParametric(canvas);
-        drawFreqLineForAllpass(canvas);
-        drawPassFilterTap(canvas);
+        if (controlLineVisible) {
+            drawFreqLineForParametric(canvas);
+            drawFreqLineForAllpass(canvas);
+            drawPassFilterTap(canvas);
+        }
     }
 
     private void drawFreqLineForParametric(Canvas c) {
@@ -446,8 +462,6 @@ public class FilterView extends View {
     }
 
     private void drawRelativeCenter(Canvas c) {
-        if (!visibleRelativeCenter) return;
-
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
         paint.setColor(0xFFFF8000); // orange
@@ -477,10 +491,9 @@ public class FilterView extends View {
                 new Point(freqToPixel(1000) - freqToPixel(20), (int)(dbToPixel(0.0f) - dbToPixel(15))) );
 
         drawGrid(canvas);
-        drawGridUnit(canvas);
 
-        if (drawFilterEnabled) drawFilter(canvas);
-
-        drawRelativeCenter(canvas);
+        if (unitVisible)            drawGridUnit(canvas);
+        if (drawFilterEnabled)      drawFilter(canvas);
+        if (relativeCenterVisible)  drawRelativeCenter(canvas);
     }
 }

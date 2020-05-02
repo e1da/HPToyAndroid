@@ -174,6 +174,10 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     public Filters getFilters() {
         return filters;
     }
+    public void setFilters(Filters f) {
+        filters = f;
+    }
+
     public Volume getVolume() {
         return masterVolume;
     }

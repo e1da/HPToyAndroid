@@ -61,6 +61,7 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
 
     public interface OnSetBackgroundListener {
         void onSetBackground();
+        void onFilterImport();
     }
 
     @Override
@@ -69,9 +70,7 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
 
         filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
 
-        filterView = new FilterView(getActivity());
-        filterView.filters = filters;
-        filterView.visibleRelativeCenter = false;
+        filterView = new FilterView(getActivity(), filters);
         filterView.setOnTouchListener(this);
         registerForContextMenu(filterView);
 
@@ -127,8 +126,24 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
                 FiltersBackground.getInstance().clearBitmap();
                 ViewUpdater.getInstance().update();
                 break;
+
+            case R.id.filter_import:
+                if (setBackgroundListener != null) {
+                    setBackgroundListener.onFilterImport();
+                }
+                break;
+
         }
         return super.onContextItemSelected(item);
+    }
+
+    public void setEnabled(boolean enabled) {
+        filterView.setEnabled(enabled);
+    }
+
+    public void setFilters(Filters f) {
+        filters = f;
+        filterView.setFilters(f);
     }
 
     @Override
