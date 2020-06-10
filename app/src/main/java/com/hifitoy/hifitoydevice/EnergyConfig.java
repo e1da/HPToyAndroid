@@ -16,6 +16,7 @@ import java.nio.ByteOrder;
 public class EnergyConfig implements Serializable {
     private final float MAX_THRESHOLD_DB = 0.0f;
     private final float MIN_THRESHOLD_DB = -120.0f;
+    private final float CORRECT_HIGH_THRES_COEF = 4.8f;
 
     private float   highThresholdDb;
     private float   lowThresholdDb;
@@ -27,7 +28,7 @@ public class EnergyConfig implements Serializable {
     }
 
     public void setDefault() {
-        highThresholdDb = 0;    // 0
+        highThresholdDb = CORRECT_HIGH_THRES_COEF;    // 0
         lowThresholdDb  = -55;  // -55
         auxTimeout120ms = 2500; // 2500 * 120ms = 300s = 5min
         usbTimeout120ms = 0;    // not used
@@ -88,19 +89,19 @@ public class EnergyConfig implements Serializable {
         if (highThresholdDb > MAX_THRESHOLD_DB) highThresholdDb = MAX_THRESHOLD_DB;
         if (highThresholdDb < MIN_THRESHOLD_DB) highThresholdDb = MIN_THRESHOLD_DB;
 
-        this.highThresholdDb = highThresholdDb;
+        this.highThresholdDb = highThresholdDb + CORRECT_HIGH_THRES_COEF;
     }
     public float getHighThresholdDb() {
-        return highThresholdDb;
+        return highThresholdDb - CORRECT_HIGH_THRES_COEF;
     }
     public void setHighThresholdDbPercent(float percent) {
         if (percent > 1.0f) percent = 1.0f;
         if (percent < 0.0f) percent = 0.0f;
 
-        this.highThresholdDb = (MAX_THRESHOLD_DB - MIN_THRESHOLD_DB) * percent + MIN_THRESHOLD_DB;
+        setHighThresholdDb((MAX_THRESHOLD_DB - MIN_THRESHOLD_DB) * percent + MIN_THRESHOLD_DB);
     }
     public float getHighThresholdDbPercent() {
-        return (highThresholdDb - MIN_THRESHOLD_DB) / (MAX_THRESHOLD_DB - MIN_THRESHOLD_DB);
+        return (getHighThresholdDb() - MIN_THRESHOLD_DB) / (MAX_THRESHOLD_DB - MIN_THRESHOLD_DB);
     }
 
     public void sendToDsp(){
