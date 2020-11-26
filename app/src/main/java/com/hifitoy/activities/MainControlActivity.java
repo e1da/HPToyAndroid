@@ -124,9 +124,7 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
 
         hifiToyDevice = HiFiToyControl.getInstance().getActiveDevice();
 
-        ApplicationContext.getInstance().updateClipView();
         setupOutlets();
-
     }
 
     @Override
@@ -436,7 +434,6 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
     private static IntentFilter makeIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(HiFiToyControl.AUDIO_SOURCE_UPDATE);
-        intentFilter.addAction(HiFiToyControl.CLIP_UPDATE);
 
         return intentFilter;
     }
@@ -448,9 +445,6 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
 
             if (HiFiToyControl.AUDIO_SOURCE_UPDATE.equals(action)) {
                 setupOutlets();
-            }
-            if (HiFiToyControl.CLIP_UPDATE.equals(action)) {
-                ApplicationContext.getInstance().updateClipView();
             }
         }
     };

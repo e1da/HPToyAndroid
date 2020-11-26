@@ -211,7 +211,6 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(broadcastReceiver);
         ViewUpdater.getInstance().removeUpdateView(this);
     }
 
@@ -219,7 +218,6 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
     protected void onResume() {
         super.onResume();
         ApplicationContext.getInstance().setContext(this);
-        registerReceiver(broadcastReceiver, makeIntentFilter());
 
         filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
 
@@ -398,24 +396,5 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
             setTitle("Filters menu");
         }
     }
-
-    private static IntentFilter makeIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(HiFiToyControl.CLIP_UPDATE);
-
-        return intentFilter;
-    }
-
-    public final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-
-            if (HiFiToyControl.CLIP_UPDATE.equals(action)) {
-                ApplicationContext.getInstance().updateClipView();
-            }
-        }
-    };
-
 
 }

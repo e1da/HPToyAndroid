@@ -57,6 +57,8 @@ public class OptionsActivity extends Activity implements View.OnClickListener {
         //show back button
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+        initOutlets();
     }
 
     @Override
@@ -86,7 +88,7 @@ public class OptionsActivity extends Activity implements View.OnClickListener {
         }
     }
 
-    private void setupOutlets() {
+    private void initOutlets() {
         deviceNameLayout_outl       = findViewById(R.id.deviceNameLayout_outl);
         deviceNameLabel_outl        = findViewById(R.id.deviceNameLabel_outl);
         deviceMacLabel_outl         = findViewById(R.id.deviceMacLabel_outl);
@@ -103,7 +105,9 @@ public class OptionsActivity extends Activity implements View.OnClickListener {
         presetManager_outl.setOnClickListener(this);
         autoOff_outl.setOnClickListener(this);
         advertiseMode_outl.setOnClickListener(this);
+    }
 
+    private void setupOutlets() {
         deviceNameLabel_outl.setText(hifiToyDevice.getName());
         deviceMacLabel_outl.setText(hifiToyDevice.getMac());
     }
@@ -231,7 +235,6 @@ public class OptionsActivity extends Activity implements View.OnClickListener {
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(HiFiToyControl.DID_CONNECT);
         intentFilter.addAction(HiFiToyControl.DID_DISCONNECT);
-        intentFilter.addAction(HiFiToyControl.CLIP_UPDATE);
 
         return intentFilter;
     }
@@ -242,15 +245,10 @@ public class OptionsActivity extends Activity implements View.OnClickListener {
             final String action = intent.getAction();
 
             if (HiFiToyControl.DID_CONNECT.equals(action)){
-                deviceNameLabel_outl.setText(hifiToyDevice.getName());
-                deviceMacLabel_outl.setText(hifiToyDevice.getMac());
+                setupOutlets();
             }
             if (HiFiToyControl.DID_DISCONNECT.equals(action)){
-                deviceNameLabel_outl.setText(hifiToyDevice.getName());
-                deviceMacLabel_outl.setText(hifiToyDevice.getMac());
-            }
-            if (HiFiToyControl.CLIP_UPDATE.equals(action)) {
-                ApplicationContext.getInstance().updateClipView();
+                setupOutlets();
             }
         }
     };

@@ -13,6 +13,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
@@ -58,18 +60,30 @@ public class ApplicationContext {
     }
 
     public void updateClipView() {
-        Activity a = (Activity) context;
-        ActionBar actionBar = a.getActionBar();
-        if (actionBar != null) {
-            HiFiToyDevice d = HiFiToyControl.getInstance().getActiveDevice();
-            if ( (d != null) && (d.getClipFlag()) ) {
-                actionBar.setBackgroundDrawable(context.getResources().
-                                                getDrawable(R.drawable.clip_on_shape, a.getTheme()));
-            } else {
-                actionBar.setBackgroundDrawable(context.getResources().
-                                                getDrawable(R.drawable.clip_off_shape, a.getTheme()));
+        Handler mainHandler = new Handler(Looper.getMainLooper());
+        Runnable myRunnable = new Runnable() {
+            @Override
+            public void run() {
+
+                Activity a = (Activity) context;
+                ActionBar actionBar = a.getActionBar();
+
+                if (actionBar != null) {
+                    HiFiToyDevice d = HiFiToyControl.getInstance().getActiveDevice();
+                    if ( (d != null) && (d.getClipFlag()) ) {
+                        actionBar.setBackgroundDrawable(context.getResources().
+                                getDrawable(R.drawable.clip_on_shape, a.getTheme()));
+                    } else {
+                        actionBar.setBackgroundDrawable(context.getResources().
+                                getDrawable(R.drawable.clip_off_shape, a.getTheme()));
+                    }
+                }
+
             }
-        }
+        };
+        mainHandler.post(myRunnable);
+
+
     }
 
 }

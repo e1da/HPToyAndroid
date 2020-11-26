@@ -53,15 +53,8 @@ public class TimeConstActivity extends Activity implements SeekBar.OnSeekBarChan
     protected void onResume() {
         super.onResume();
         ApplicationContext.getInstance().setContext(this);
-        registerReceiver(broadcastReceiver, makeIntentFilter());
 
         setupOutlets();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unregisterReceiver(broadcastReceiver);
     }
 
     //back button handler
@@ -149,24 +142,4 @@ public class TimeConstActivity extends Activity implements SeekBar.OnSeekBarChan
     public void onStopTrackingTouch(SeekBar seekBar) {
 
     }
-
-
-    /*--------------------------- Broadcast receiver implementation ------------------------------*/
-    private static IntentFilter makeIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(HiFiToyControl.CLIP_UPDATE);
-
-        return intentFilter;
-    }
-
-    public final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-
-            if (HiFiToyControl.CLIP_UPDATE.equals(action)) {
-                ApplicationContext.getInstance().updateClipView();
-            }
-        }
-    };
 }

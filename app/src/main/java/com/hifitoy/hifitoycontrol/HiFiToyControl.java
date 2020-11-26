@@ -63,7 +63,6 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     public final static String ENERGY_UPDATE            = "com.hifitoy.ENERGY_UPDATE";
     public final static String ADVERTISE_MODE_UPDATE    = "com.hifitoy.ADVERTISE_MODE_UPDATE";
     public final static String AUDIO_SOURCE_UPDATE      = "com.hifitoy.AUDIO_SOURCE_UPDATE";
-    public final static String CLIP_UPDATE              = "com.hifitoy.CLIP_UPDATE";
     public final static String DID_CONNECT              = "com.hifitoy.DID_CONNECT";
     public final static String DID_DISCONNECT           = "com.hifitoy.DID_DISCONNECT";
     public final static String DID_GET_PARAM_DATA       = "com.hifitoy.DID_GET_PARAM_DATA";
@@ -502,10 +501,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                     case CommonCommand.CLIP_DETECTION:
                         Log.d(TAG, "CLIP_DETECTION " + status);
                         activeDevice.setClipFlag(status != 0);
-                        ApplicationContext.getInstance().broadcastUpdate(CLIP_UPDATE);
-
-                        //NSNumber * clip = [NSNumber numberWithInt:status];
-                        //[[NSNotificationCenter defaultCenter] postNotificationName:@"ClipDetectionNotification" object:clip];
+                        ApplicationContext.getInstance().updateClipView();
                         break;
 
                     case CommonCommand.OTW_DETECTION:

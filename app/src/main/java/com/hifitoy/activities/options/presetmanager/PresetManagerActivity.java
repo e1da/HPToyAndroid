@@ -57,18 +57,11 @@ public class PresetManagerActivity extends ListActivity {
     protected void onResume() {
         super.onResume();
         ApplicationContext.getInstance().setContext(this);
-        registerReceiver(broadcastReceiver, makeIntentFilter());
 
         // Set list view adapter.
         setListAdapter(mPresetListAdapter);
         mPresetListAdapter.notifyDataSetChanged();
 
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unregisterReceiver(broadcastReceiver);
     }
 
     @Override
@@ -207,24 +200,5 @@ public class PresetManagerActivity extends ListActivity {
         }
 
     }
-
-    /*--------------------------- Broadcast receiver implementation ------------------------------*/
-    private static IntentFilter makeIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(HiFiToyControl.CLIP_UPDATE);
-
-        return intentFilter;
-    }
-
-    public final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-
-            if (HiFiToyControl.CLIP_UPDATE.equals(action)) {
-                ApplicationContext.getInstance().updateClipView();
-            }
-        }
-    };
 
 }

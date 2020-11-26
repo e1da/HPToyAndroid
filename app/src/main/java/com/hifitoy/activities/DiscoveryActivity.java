@@ -278,6 +278,7 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
     }
 
     /* ------------------------- DiscoveryDelegate ----------------------------*/
+    @Override
     public void didFindPeripheral(HiFiToyDevice device) {
         mLeDeviceListAdapter.addDevice(device);
         mLeDeviceListAdapter.notifyDataSetChanged();
