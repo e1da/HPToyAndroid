@@ -7,17 +7,14 @@
 
 package com.hifitoy.hifitoycontrol;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
-import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -25,6 +22,7 @@ import android.widget.Toast;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
+import com.hifitoy.ble.Ble;
 import com.hifitoy.ble.BlePacket;
 import com.hifitoy.ble.BlePacketQueue;
 import com.hifitoy.ble.BleFinder;
@@ -51,8 +49,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     private DiscoveryDelegate   discoveryDelegate = null;
     private ConnectionDelegate  connectionDelegate = null;
 
-    private BluetoothAdapter    mBluetoothAdapter = null;
-    private BleFinder           bleFinder = null;
+    private BleFinder           bleFinder;
     private HiFiToyDevice       activeDevice = null;
     private BluetoothGatt       mBluetoothGatt = null;
     private boolean             bleBusy = false;
@@ -170,28 +167,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     }
 
     public HiFiToyControl() {
-        Context context = ApplicationContext.getInstance().getContext();
-
-        if (!context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(context, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
-        }
-
-        final BluetoothManager bluetoothManager =
-                (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
-
-        mBluetoothAdapter = bluetoothManager.getAdapter();
-        bleFinder = new BleFinder(mBluetoothAdapter);
-    }
-
-    public boolean isBleSupported() {
-        return mBluetoothAdapter != null;
-    }
-
-    public boolean isBleEnabled() {
-        if ( (isBleSupported()) && (mBluetoothAdapter.isEnabled()) ) {
-            return true;
-        }
-        return false;
+        bleFinder = new BleFinder();
     }
 
     public HiFiToyDevice getActiveDevice() {
@@ -199,19 +175,13 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     }
 
     public void startDiscovery(DiscoveryDelegate discoveryDelegate) {
-        if ( (!isBleEnabled()) || (bleFinder.isDiscovering()) ) {
-            this.discoveryDelegate = discoveryDelegate;
+        this.discoveryDelegate = discoveryDelegate;
+
+        if ( (!Ble.getInstance().isEnabled()) || (bleFinder.isDiscovering()) ) {
             return;
         }
 
         bleFinder.setBleFinderDelegate(this);
-        this.discoveryDelegate = discoveryDelegate;
-
-
-        if ((isConnected()) && (discoveryDelegate != null)) {
-            discoveryDelegate.didFindPeripheral(activeDevice);
-        }
-
         bleFinder.startDiscovery();
 
     }
@@ -219,10 +189,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         bleFinder.setBleFinderDelegate(null);
         this.discoveryDelegate = null;
 
-        if (isBleEnabled()) {
-            bleFinder.stopDiscovery();
-        }
-
+        bleFinder.stopDiscovery();
     }
 
     public boolean isConnected() {
@@ -232,7 +199,8 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         Context context = ApplicationContext.getInstance().getContext();
 
         //check if ble disabled or demo connect
-        if ( (!isBleEnabled()) || (device == null) || (device.getMac().equals("demo")) ) {
+        if ( (!Ble.getInstance().isEnabled()) || (device == null) || (device.getMac().equals("demo")) ) {
+            disconnect();
             activeDevice = device;
             Toast.makeText(context, R.string.demo_mode, Toast.LENGTH_SHORT).show();
             return true;
@@ -253,7 +221,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
 
         //get device from macAddress
-        BluetoothDevice d = mBluetoothAdapter.getRemoteDevice(activeDevice.getMac());
+        BluetoothDevice d = Ble.getInstance().getRemoteDevice(activeDevice.getMac());
         if (d == null) {
             Log.d(TAG, "Device not found.  Unable to connect.");
             return false;
@@ -271,7 +239,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         return connect(activeDevice);
     }
     public void disconnect() {
-        if ( (isBleEnabled()) && (mBluetoothGatt != null)) {
+        if ( (Ble.getInstance().isEnabled()) && (mBluetoothGatt != null)) {
 
             mBluetoothGatt.disconnect();
             mBluetoothGatt.close();

@@ -23,7 +23,6 @@ import java.util.List;
 public class BleFinder {
     private static final String TAG = "HiFiToy";
 
-    private BluetoothAdapter    mBluetoothAdapter;
     private IBleFinderDelegate  delegate;
     private List<String>        deviceAddressList;
     private boolean             discovering;
@@ -33,9 +32,8 @@ public class BleFinder {
         void didFindNewPeripheral(String macAddress);
     }
 
-    public BleFinder(BluetoothAdapter bluetoothAdapter) {
+    public BleFinder() {
         deviceAddressList = new LinkedList<>();
-        mBluetoothAdapter = bluetoothAdapter;
         this.delegate = null;
         this.discovering = false;
     }
@@ -58,40 +56,53 @@ public class BleFinder {
 
     public void startDiscovery() {
         clear();
+        if ( (!Ble.getInstance().isEnabled()) || (discovering) ) return;
 
-        if ((mBluetoothAdapter == null) || (!mBluetoothAdapter.isEnabled()) ) return;
+        //add to list connected devices
+        List<BluetoothDevice> bdList = Ble.getInstance().getConnectedDevices();
+        for (BluetoothDevice bd : bdList) {
+            addDeviceToList(bd);
+        }
 
-        mBluetoothAdapter.getBluetoothLeScanner().startScan(new BleScanCallBack());
+        //start scanning
+        BluetoothAdapter ba = Ble.getInstance().getBluetoothAdapter();
+        ba.getBluetoothLeScanner().startScan(new BleScanCallBack());
+
         discovering = true;
         Log.d(TAG, "BLE Scanning...");
     }
 
     public void stopDiscovery() {
-        if ((mBluetoothAdapter == null) || (!mBluetoothAdapter.isEnabled()) ) return;
+        if (!Ble.getInstance().isEnabled()) return;
 
-        mBluetoothAdapter.getBluetoothLeScanner().stopScan(new BleScanCallBack());
+        BluetoothAdapter ba = Ble.getInstance().getBluetoothAdapter();
+        ba.getBluetoothLeScanner().stopScan(new BleScanCallBack());
+
         discovering = false;
         Log.d(TAG, "BLE Stop Scanning");
+    }
+
+    private void addDeviceToList(BluetoothDevice bd) {
+        Context c = ApplicationContext.getInstance().getContext();
+
+        if (    (bd.getName() != null) &&
+                (bd.getName().equals(c.getResources().getString(R.string.ble_device_name))) &&
+                (!deviceAddressList.contains(bd.getAddress()))) {
+
+            deviceAddressList.add(bd.getAddress());
+
+            Log.d(TAG, "Find ble device: " + bd.getName() + " " + bd.getAddress());
+
+            if (delegate != null) {
+                delegate.didFindNewPeripheral(bd.getAddress());
+            }
+        }
     }
 
     private class BleScanCallBack extends ScanCallback {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
-            BluetoothDevice device = result.getDevice();
-            Context c = ApplicationContext.getInstance().getContext();
-
-            if (    (device.getName() != null) &&
-                    (device.getName().equals(c.getResources().getString(R.string.ble_device_name))) &&
-                    (!deviceAddressList.contains(device.getAddress()))) {
-
-                deviceAddressList.add(device.getAddress());
-
-                Log.d(TAG, "Find ble device: " + device.getName() + " " + device.getAddress());
-
-                if (delegate != null) {
-                    delegate.didFindNewPeripheral(device.getAddress());
-                }
-            }
+            addDeviceToList(result.getDevice());
         }
 
         @Override

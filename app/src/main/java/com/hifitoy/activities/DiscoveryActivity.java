@@ -8,8 +8,6 @@
 package com.hifitoy.activities;
 
 import android.Manifest;
-import android.app.Activity;
-import android.app.Dialog;
 import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
@@ -18,19 +16,17 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
+import com.hifitoy.ble.Ble;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
@@ -121,8 +117,8 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
     }
 
     private void checkBleEnabled() {
-        if (HiFiToyControl.getInstance().isBleSupported()) {
-            if (!HiFiToyControl.getInstance().isBleEnabled()) {
+        if (Ble.getInstance().isSupported()) {
+            if (!Ble.getInstance().isEnabled()) {
                 //show ble enable request dialog
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(enableBtIntent, 1);
@@ -137,7 +133,7 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) { // ble enabled dialog result
-            if (HiFiToyControl.getInstance().isBleEnabled()) {
+            if (Ble.getInstance().isEnabled()) {
                 HiFiToyControl.getInstance().startDiscovery(this);
             }
         }
@@ -300,7 +296,7 @@ public class DiscoveryActivity extends ListActivity implements HiFiToyControl.Di
                 int count = 0;
                 while (HiFiToyPresetManager.getInstance().isPresetExist(name)){
                     count++;
-                    name = importPreset.getName() + "_" + Integer.toString(count);
+                    name = importPreset.getName() + "_" + count;
                 }
                 importPreset.setName(name);
                 HiFiToyPresetManager.getInstance().setPreset(importPreset);
