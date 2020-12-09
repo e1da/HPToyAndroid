@@ -7,16 +7,18 @@
 
 package com.hifitoy.activities;
 
+import android.Manifest;
 import android.app.ActionBar;
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.Log;
-import android.view.Menu;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -29,7 +31,9 @@ import com.hifitoy.activities.compressor.CompressorActivity;
 import com.hifitoy.activities.filters.FiltersActivity;
 import com.hifitoy.activities.options.OptionsActivity;
 import com.hifitoy.activities.options.presetmanager.PresetManagerActivity;
+import com.hifitoy.ble.Ble;
 import com.hifitoy.dialogsystem.DialogSystem;
+import com.hifitoy.dialogsystem.DiscoveryDialog;
 import com.hifitoy.dialogsystem.KeyboardNumber;
 import com.hifitoy.dialogsystem.KeyboardNumber.NumberType;
 import com.hifitoy.dialogsystem.KeyboardDialog;
@@ -37,6 +41,7 @@ import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.AudioSource;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
+import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 import com.hifitoy.hifitoyobjects.Biquad;
 import com.hifitoy.hifitoyobjects.Loudness;
 import com.hifitoy.hifitoyobjects.Volume;
@@ -45,13 +50,15 @@ import com.hifitoy.widgets.AudioSourceWidget;
 import java.util.Locale;
 
 
-public class MainControlActivity extends Activity implements SeekBar.OnSeekBarChangeListener,
+public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekBarChangeListener,
                                                                 View.OnClickListener,
                                                                 AudioSourceWidget.OnCheckedListener,
                                                                 KeyboardDialog.OnResultListener {
     private static final String TAG = "HiFiToy";
 
     private HiFiToyDevice hifiToyDevice;
+
+    TextView discoveryBtn;
 
     LinearLayout audioSourceGroup_outl;
     AppCompatImageView audioSourceInfo_outl;
@@ -85,18 +92,99 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_control);
 
-        //show back button
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        ApplicationContext.getInstance().setContext(this);
 
+        if (Build.VERSION.SDK_INT >= 23) {
+            requestPermissions(new String[]{Manifest.permission.BLUETOOTH,
+                            Manifest.permission.BLUETOOTH_ADMIN,
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.READ_EXTERNAL_STORAGE},
+                    1);
+        } else {
+            checkBleEnabled();
+        }
 
+        initActionBar();
         initOutlets();
+
+        checkImportPreset(getIntent());
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_control_menu, menu);
-        return true;
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults){
+
+        if(requestCode == 1) {
+            boolean blePermission = true;
+
+            for (int i = 0; i < permissions.length; i++) {
+
+
+                switch (permissions[i]) {
+                    case Manifest.permission.BLUETOOTH:
+                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                            blePermission = false;
+                            Log.d(TAG, "permission.BLUETOOTH is not granted.");
+                        }
+                        break;
+                    case Manifest.permission.BLUETOOTH_ADMIN:
+                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                            blePermission = false;
+                            Log.d(TAG, "permission.BLUETOOTH_ADMIN is not granted.");
+                        }
+                        break;
+                    case Manifest.permission.ACCESS_FINE_LOCATION:
+                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                            blePermission = false;
+                            Log.d(TAG, "permission.ACCESS_FINE_LOCATION is not granted.");
+                        }
+                        break;
+                    case Manifest.permission.ACCESS_COARSE_LOCATION:
+                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                            blePermission = false;
+                            Log.d(TAG, "permission.ACCESS_COARSE_LOCATION is not granted.");
+                        }
+                        break;
+                    case Manifest.permission.READ_EXTERNAL_STORAGE:
+                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                            Log.d(TAG, "permission.READ_EXTERNAL_STORAGE is not granted.");
+                        }
+                        break;
+
+                }
+            }
+
+            if (blePermission) {
+                checkBleEnabled();
+
+            } else {
+                finish();
+            }
+        }
+    }
+
+    private void checkBleEnabled() {
+        if (Ble.getInstance().isSupported()) {
+            if (!Ble.getInstance().isEnabled()) {
+                //show ble enable request dialog
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, 1);
+
+            } else {
+                //HiFiToyControl.getInstance().startDiscovery(this);
+
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1) { // ble enabled dialog result
+            if (Ble.getInstance().isEnabled()) {
+                //HiFiToyControl.getInstance().startDiscovery(this);
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     //back button handler
@@ -119,19 +207,33 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
     @Override
     protected void onResume() {
         super.onResume();
-        ApplicationContext.getInstance().setContext(this);
-        registerReceiver(broadcastReceiver, makeIntentFilter());
 
         hifiToyDevice = HiFiToyControl.getInstance().getActiveDevice();
-
         setupOutlets();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unregisterReceiver(broadcastReceiver);
+    private void initActionBar() {
+        //show back button
+        ActionBar actionBar = getActionBar();
+        //actionBar.setDisplayHomeAsUpEnabled(true);
+
+
+        LayoutInflater mInflater = LayoutInflater.from(this);
+        View actionBarView = mInflater.inflate(R.layout.action_bar, null);
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setCustomView(actionBarView);
+        actionBar.setDisplayShowCustomEnabled(true);
+
+        discoveryBtn = actionBarView.findViewById(R.id.discoveryBtn_outl);
+        discoveryBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DiscoveryDialog dd = new DiscoveryDialog(ApplicationContext.getInstance().getContext());
+                dd.show();
+            }
+        });
     }
+
 
     private void initOutlets() {
         audioSourceGroup_outl   = findViewById(R.id.audio_source_group);
@@ -189,7 +291,16 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
         loudnessFreqSeekBar_outl.setOnSeekBarChangeListener(this);
     }
 
-    private void setupOutlets() {
+    @Override
+    public void setupOutlets() {
+        Drawable drawable;
+        if (HiFiToyControl.getInstance().isConnected()) {
+            drawable = getResources().getDrawable(R.drawable.active_discovery_btn, getTheme());
+        } else {
+            drawable = getResources().getDrawable(R.drawable.discovery_btn, getTheme());
+        }
+        discoveryBtn.setBackground(drawable);
+
         HiFiToyPreset preset = hifiToyDevice.getActivePreset();
 
         audioSource_outl.setState(hifiToyDevice.getAudioSource().getSource());
@@ -430,23 +541,34 @@ public class MainControlActivity extends Activity implements SeekBar.OnSeekBarCh
         return freq;
     }
 
-    /*--------------------------- Broadcast receiver implementation ------------------------------*/
-    private static IntentFilter makeIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(HiFiToyControl.AUDIO_SOURCE_UPDATE);
+    //import xml preset
+    private void checkImportPreset(Intent intent) {
+        if ((intent == null) || (intent.getAction() == null)) return;
 
-        return intentFilter;
-    }
+        if (intent.getAction().equals(Intent.ACTION_VIEW)){
+            Uri uri = intent.getData();
+            if (uri == null) return;
 
-    public final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
 
-            if (HiFiToyControl.AUDIO_SOURCE_UPDATE.equals(action)) {
-                setupOutlets();
+            HiFiToyPreset importPreset = new HiFiToyPreset();
+            if (importPreset.importFromXml(uri)){
+                //check duplicate name
+                String name = importPreset.getName();
+                int count = 0;
+                while (HiFiToyPresetManager.getInstance().isPresetExist(name)){
+                    count++;
+                    name = importPreset.getName() + "_" + count;
+                }
+                importPreset.setName(name);
+                HiFiToyPresetManager.getInstance().setPreset(importPreset);
+
+                DialogSystem.getInstance().showDialog("Info",
+                        "Add " + importPreset.getName() + " preset", "Ok");
+            } else {
+                DialogSystem.getInstance().showDialog("Warning", "Import preset is not success.", "Ok");
             }
+
         }
-    };
+    }
 
 }

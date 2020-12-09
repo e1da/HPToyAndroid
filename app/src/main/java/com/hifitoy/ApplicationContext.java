@@ -16,7 +16,11 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 
+import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 
@@ -37,6 +41,7 @@ public class ApplicationContext {
 
     public void setContext(Context context){
         this.context = context;
+        updateActionBar();
         updateClipView();
     }
 
@@ -57,6 +62,20 @@ public class ApplicationContext {
         final Intent intent = new Intent(action);
         intent.putExtra(EXTRA_DATA, data);
         context.sendBroadcast(intent);
+    }
+
+    public void setupOutlets() {
+        Activity a = (Activity) context;
+        Class superclass = a.getClass().getSuperclass();
+
+        if ((superclass != null) && (superclass.equals(BaseActivity.class))) {
+            ((BaseActivity)a).setupOutlets();
+        }
+    }
+
+    public void updateActionBar() {
+
+
     }
 
     public void updateClipView() {

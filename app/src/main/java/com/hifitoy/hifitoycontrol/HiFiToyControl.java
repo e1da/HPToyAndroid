@@ -31,6 +31,7 @@ import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
@@ -57,11 +58,6 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     private final static short CC2540_PAGE_SIZE   = 2048;
     private final static short ATTACH_PAGE_OFFSET = (3 * CC2540_PAGE_SIZE); // 3 page
 
-    public final static String ENERGY_UPDATE            = "com.hifitoy.ENERGY_UPDATE";
-    public final static String ADVERTISE_MODE_UPDATE    = "com.hifitoy.ADVERTISE_MODE_UPDATE";
-    public final static String AUDIO_SOURCE_UPDATE      = "com.hifitoy.AUDIO_SOURCE_UPDATE";
-    public final static String DID_CONNECT              = "com.hifitoy.DID_CONNECT";
-    public final static String DID_DISCONNECT           = "com.hifitoy.DID_DISCONNECT";
     public final static String DID_GET_PARAM_DATA       = "com.hifitoy.DID_GET_PARAM_DATA";
     public final static String DID_WRITE_DATA           = "com.hifitoy.DID_WRITE_DATA";
     public final static String DID_WRITE_ALL_DATA       = "com.hifitoy.DID_WRITE_ALL_DATA";
@@ -107,9 +103,10 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                     packets.clear();
                     bleBusy = false;
 
+                    ApplicationContext.getInstance().setupOutlets();
                     if (connectionDelegate != null) connectionDelegate.didDisconnect();
-                    ApplicationContext.getInstance().broadcastUpdate(DID_CONNECT);
                     break;
+
                 case CONNECTING:
                     Log.d(TAG, "Connecting to GATT server");
                     break;
@@ -139,8 +136,9 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                     };
                     mainHandler.post(myRunnable);
 
-                    if (connectionDelegate != null) connectionDelegate.didConnect();
-                    ApplicationContext.getInstance().broadcastUpdate(DID_CONNECT);
+
+                    ApplicationContext.getInstance().setupOutlets();
+                    if (connectionDelegate != null) connectionDelegate.didConnect(activeDevice);
                     break;
             }
         }
@@ -155,8 +153,11 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         void didFindPeripheral(HiFiToyDevice device);
     }
     public interface ConnectionDelegate {
-        void didConnect();
+        void didConnect(HiFiToyDevice device);
         void didDisconnect();
+    }
+    public void setConnectionDelegate(ConnectionDelegate delegate) {
+        this.connectionDelegate = delegate;
     }
 
     public static synchronized HiFiToyControl getInstance() {
@@ -168,6 +169,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
     public HiFiToyControl() {
         bleFinder = new BleFinder();
+        activeDevice = HiFiToyDeviceManager.getInstance().getDevice("demo");
     }
 
     public HiFiToyDevice getActiveDevice() {
@@ -178,6 +180,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         this.discoveryDelegate = discoveryDelegate;
 
         if ( (!Ble.getInstance().isEnabled()) || (bleFinder.isDiscovering()) ) {
+            bleFinder.clear();
             return;
         }
 
@@ -195,6 +198,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     public boolean isConnected() {
         return ( (activeDevice != null) && (state.getState() == ConnectionState.CONNECTION_READY) );
     }
+
     public boolean connect(HiFiToyDevice device) {
         Context context = ApplicationContext.getInstance().getContext();
 
@@ -370,7 +374,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                 data = Arrays.copyOfRange(data, 1, data.length);
                 activeDevice.getEnergyConfig().parseBinary(ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN));
 
-                ApplicationContext.getInstance().broadcastUpdate(ENERGY_UPDATE);
+                ApplicationContext.getInstance().setupOutlets();
             }
 
             if (data.length == 4) {
@@ -454,7 +458,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                         Log.d(TAG, "GET_AUDIO_SOURCE " + status);
 
                         activeDevice.getAudioSource().setSource(data[1]);
-                        ApplicationContext.getInstance().broadcastUpdate(AUDIO_SOURCE_UPDATE);
+                        ApplicationContext.getInstance().setupOutlets();
 
                         getChecksumParamData();
                         break;
@@ -463,7 +467,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                         Log.d(TAG, "GET_ADVERTISE_MODE " + status);
                         activeDevice.getAdvertiseMode().setMode(status);
 
-                        ApplicationContext.getInstance().broadcastUpdate(ADVERTISE_MODE_UPDATE);
+                        ApplicationContext.getInstance().setupOutlets();
                         break;
 
                     case CommonCommand.CLIP_DETECTION:
@@ -513,7 +517,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CLIENT_CHAR_CFG);
         byte[] value = (enabled) ? (BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE) :
-                (new byte[]{0x00, 0x00});
+                (BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
         descriptor.setValue(value);
         mBluetoothGatt.writeDescriptor(descriptor);
     }
@@ -678,7 +682,9 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
             }
         }
 
-        if (discoveryDelegate != null) discoveryDelegate.didFindPeripheral(device);
+        if (discoveryDelegate != null) {
+            discoveryDelegate.didFindPeripheral(device);
+        }
     }
 
 

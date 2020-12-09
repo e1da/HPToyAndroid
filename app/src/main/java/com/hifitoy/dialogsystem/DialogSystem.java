@@ -18,6 +18,7 @@ import android.content.res.Resources;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -25,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hifitoy.ApplicationContext;
+import com.hifitoy.R;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
@@ -39,7 +41,7 @@ public class DialogSystem {
     private int tempOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
 
     private ProgressDialog progressDialog = null;
-    private AlertDialog dialog = null;
+    private BaseDialog dialog = null;
 
     public static DialogSystem getInstance(){
         if (instance == null){
@@ -104,11 +106,14 @@ public class DialogSystem {
 
     /*---------------------------------- Show 1button dialog -------------------------------------*/
     public void showDialog(String title, String message, String button) {
-        dialog = new AlertDialog.Builder(ApplicationContext.getInstance().getContext())
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton(button, null)
-                .show();
+        final Context context = ApplicationContext.getInstance().getContext();
+
+        dialog = new BaseDialog(context);
+        dialog.setTitle(title);
+        dialog.setMessage(message);
+        DialogInterface.OnClickListener listener = null;
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, button, listener);
+        dialog.show();
     }
 
     /*----------------------------- Show base dialog and text dialog -----------------------------*/
@@ -117,27 +122,22 @@ public class DialogSystem {
                            String posButton, String negButton){
         final Context context = ApplicationContext.getInstance().getContext();
 
-        new AlertDialog.Builder(context)
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton(posButton,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                                int which) {
-                                if (onClickDialog != null){
-                                    onClickDialog.onPositiveClick();
-                                }
-                            }
-                        })
-                .setNegativeButton(negButton,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                                int which) {
-                                if (onClickDialog != null){
-                                    onClickDialog.onNegativeClick();
-                                }
-                            }
-                        }).show();
+        BaseDialog d = new BaseDialog(context);
+        d.setTitle(title);
+        d.setMessage(message);
+        d.setButton(DialogInterface.BUTTON_POSITIVE, posButton, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (onClickDialog != null) onClickDialog.onPositiveClick();
+            }
+        });
+        d.setButton(DialogInterface.BUTTON_NEGATIVE, negButton, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (onClickDialog != null) onClickDialog.onNegativeClick();
+            }
+        });
+        d.show();
     }
 
     public void showTextDialog(final OnClickTextDialog onClickDialog, String title,
@@ -302,13 +302,6 @@ public class DialogSystem {
         dialog.show();
     }
 
-    /*---------------------------- Show save preset progress dialog -----------------------------*/
-    /*public void showSavePresetProgressDialog(){
-        int maxPackets = DspControl.getInstance().getBleService().getPacketQueueSize();
-        showProgressDialog("Send dsp parameters...", maxPackets);
-
-    }*/
-
     /*-------------------------- Show import preset dialog -----------------------------*/
     public void showImportPresetDialog() {
         OnClickDialog dialogListener = new OnClickDialog() {
@@ -342,7 +335,6 @@ public class DialogSystem {
 
         showDialog(dialogListener, "Warning", "Are you sure want to sync biquad coefficients?", "Sync", "Cancel");
     }
-
 
     /*====================== OnClickDialog Interfaces ===============================*/
     public interface OnClickDialog {

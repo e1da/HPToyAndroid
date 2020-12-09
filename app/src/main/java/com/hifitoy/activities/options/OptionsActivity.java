@@ -29,13 +29,14 @@ import android.widget.Toast;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
+import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.activities.options.presetmanager.PresetManagerActivity;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
 
-public class OptionsActivity extends Activity implements View.OnClickListener {
+public class OptionsActivity extends BaseActivity implements View.OnClickListener {
     final static String TAG = "HiFiToy";
 
     LinearLayout deviceNameLayout_outl;
@@ -64,17 +65,10 @@ public class OptionsActivity extends Activity implements View.OnClickListener {
     @Override
     protected void onResume() {
         super.onResume();
-        ApplicationContext.getInstance().setContext(this);
-        registerReceiver(broadcastReceiver, makeIntentFilter());
 
         hifiToyDevice = HiFiToyControl.getInstance().getActiveDevice();
 
         setupOutlets();
-    }
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unregisterReceiver(broadcastReceiver);
     }
 
     //back button handler
@@ -107,7 +101,8 @@ public class OptionsActivity extends Activity implements View.OnClickListener {
         advertiseMode_outl.setOnClickListener(this);
     }
 
-    private void setupOutlets() {
+    @Override
+    public void setupOutlets() {
         deviceNameLabel_outl.setText(hifiToyDevice.getName());
         deviceMacLabel_outl.setText(hifiToyDevice.getMac());
     }
@@ -229,28 +224,5 @@ public class OptionsActivity extends Activity implements View.OnClickListener {
         setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         DialogSystem.getInstance().showTextDialog(dialogListener, "Enter new name", "Change", "Cancel");
     }
-
-    /*--------------------------- Broadcast receiver implementation ------------------------------*/
-    private static IntentFilter makeIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(HiFiToyControl.DID_CONNECT);
-        intentFilter.addAction(HiFiToyControl.DID_DISCONNECT);
-
-        return intentFilter;
-    }
-
-    public final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-
-            if (HiFiToyControl.DID_CONNECT.equals(action)){
-                setupOutlets();
-            }
-            if (HiFiToyControl.DID_DISCONNECT.equals(action)){
-                setupOutlets();
-            }
-        }
-    };
 
 }

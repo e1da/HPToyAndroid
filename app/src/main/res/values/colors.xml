@@ -9,4 +9,6 @@
     <color name="colorSeekBar">#FF00B0B0</color>
     <color name="colorOrange">#FFFF8000</color>
     <color name="colorBrown">#FF996633</color>
+    <color name="colorWhite">#FFC0C0C0</color>
+    <color name="colorAlphaWhite">#80C0C0C0</color>
 </resources>

@@ -24,11 +24,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
+import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.EnergyConfig;
 
-public class AutoOffActivity extends Activity implements SeekBar.OnSeekBarChangeListener {
+public class AutoOffActivity extends BaseActivity implements SeekBar.OnSeekBarChangeListener {
     final static String TAG = "HiFiToy";
     private static final int SYNC_MENU_ID = 1;
 
@@ -77,8 +78,6 @@ public class AutoOffActivity extends Activity implements SeekBar.OnSeekBarChange
     @Override
     protected void onResume() {
         super.onResume();
-        ApplicationContext.getInstance().setContext(this);
-        registerReceiver(broadcastReceiver, makeIntentFilter());
 
         EnergyConfig energy = HiFiToyControl.getInstance().getActiveDevice().getEnergyConfig();
         energy.readFromDsp();
@@ -104,7 +103,8 @@ public class AutoOffActivity extends Activity implements SeekBar.OnSeekBarChange
         clipSeekBar_outl.setOnSeekBarChangeListener(this);
     }
 
-    private void setupOutlets() {
+    @Override
+    public void setupOutlets() {
         EnergyConfig energy = HiFiToyControl.getInstance().getActiveDevice().getEnergyConfig();
 
         setSeekBar(autoOffSeekBar_outl, energy.getLowThresholdDbPercent());
@@ -162,22 +162,4 @@ public class AutoOffActivity extends Activity implements SeekBar.OnSeekBarChange
         DialogSystem.getInstance().showDialog(dialogListener, "Warning", "Are you sure want to sync energy manager?", "Sync", "Cancel");
 
     }
-
-    private static IntentFilter makeIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(HiFiToyControl.ENERGY_UPDATE);
-
-        return intentFilter;
-    }
-
-    public final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-
-            if (HiFiToyControl.ENERGY_UPDATE.equals(action)) {
-                setupOutlets();
-            }
-        }
-    };
 }

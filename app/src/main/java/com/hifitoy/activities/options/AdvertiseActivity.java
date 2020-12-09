@@ -19,11 +19,12 @@ import android.widget.RadioButton;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
+import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.AdvertiseMode;
 
-public class AdvertiseActivity extends Activity implements View.OnClickListener{
+public class AdvertiseActivity extends BaseActivity implements View.OnClickListener{
     RadioButton alwaysAdvertButton_outl;
     RadioButton after1MinAdvertButton_outl;
 
@@ -55,8 +56,6 @@ public class AdvertiseActivity extends Activity implements View.OnClickListener{
     @Override
     protected void onResume() {
         super.onResume();
-        ApplicationContext.getInstance().setContext(this);
-        registerReceiver(broadcastReceiver, makeIntentFilter());
 
         AdvertiseMode advertiseMode = HiFiToyControl.getInstance().getActiveDevice().getAdvertiseMode();
         advertiseMode.readFromDsp();
@@ -72,7 +71,8 @@ public class AdvertiseActivity extends Activity implements View.OnClickListener{
         after1MinAdvertButton_outl.setOnClickListener(this);
     }
 
-    private void setupOutlets() {
+    @Override
+    public void setupOutlets() {
         AdvertiseMode advertiseMode = HiFiToyControl.getInstance().getActiveDevice().getAdvertiseMode();
         if (advertiseMode.getMode() == AdvertiseMode.ALWAYS_ENABLED) {
             alwaysAdvertButton_outl.setChecked(true);
@@ -97,23 +97,4 @@ public class AdvertiseActivity extends Activity implements View.OnClickListener{
         }
 
     }
-
-
-    private static IntentFilter makeIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(HiFiToyControl.ADVERTISE_MODE_UPDATE);
-
-        return intentFilter;
-    }
-
-    public final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-
-            if (HiFiToyControl.ADVERTISE_MODE_UPDATE.equals(action)) {
-                setupOutlets();
-            }
-        }
-    };
 }
