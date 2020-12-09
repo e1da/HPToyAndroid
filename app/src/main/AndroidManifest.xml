@@ -108,6 +108,14 @@
             android:name=".activities.options.presetmanager.linkimporttool.LinkImportActivity"
             android:label="Link import"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.BassTrebleActivity"
+            android:label="Bass"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.LoudnessActivity"
+            android:label="Loudness"
+            android:screenOrientation="portrait" />
 
     </application>
 

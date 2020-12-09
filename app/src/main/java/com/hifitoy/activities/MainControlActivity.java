@@ -19,8 +19,8 @@ import android.os.Bundle;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -30,7 +30,6 @@ import com.hifitoy.R;
 import com.hifitoy.activities.compressor.CompressorActivity;
 import com.hifitoy.activities.filters.FiltersActivity;
 import com.hifitoy.activities.options.OptionsActivity;
-import com.hifitoy.activities.options.presetmanager.PresetManagerActivity;
 import com.hifitoy.ble.Ble;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.dialogsystem.DiscoveryDialog;
@@ -42,12 +41,9 @@ import com.hifitoy.hifitoydevice.AudioSource;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
-import com.hifitoy.hifitoyobjects.Biquad;
-import com.hifitoy.hifitoyobjects.Loudness;
 import com.hifitoy.hifitoyobjects.Volume;
-import com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel;
 import com.hifitoy.widgets.AudioSourceWidget;
-import java.util.Locale;
+import com.hifitoy.widgets.Slider;
 
 
 public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekBarChangeListener,
@@ -60,31 +56,26 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
 
     TextView discoveryBtn;
 
-    LinearLayout audioSourceGroup_outl;
-    AppCompatImageView audioSourceInfo_outl;
-    AudioSourceWidget audioSource_outl;
+    LinearLayout        audioSourceGroup;
+    AppCompatImageView  audioSourceInfo;
+    AudioSourceWidget   audioSource;
 
-    AppCompatImageView volumeInfo_outl;
-    TextView volumeLabel_outl;
-    SeekBar volumeSeekBar_outl;
+    TextView    volumeLabel;
+    Slider      volumeSlider;
 
-    AppCompatImageView bassTrebleInfo_outl;
-    TextView bassLabel_outl;
-    SeekBar bassSeekBar_outl;
-    TextView trebleLabel_outl;
-    SeekBar trebleSeekBar_outl;
+    TextView    bassTrebleActivity;
+    ImageView   bassTrebleInfo;
 
-    AppCompatImageView loudnessInfo_outl;
-    TextView loudnessLabel_outl;
-    SeekBar loudnessSeekBar_outl;
-    TextView loudnessFreqLabel_outl;
-    SeekBar loudnessFreqSeekBar_outl;
+    TextView    loudnessActivity;
+    ImageView   loudnessInfo;
 
-    AppCompatImageView filtersInfo_outl;
-    TextView filtersActivity_outl;
-    AppCompatImageView compressorInfo_outl;
-    TextView compressorActivity_outl;
-    TextView optionsActivity_outl;
+    TextView    filtersActivity;
+    ImageView   filtersInfo;
+
+    TextView    compressorActivity;
+    ImageView   compressorInfo;
+
+    TextView    optionsActivity;
 
 
     @Override
@@ -187,23 +178,6 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    //back button handler
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent;
-
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-            case R.id.showPresetManager_outl:
-                intent = new Intent(this, PresetManagerActivity.class);
-                startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -213,10 +187,7 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
     }
 
     private void initActionBar() {
-        //show back button
         ActionBar actionBar = getActionBar();
-        //actionBar.setDisplayHomeAsUpEnabled(true);
-
 
         LayoutInflater mInflater = LayoutInflater.from(this);
         View actionBarView = mInflater.inflate(R.layout.action_bar, null);
@@ -236,59 +207,45 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
 
 
     private void initOutlets() {
-        audioSourceGroup_outl   = findViewById(R.id.audio_source_group);
-        audioSourceInfo_outl    = findViewById(R.id.audio_source_info);
-        audioSource_outl        = findViewById(R.id.audio_source1_outl);
+        audioSourceGroup = findViewById(R.id.audio_source_group);
+        audioSourceInfo = findViewById(R.id.audio_source_info);
+        audioSource = findViewById(R.id.audio_source1_outl);
 
         if (getPackageName().equals("com.hptoy")) {
-            audioSourceGroup_outl.setVisibility(View.GONE);
+            audioSourceGroup.setVisibility(View.GONE);
         } else {
-            audioSourceGroup_outl.setVisibility(View.VISIBLE);
+            audioSourceGroup.setVisibility(View.VISIBLE);
         }
 
-        //volumeInfo_outl     = findViewById(R.id.volume_control_info);
-        volumeLabel_outl    = findViewById(R.id.volumeLabel_outl);
-        volumeSeekBar_outl  = findViewById(R.id.volumeSeekBar_outl);
+        volumeLabel = findViewById(R.id.volumeLabel_outl);
+        volumeSlider = findViewById(R.id.volumeSeekBar_outl);
 
-        bassTrebleInfo_outl = findViewById(R.id.bass_treble_info);
-        bassLabel_outl      = findViewById(R.id.bassLabel_outl);
-        bassSeekBar_outl    = findViewById(R.id.bassSeekBar_outl);
-        trebleLabel_outl    = findViewById(R.id.trebleLabel_outl);
-        trebleSeekBar_outl  = findViewById(R.id.trebleSeekBar_outl);
+        bassTrebleActivity = findViewById(R.id.bass_treble_outl);
+        bassTrebleInfo = findViewById(R.id.bass_treble_info);
 
-        loudnessInfo_outl           = findViewById(R.id.loudness_info);
-        loudnessLabel_outl          = findViewById(R.id.loudnessLabel_outl);
-        loudnessSeekBar_outl        = findViewById(R.id.loudnessSeekBar_outl);
-        loudnessFreqLabel_outl      = findViewById(R.id.loudnessFreqLabel_outl);
-        loudnessFreqSeekBar_outl    = findViewById(R.id.loudnessFreqSeekBar_outl);
+        loudnessActivity    = findViewById(R.id.loudness_outl);
+        loudnessInfo = findViewById(R.id.loudness_info);
 
-        filtersInfo_outl        = findViewById(R.id.filters_control_info);
-        filtersActivity_outl    = findViewById(R.id.filtersActivity_outl);
-        compressorInfo_outl     = findViewById(R.id.compressor_control_info);
-        compressorActivity_outl = findViewById(R.id.compressorActivity_outl);
-        optionsActivity_outl    = findViewById(R.id.optionsActivity_outl);
+        filtersInfo = findViewById(R.id.filters_control_info);
+        filtersActivity = findViewById(R.id.filtersActivity_outl);
+        compressorInfo = findViewById(R.id.compressor_control_info);
+        compressorActivity = findViewById(R.id.compressorActivity_outl);
+        optionsActivity = findViewById(R.id.optionsActivity_outl);
 
-        audioSourceInfo_outl.setOnClickListener(this);
-        audioSource_outl.setOnCheckedListener(this);
-        //volumeInfo_outl.setOnClickListener(this);
-        volumeLabel_outl.setOnClickListener(this);
-        bassTrebleInfo_outl.setOnClickListener(this);
-        bassLabel_outl.setOnClickListener(this);
-        trebleLabel_outl.setOnClickListener(this);
-        loudnessInfo_outl.setOnClickListener(this);
-        loudnessLabel_outl.setOnClickListener(this);
-        loudnessFreqLabel_outl.setOnClickListener(this);
-        filtersInfo_outl.setOnClickListener(this);
-        filtersActivity_outl.setOnClickListener(this);
-        compressorInfo_outl.setOnClickListener(this);
-        compressorActivity_outl.setOnClickListener(this);
-        optionsActivity_outl.setOnClickListener(this);
+        audioSourceInfo.setOnClickListener(this);
+        audioSource.setOnCheckedListener(this);
+        volumeLabel.setOnClickListener(this);
+        bassTrebleActivity.setOnClickListener(this);
+        bassTrebleInfo.setOnClickListener(this);
+        loudnessActivity.setOnClickListener(this);
+        loudnessInfo.setOnClickListener(this);
+        filtersInfo.setOnClickListener(this);
+        filtersActivity.setOnClickListener(this);
+        compressorInfo.setOnClickListener(this);
+        compressorActivity.setOnClickListener(this);
+        optionsActivity.setOnClickListener(this);
 
-        volumeSeekBar_outl.setOnSeekBarChangeListener(this);
-        bassSeekBar_outl.setOnSeekBarChangeListener(this);
-        trebleSeekBar_outl.setOnSeekBarChangeListener(this);
-        loudnessSeekBar_outl.setOnSeekBarChangeListener(this);
-        loudnessFreqSeekBar_outl.setOnSeekBarChangeListener(this);
+        volumeSlider.setOnSeekBarChangeListener(this);
     }
 
     @Override
@@ -303,29 +260,16 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
 
         HiFiToyPreset preset = hifiToyDevice.getActivePreset();
 
-        audioSource_outl.setState(hifiToyDevice.getAudioSource().getSource());
+        audioSource.setState(hifiToyDevice.getAudioSource().getSource());
 
-        volumeLabel_outl.setText(preset.getVolume().getInfo());
-        setSeekBar(volumeSeekBar_outl, preset.getVolume().getDbPercent());
-
-        BassTrebleChannel bassTreble = preset.getBassTreble().getBassTreble127();
-        bassLabel_outl.setText(String.format(Locale.getDefault(),"%ddB", bassTreble.getBassDb()));
-        setSeekBar(bassSeekBar_outl, bassTreble.getBassDbPercent());
-
-        trebleLabel_outl.setText(String.format(Locale.getDefault(),"%ddB", bassTreble.getTrebleDb()));
-        setSeekBar(trebleSeekBar_outl, bassTreble.getTrebleDbPercent());
-
-        loudnessLabel_outl.setText(preset.getLoudness().getInfo());
-        setSeekBar(loudnessSeekBar_outl, preset.getLoudness().getGain() / 2);
-        loudnessFreqLabel_outl.setText(preset.getLoudness().getFreqInfo());
-        setSeekBar(loudnessFreqSeekBar_outl, preset.getLoudness().getBiquad().getParams().getFreqPercent());
+        volumeLabel.setText(preset.getVolume().getInfo());
+        volumeSlider.setPercent(preset.getVolume().getDbPercent());
 
     }
 
     public void onClick(View v) {
         Intent intent;
         KeyboardNumber n;
-        BassTrebleChannel bassTreble;
         HiFiToyPreset preset = hifiToyDevice.getActivePreset();
 
         switch (v.getId()) {
@@ -333,49 +277,27 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
                 DialogSystem.getInstance().showDialog("Info", getString(R.string.audio_source_info), "Close");
                 break;
 
-            /*case R.id.volume_control_info:
-                DialogSystem.getInstance().showDialog("Info", getString(R.string.volume_info), "Close");
-                break;*/
-
             case R.id.volumeLabel_outl:
                 n = new KeyboardNumber(NumberType.FLOAT, preset.getVolume().getDb());
                 new KeyboardDialog(this, this, n, "volume").show();
+                break;
+
+            case R.id.bass_treble_outl:
+                intent = new Intent(this, BassTrebleActivity.class);
+                startActivity(intent);
                 break;
 
             case R.id.bass_treble_info:
                 DialogSystem.getInstance().showDialog("Info", getString(R.string.bass_treble_info), "Close");
                 break;
 
-            case R.id.bassLabel_outl:
-                bassTreble = preset.getBassTreble().getBassTreble127();
-                n = new KeyboardNumber(NumberType.INTEGER, bassTreble.getBassDb());
-                new KeyboardDialog(this, this, n, "bass").show();
-                break;
-
-            case R.id.trebleLabel_outl:
-                bassTreble = preset.getBassTreble().getBassTreble127();
-                n = new KeyboardNumber(NumberType.INTEGER, bassTreble.getTrebleDb());
-                new KeyboardDialog(this, this, n, "treble").show();
+            case R.id.loudness_outl:
+                intent = new Intent(this, LoudnessActivity.class);
+                startActivity(intent);
                 break;
 
             case R.id.loudness_info:
                 DialogSystem.getInstance().showDialog("Info", getString(R.string.loudness_info), "Close");
-                break;
-
-            case R.id.loudnessLabel_outl:
-                int perc = (int)(preset.getLoudness().getGain() * 100);
-                n = new KeyboardNumber(NumberType.POSITIVE_INTEGER, perc);
-                new KeyboardDialog(this, this, n, "loudness").show();
-                break;
-
-            case R.id.loudnessFreqLabel_outl:
-                n = new KeyboardNumber(NumberType.POSITIVE_INTEGER,
-                        preset.getLoudness().getBiquad().getParams().getFreq());
-                new KeyboardDialog(this, this, n, "loudnessFreq").show();
-                break;
-
-            case R.id.filters_control_info:
-                DialogSystem.getInstance().showDialog("Info", getString(R.string.filters_info), "Close");
                 break;
 
             case R.id.filtersActivity_outl:
@@ -383,13 +305,17 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
                 startActivity(intent);
                 break;
 
-            case R.id.compressor_control_info:
-                DialogSystem.getInstance().showDialog("Info", getString(R.string.compressor_info), "Close");
+            case R.id.filters_control_info:
+                DialogSystem.getInstance().showDialog("Info", getString(R.string.filters_info), "Close");
                 break;
 
             case R.id.compressorActivity_outl:
                 intent = new Intent(this, CompressorActivity.class);
                 startActivity(intent);
+                break;
+
+            case R.id.compressor_control_info:
+                DialogSystem.getInstance().showDialog("Info", getString(R.string.compressor_info), "Close");
                 break;
 
             case R.id.optionsActivity_outl:
@@ -414,44 +340,6 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
 
                 setupOutlets();
             }
-            if (tag.equals("bass")) {
-                int r = Integer.parseInt(result.getValue());
-                if (r > 127) r = 127; // TODO: fix bad solution
-                if (r < -128) r = -128;
-
-                preset.getBassTreble().getBassTreble127().setBassDb((byte)r);
-                preset.getBassTreble().sendToPeripheral(true);
-
-                setupOutlets();
-            }
-            if (tag.equals("treble")) {
-                int r = Integer.parseInt(result.getValue());
-                if (r > 127) r = 127; // TODO: fix bad solution
-                if (r < -128) r = -128;
-
-                preset.getBassTreble().getBassTreble127().setTrebleDb((byte)r);
-                preset.getBassTreble().sendToPeripheral(true);
-
-                setupOutlets();
-            }
-            if (tag.equals("loudness")) {
-                int r = Integer.parseInt(result.getValue());
-
-                preset.getLoudness().setGain((float)r / 100);
-                preset.getLoudness().sendToPeripheral(true);
-
-                setupOutlets();
-            }
-            if (tag.equals("loudnessFreq")) {
-                int r = Integer.parseInt(result.getValue());
-                if (r > 32767) r = 32767; // TODO: fix bad solution
-
-                Biquad b = preset.getLoudness().getBiquad();
-                b.getParams().setFreq((short)r);
-                b.sendToPeripheral(true);
-
-                setupOutlets();
-            }
 
         } catch (NumberFormatException e) {
             Log.d(TAG, e.toString());
@@ -469,51 +357,13 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
 
         HiFiToyPreset p = hifiToyDevice.getActivePreset();
 
-        if (seekBar.equals(volumeSeekBar_outl)){
+        if (seekBar.equals(volumeSlider)){
             Volume v = p.getVolume();
 
-            v.setDbPercent(getSeekBarPercent(volumeSeekBar_outl));
-            volumeLabel_outl.setText(v.getInfo());
+            v.setDbPercent(volumeSlider.getPercent());
+            volumeLabel.setText(v.getInfo());
 
             v.sendToPeripheral(false);
-        }
-
-        if (seekBar.equals(bassSeekBar_outl)){
-            BassTrebleChannel bass = p.getBassTreble().getBassTreble127();
-
-            bass.setBassDbPercent(getSeekBarPercent(bassSeekBar_outl));
-            bassLabel_outl.setText(String.format(Locale.getDefault(),"%ddB", bass.getBassDb()));
-
-            p.getBassTreble().sendToPeripheral(false);
-        }
-
-        if (seekBar.equals(trebleSeekBar_outl)){
-            BassTrebleChannel treble = p.getBassTreble().getBassTreble127();
-
-            treble.setTrebleDbPercent(getSeekBarPercent(trebleSeekBar_outl));
-            trebleLabel_outl.setText(String.format(Locale.getDefault(),"%ddB", treble.getTrebleDb()));
-
-            p.getBassTreble().sendToPeripheral(false);
-        }
-
-        if (seekBar.equals(loudnessSeekBar_outl)){
-            Loudness l = p.getLoudness();
-
-            l.setGain(getSeekBarPercent(loudnessSeekBar_outl) * 2);
-            loudnessLabel_outl.setText(l.getInfo());
-
-            l.sendToPeripheral(false);
-        }
-
-        if (seekBar.equals(loudnessFreqSeekBar_outl)){
-            Biquad.BiquadParam bp = p.getLoudness().getBiquad().getParams();
-
-            bp.setFreqPercent(getSeekBarPercent(loudnessFreqSeekBar_outl));
-            //round freq
-            bp.setFreq(freqRound(bp.getFreq()));
-
-            loudnessFreqLabel_outl.setText(p.getLoudness().getFreqInfo());
-            p.getLoudness().getBiquad().sendToPeripheral(false);
         }
     }
     public void onStartTrackingTouch(SeekBar seekBar) {
@@ -522,23 +372,6 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
 
     public void onStopTrackingTouch(SeekBar seekBar) {
 
-    }
-
-    private void setSeekBar(SeekBar seekBar, float percent){//percent=[0.0 .. 1.0]
-        int percentValue = (int)(percent * seekBar.getMax());
-        seekBar.setProgress(percentValue);
-    }
-    private float getSeekBarPercent(SeekBar seekBar){//percent=[0.0 .. 1.0]
-        return (float)seekBar.getProgress() / seekBar.getMax();
-    }
-
-    private short freqRound(short freq) {
-        if (freq > 1000) {
-            return (short)(freq / 100 * 100);
-        } else if (freq > 100) {
-            return (short)(freq / 10 * 10);
-        }
-        return freq;
     }
 
     //import xml preset

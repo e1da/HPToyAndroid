@@ -114,7 +114,7 @@ public class Volume implements HiFiToyObject, Cloneable, Serializable {
     @Override
     public String getInfo() {
         if (db > HW_MUTE_DB) {
-            return String.format(Locale.getDefault(),"%.1fdb", db);
+            return String.format(Locale.getDefault(),"%.1f", db);
         }
         return "Mute";
     }

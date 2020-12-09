@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/main_layout">
@@ -27,9 +26,7 @@
                     android:layout_width="fill_parent"
                     android:layout_height="20dp"
                     android:layout_weight="1"
-                    android:background="#000000"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp" />
+                    android:background="#000000" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -76,697 +73,209 @@
             </LinearLayout>
 
             <!-- Volume block -->
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="#444444"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
-
             <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1.1"
+                android:layout_margin="20dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/volumeMinLimitLabel_outl"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:text="Volume"
+                    android:textAlignment="textStart"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/volumeLabel_outl"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:text="-5"
+                    android:textColor="@color/colorOrange"
+                    android:textAlignment="center"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/volumeMaxLimitLabel_outl"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:text="dB"
+                    android:textAlignment="textEnd"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+            <com.hifitoy.widgets.Slider
+                android:id="@+id/volumeSeekBar_outl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginBottom="20dp"
                 android:layout_weight="1"
-                android:orientation="horizontal">
-
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_alignParentEnd="false"
-                        android:gravity="center_vertical"
-                        android:layout_weight="1"
-                        android:background="#333333"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:text="Volume Control" />
-
-                    <!--<android.support.v7.widget.AppCompatImageView
-                        android:id="@+id/volume_control_info"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginRight="20dp"
-                        app:srcCompat="@android:drawable/ic_menu_info_details" />-->
-                </RelativeLayout>
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="#444444"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="20dp"
-                        android:layout_weight="1"
-                        android:text="Volume"
-                        android:textSize="20sp" />
-
-                    <TextView
-                        android:id="@+id/volumeLabel_outl"
-                        android:layout_width="80dp"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:text="-5db"
-                        android:textAlignment="textEnd"
-                        android:layout_marginRight="20dp"
-                        android:textSize="20sp" />
-                </RelativeLayout>
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="#444444"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <SeekBar
-                        android:id="@+id/volumeSeekBar_outl"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="30dp"
-                        android:layout_marginRight="30dp"
-                        android:layout_weight="1"
-                        android:max="1000"
-                        android:progressTint="@color/colorSeekBar"
-                        android:thumbTint="@color/colorSeekBar" />
-                </RelativeLayout>
-
-            </LinearLayout>
+                android:max="1000"
+                android:progressTint="@color/colorOrange"
+                android:thumbTint="@color/colorOrange" />
 
             <!-- Bass block -->
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="1dp"
                 android:layout_weight="1"
-                android:background="#444444"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
+                android:background="#444444" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_alignParentEnd="false"
-                        android:gravity="center_vertical"
-                        android:layout_weight="1"
-                        android:background="#333333"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:text="Bass Treble Control" />
-
-                    <android.support.v7.widget.AppCompatImageView
-                        android:id="@+id/bass_treble_info"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginRight="20dp"
-                        app:srcCompat="@android:drawable/ic_menu_info_details" />
-                </RelativeLayout>
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="#444444"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
-
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:layout_weight="1"
-                android:orientation="horizontal">
+                android:layout_marginLeft="20dp"
+                android:layout_weight="1">
 
-
-                <RelativeLayout
+                <TextView
+                    android:id="@+id/bass_treble_outl"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1">
+                    android:layout_alignParentEnd="false"
+                    android:gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:text="Bass Treble"
+                    android:textSize="16sp"/>
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="20dp"
-                        android:layout_weight="1"
-                        android:text="Bass"
-                        android:textSize="20sp" />
-
-                    <TextView
-                        android:id="@+id/bassLabel_outl"
-                        android:layout_width="80dp"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:text="-5db"
-                        android:textAlignment="textEnd"
-                        android:layout_marginRight="20dp"
-                        android:textSize="20sp" />
-                </RelativeLayout>
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="#444444"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
+                <ImageView
+                    android:id="@+id/bass_treble_info"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_weight="1">
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@android:drawable/ic_menu_info_details" />
+            </RelativeLayout>
 
-                    <SeekBar
-                        android:id="@+id/bassSeekBar_outl"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="30dp"
-                        android:layout_marginRight="30dp"
-                        android:layout_weight="1"
-                        android:max="1000"
-                        android:progressTint="@color/colorSeekBar"
-                        android:thumbTint="@color/colorSeekBar"/>
-                </RelativeLayout>
-
-            </LinearLayout>
-
-            <!-- Treble block -->
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="#444444"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="20dp"
-                        android:layout_weight="1"
-                        android:text="Treble"
-                        android:textSize="20sp" />
-
-                    <TextView
-                        android:id="@+id/trebleLabel_outl"
-                        android:layout_width="80dp"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:text="-5db"
-                        android:textAlignment="textEnd"
-                        android:layout_marginRight="20dp"
-                        android:textSize="20sp" />
-                </RelativeLayout>
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="#444444"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <SeekBar
-                        android:id="@+id/trebleSeekBar_outl"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="30dp"
-                        android:layout_marginRight="30dp"
-                        android:layout_weight="1"
-                        android:max="1000"
-                        android:progressTint="@color/colorSeekBar"
-                        android:thumbTint="@color/colorSeekBar"/>
-                </RelativeLayout>
-
-            </LinearLayout>
 
             <!-- Loudness block -->
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="1dp"
                 android:layout_weight="1"
-                android:background="#444444"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
+                android:background="#444444" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_alignParentEnd="false"
-                        android:gravity="center_vertical"
-                        android:layout_weight="1"
-                        android:background="#333333"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:text="Loudness Control" />
-
-                    <android.support.v7.widget.AppCompatImageView
-                        android:id="@+id/loudness_info"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginRight="20dp"
-                        app:srcCompat="@android:drawable/ic_menu_info_details" />
-                </RelativeLayout>
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="#444444"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
-
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:layout_weight="1"
-                android:orientation="horizontal">
+                android:layout_marginLeft="20dp"
+                android:layout_weight="1">
 
-
-                <RelativeLayout
+                <TextView
+                    android:id="@+id/loudness_outl"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1">
+                    android:layout_alignParentEnd="false"
+                    android:gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:text="Loudness"
+                    android:textSize="16sp"/>
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="20dp"
-                        android:layout_weight="1"
-                        android:text="Loudness Dry/Wet"
-                        android:textSize="20sp" />
-
-                    <TextView
-                        android:id="@+id/loudnessLabel_outl"
-                        android:layout_width="80dp"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:text="-5db"
-                        android:textAlignment="textEnd"
-                        android:layout_marginRight="20dp"
-                        android:textSize="20sp" />
-                </RelativeLayout>
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="#444444"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
+                <ImageView
+                    android:id="@+id/loudness_info"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_weight="1">
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@android:drawable/ic_menu_info_details" />
+            </RelativeLayout>
 
-                    <SeekBar
-                        android:id="@+id/loudnessSeekBar_outl"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="30dp"
-                        android:layout_marginRight="30dp"
-                        android:layout_weight="1"
-                        android:max="1000"
-                        android:progressTint="@color/colorSeekBar"
-                        android:thumbTint="@color/colorSeekBar"/>
-                </RelativeLayout>
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="#444444"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="20dp"
-                        android:layout_weight="1"
-                        android:text="Loudness frequency"
-                        android:textSize="20sp" />
-
-                    <TextView
-                        android:id="@+id/loudnessFreqLabel_outl"
-                        android:layout_width="80dp"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:text="-5db"
-                        android:textAlignment="textEnd"
-                        android:layout_marginRight="20dp"
-                        android:textSize="20sp" />
-                </RelativeLayout>
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="#444444"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <SeekBar
-                        android:id="@+id/loudnessFreqSeekBar_outl"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="30dp"
-                        android:layout_marginRight="30dp"
-                        android:layout_weight="1"
-                        android:max="1000"
-                        android:progressTint="@color/colorSeekBar"
-                        android:thumbTint="@color/colorSeekBar"/>
-                </RelativeLayout>
-
-            </LinearLayout>
 
             <!-- Filters block -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_alignParentEnd="false"
-                        android:gravity="center_vertical"
-                        android:layout_weight="1"
-                        android:background="#333333"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:text="Filters Control" />
-
-                    <android.support.v7.widget.AppCompatImageView
-                        android:id="@+id/filters_control_info"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginRight="20dp"
-                        app:srcCompat="@android:drawable/ic_menu_info_details" />
-                </RelativeLayout>
-
-            </LinearLayout>
-
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="1dp"
                 android:layout_weight="1"
-                android:background="#444444"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
+                android:background="#444444" />
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:layout_weight="1"
-                android:orientation="horizontal">
+                android:layout_marginLeft="20dp"
+                android:layout_weight="1">
 
-                <RelativeLayout
+                <TextView
+                    android:id="@+id/filtersActivity_outl"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1">
+                    android:layout_alignParentEnd="false"
+                    android:gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:text="Filters"
+                    android:textSize="16sp"/>
 
-                    <TextView
-                        android:id="@+id/filtersActivity_outl"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_centerHorizontal="false"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="20dp"
-                        android:layout_weight="1"
-                        android:text="Filters"
-                        android:textSize="20sp" />
-                </RelativeLayout>
-
-            </LinearLayout>
+                <ImageView
+                    android:id="@+id/filters_control_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@android:drawable/ic_menu_info_details" />
+            </RelativeLayout>
 
             <!-- Compressor block -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_alignParentEnd="false"
-                        android:gravity="center_vertical"
-                        android:layout_weight="1"
-                        android:background="#333333"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:text="Compressor Control" />
-
-                    <android.support.v7.widget.AppCompatImageView
-                        android:id="@+id/compressor_control_info"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginRight="20dp"
-                        app:srcCompat="@android:drawable/ic_menu_info_details" />
-                </RelativeLayout>
-
-            </LinearLayout>
-
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="1dp"
                 android:layout_weight="1"
-                android:background="#444444"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
+                android:background="#444444" />
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:layout_weight="1"
-                android:orientation="horizontal">
+                android:layout_marginLeft="20dp"
+                android:layout_weight="1">
 
-                <RelativeLayout
+                <TextView
+                    android:id="@+id/compressorActivity_outl"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1">
+                    android:layout_alignParentEnd="false"
+                    android:gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:text="Compressor"
+                    android:textSize="16sp"/>
 
-                    <TextView
-                        android:id="@+id/compressorActivity_outl"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_centerHorizontal="false"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="20dp"
-                        android:layout_weight="1"
-                        android:text="Compressor"
-                        android:textSize="20sp" />
-                </RelativeLayout>
-
-            </LinearLayout>
+                <ImageView
+                    android:id="@+id/compressor_control_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@android:drawable/ic_menu_info_details" />
+            </RelativeLayout>
 
             <!-- Options block -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="#333333"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:text=" " />
-
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="1dp"
                 android:layout_weight="1"
-                android:background="#444444"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
+                android:background="#444444" />
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/optionsActivity_outl"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
+                android:layout_marginLeft="20dp"
+                android:gravity="center_vertical"
                 android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <TextView
-                        android:id="@+id/optionsActivity_outl"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="20dp"
-                        android:layout_weight="1"
-                        android:text="Options"
-                        android:textSize="20sp" />
-                </RelativeLayout>
-
-            </LinearLayout>
+                android:text="Options"
+                android:textSize="16sp"/>
 
         </LinearLayout>
     </ScrollView>
