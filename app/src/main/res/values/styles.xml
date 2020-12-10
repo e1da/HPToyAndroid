@@ -8,4 +8,8 @@
         <item name="android:background">@drawable/clip_off_shape</item>
     </style>
 
+
+    <style name="MyAlertDialogStyle" parent="android:Theme.Holo.Dialog">
+        <item name="colorAccent">@color/colorOrange</item>
+    </style>
 </resources>

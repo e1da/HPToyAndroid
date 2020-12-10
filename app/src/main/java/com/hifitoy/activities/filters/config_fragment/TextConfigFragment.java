@@ -13,12 +13,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
+import com.hifitoy.ApplicationContext;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.dialogsystem.KeyboardDialog;
 import com.hifitoy.dialogsystem.KeyboardNumber;
 import com.hifitoy.dialogsystem.KeyboardNumber.NumberType;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoyobjects.Biquad;
 import com.hifitoy.hifitoyobjects.Biquad.BiquadParam;
 import com.hifitoy.hifitoyobjects.Filters;
 import com.hifitoy.widgets.ValueWidget;
@@ -64,7 +67,20 @@ public class TextConfigFragment extends Fragment implements View.OnClickListener
         syncCoefButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DialogSystem.getInstance().showSyncBiquadCoefsDialog();
+                DialogSystem.OnClickDialog dialogListener = new DialogSystem.OnClickDialog() {
+                    public void onPositiveClick(){
+                        Biquad b = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters().getActiveBiquad();
+                        b.sendToPeripheral(true);
+                        Toast.makeText(ApplicationContext.getInstance().getContext(),
+                                "Sync was successful!", Toast.LENGTH_SHORT).show();
+                    }
+                    public void onNegativeClick(){
+                    }
+                };
+
+                DialogSystem.getInstance().showDialog(dialogListener, "Warning",
+                        "Are you sure want to sync biquad coefficients?",
+                        "Sync", "Cancel");
             }
         });
 

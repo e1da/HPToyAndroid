@@ -103,8 +103,20 @@ public class OptionsActivity extends BaseActivity implements View.OnClickListene
 
                 break;
             case R.id.restoreFactorySettings_outl:
-                DialogSystem.getInstance().showFactoryResetDialog();
+
+                DialogSystem.OnClickDialog dialogListener = new DialogSystem.OnClickDialog() {
+                    public void onPositiveClick(){
+                        HiFiToyControl.getInstance().getActiveDevice().restoreFactorySettings();
+                    }
+                    public void onNegativeClick(){
+                    }
+                };
+
+                DialogSystem.getInstance().showDialog(dialogListener, "Warning",
+                        "Are you sure you want to reset to factory defaults?",
+                        "Ok", "Cancel");
                 break;
+
             case R.id.changePairingCode_outl:
                 showChangePairingCodeDialog();
                 break;

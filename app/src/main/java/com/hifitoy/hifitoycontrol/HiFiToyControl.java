@@ -447,7 +447,20 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                             Runnable myRunnable = new Runnable() {
                                 @Override
                                 public void run() {
-                                    DialogSystem.getInstance().showImportPresetDialog();
+
+                                    DialogSystem.OnClickDialog dialogListener = new DialogSystem.OnClickDialog() {
+                                        public void onPositiveClick(){
+                                            activeDevice.importPreset();
+                                        }
+                                        public void onNegativeClick(){
+                                            activeDevice.getActivePreset().storeToPeripheral();
+                                        }
+                                    };
+
+                                    DialogSystem.getInstance().showDialog(dialogListener,
+                                                                    "Preset info",
+                                                                "Import preset from peripheral?",
+                                                                "Ok", "Cancel");
                                 }
                             };
                             mainHandler.post(myRunnable);
