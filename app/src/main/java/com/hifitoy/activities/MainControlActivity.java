@@ -24,12 +24,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
 import com.hifitoy.activities.compressor.CompressorActivity;
 import com.hifitoy.activities.filters.FiltersActivity;
 import com.hifitoy.activities.options.OptionsActivity;
+import com.hifitoy.activities.options.presetmanager.PresetManagerActivity;
 import com.hifitoy.ble.Ble;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.dialogsystem.DiscoveryDialog;
@@ -44,6 +46,8 @@ import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 import com.hifitoy.hifitoyobjects.Volume;
 import com.hifitoy.widgets.AudioSourceWidget;
 import com.hifitoy.widgets.Slider;
+
+import java.io.IOException;
 
 
 public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekBarChangeListener,
@@ -74,6 +78,9 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
 
     TextView    compressorActivity;
     ImageView   compressorInfo;
+
+    TextView    presetsActivity;
+    TextView    savePresetBtn;
 
     TextView    optionsActivity;
 
@@ -229,6 +236,8 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
         filtersActivity = findViewById(R.id.filtersActivity_outl);
         compressorInfo = findViewById(R.id.compressor_control_info);
         compressorActivity = findViewById(R.id.compressorActivity_outl);
+        presetsActivity = findViewById(R.id.presetsActivity_outl);
+        savePresetBtn = findViewById(R.id.savePresetBtn_outl);
         optionsActivity = findViewById(R.id.optionsActivity_outl);
 
         audioSourceInfo.setOnClickListener(this);
@@ -243,6 +252,8 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
         filtersActivity.setOnClickListener(this);
         compressorInfo.setOnClickListener(this);
         compressorActivity.setOnClickListener(this);
+        presetsActivity.setOnClickListener(this);
+        savePresetBtn.setOnClickListener(this);
         optionsActivity.setOnClickListener(this);
 
         volumeSlider.setOnSeekBarChangeListener(this);
@@ -324,9 +335,19 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
                 DialogSystem.getInstance().showDialog("Info", getString(R.string.compressor_info), "Close");
                 break;
 
+            case R.id.presetsActivity_outl:
+                intent = new Intent(this, PresetManagerActivity.class);
+                startActivity(intent);
+                break;
+
+            case R.id.savePresetBtn_outl:
+                DialogSystem.getInstance().showTextDialog(savePresetHandler,
+                        "Please input preset name", "Ok", "Cancel");
+                break;
+
             case R.id.optionsActivity_outl:
-                Intent intentActivity = new Intent(this, OptionsActivity.class);
-                startActivity(intentActivity);
+                intent = new Intent(this, OptionsActivity.class);
+                startActivity(intent);
                 break;
 
         }
@@ -379,6 +400,75 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
     public void onStopTrackingTouch(SeekBar seekBar) {
 
     }
+
+    DialogSystem.OnClickTextDialog savePresetHandler = new DialogSystem.OnClickTextDialog() {
+        HiFiToyDevice device;
+        HiFiToyPreset preset;
+
+
+        @Override
+        public void onPositiveClick(String name) {
+            device = HiFiToyControl.getInstance().getActiveDevice();
+
+            try {
+                preset = device.getActivePreset().clone();
+                preset.setName(name);
+                preset.updateChecksum();
+
+                //restore current preset
+                HiFiToyPresetManager.getInstance().restore();
+                //add new preset to list and store
+                HiFiToyPresetManager.getInstance().setPreset(preset, false);
+
+                //set preset active in device
+                device.setActiveKeyPreset(preset.getName());
+                //save new preset to cc2540
+                preset.storeToPeripheral();
+
+            } catch (Exception e) {
+
+                if (e.getMessage().equals("Preset with this name already exist!")) {
+                    DialogSystem.getInstance().showDialog(new DialogSystem.OnClickDialog() {
+                                                              @Override
+                                                              public void onPositiveClick() {
+                                                                  try {
+                                                                      //restore current preset
+                                                                      HiFiToyPresetManager.getInstance().restore();
+                                                                      //add new preset to list and store
+                                                                      HiFiToyPresetManager.getInstance().setPreset(preset, true);
+
+                                                                      //set preset active in device
+                                                                      device.setActiveKeyPreset(preset.getName());
+                                                                      //save new preset to cc2540
+                                                                      preset.storeToPeripheral();
+                                                                  } catch (Exception e) {
+                                                                      DialogSystem.getInstance().showDialog("Error",
+                                                                              "IOException. Preset was not saved successfully.", "Ok");
+                                                                  }
+
+                                                              }
+
+                                                              @Override
+                                                              public void onNegativeClick() {
+
+                                                              }
+
+                                                          }, "Warning", "Preset with this name already exists!",
+                            "Rewrite", "Cancel");
+
+                } else {
+                    DialogSystem.getInstance().showDialog("Error",
+                            "Exception. Preset was not saved successfully.", "Ok");
+                }
+            }
+        }
+
+        @Override
+        public void onNegativeClick(String text) {
+
+        }
+    };
+
 
     //import xml preset
     private void checkImportPreset(Intent intent) {

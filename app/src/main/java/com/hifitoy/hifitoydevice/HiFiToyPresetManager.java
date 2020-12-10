@@ -150,7 +150,15 @@ public class HiFiToyPresetManager {
         }
     }
 
-    public void setPreset(HiFiToyPreset preset){
+    public void setPreset(HiFiToyPreset preset) {
+        try {
+            setPreset(preset, true);
+        } catch (Exception e) {
+            Log.d(TAG, e.toString());
+        }
+    }
+
+    public void setPreset(HiFiToyPreset preset, boolean rewrite) throws Exception {
 
         try {
 
@@ -158,11 +166,17 @@ public class HiFiToyPresetManager {
                 HiFiToyPreset p = presetList.get(i);
 
                 if (p.getName().equals(preset.getName())) {
-                    presetList.set(i, preset.clone());
+                    if (rewrite) {
+                        presetList.set(i, preset.clone());
 
-                    store();
-                    description();
-                    return;
+                        store();
+                        description();
+                        return;
+
+                    } else {
+                        Log.d(TAG, "Error. Preset with this name already exist!");
+                        throw new Exception("Preset with this name already exist!");
+                    }
                 }
             }
 

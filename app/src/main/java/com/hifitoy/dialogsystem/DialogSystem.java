@@ -18,6 +18,7 @@ import android.content.res.Resources;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -144,18 +145,15 @@ public class DialogSystem {
                                String posButton, String negButton){
         final Context context = ApplicationContext.getInstance().getContext();
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-        alertDialog.setTitle(title);
+        BaseDialog dialog = new BaseDialog(context);
+        dialog.setTitle(title);
 
-        final EditText input = new EditText(context);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        input.setLayoutParams(lp);
+        LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View inputView = inflater.inflate(R.layout.layout_input, null);
+        final EditText input = inputView.findViewById(R.id.nameInput_outl);
+        dialog.setView(inputView);
 
-        alertDialog.setView(input);
-
-        alertDialog.setPositiveButton(posButton,
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, posButton,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int which) {
                         if (onClickDialog != null){
@@ -163,7 +161,7 @@ public class DialogSystem {
                         }
                     }
                 });
-        alertDialog.setNegativeButton(negButton,
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, negButton,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         if (onClickDialog != null){
@@ -173,8 +171,6 @@ public class DialogSystem {
                     }
                 });
 
-
-        Dialog dialog = alertDialog.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         dialog.show();
     }

@@ -8,10 +8,7 @@ package com.hifitoy.activities.options.presetmanager;
 
 import android.app.ActionBar;
 import android.app.ListActivity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -66,7 +63,7 @@ public class PresetManagerActivity extends ListActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.preset_manager_menu, menu);
+        getMenuInflater().inflate(R.menu.presets_menu, menu);
         return true;
     }
 
@@ -76,8 +73,9 @@ public class PresetManagerActivity extends ListActivity {
             case android.R.id.home:
                 finish();
                 return true;
-            case R.id.addPreset_outl:
-                addNewPreset();
+            case R.id.mergeToolActivity_outl:
+                Intent intent = new Intent(this, MergeToolActivity.class);
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -87,14 +85,10 @@ public class PresetManagerActivity extends ListActivity {
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         if (position == mPresetListAdapter.getCount() - 1) {
-            Intent intent = new Intent(this, MergeToolActivity.class);
-            startActivity(intent);
-
-        } else if (position == mPresetListAdapter.getCount() - 2) {
             Intent intent = new Intent(this, PresetTextImportActivity.class);
             startActivity(intent);
 
-        } else if (position == mPresetListAdapter.getCount() - 3) {
+        } else if (position == mPresetListAdapter.getCount() - 2) {
             Intent intent = new Intent(this, LinkImportActivity.class);
             startActivity(intent);
 
@@ -105,49 +99,12 @@ public class PresetManagerActivity extends ListActivity {
         }
     }
 
-
-    private void addNewPreset() {
-        //get active preset
-        HiFiToyDevice device = HiFiToyControl.getInstance().getActiveDevice();
-        HiFiToyPreset activePreset = device.getActivePreset();
-        HiFiToyPreset preset;
-
-        try {
-            //copy active preset, rename and update checksum
-            Date date = Calendar.getInstance().getTime();
-            preset = activePreset.clone();
-            preset.setName(date.toString());
-            preset.updateChecksum();
-
-            //restore current preset
-            HiFiToyPresetManager.getInstance().restore();
-            //add new preset to list and store
-            HiFiToyPresetManager.getInstance().setPreset(preset);
-
-        } catch (CloneNotSupportedException e){
-            Log.d(TAG, "DspPreset.clone() exception.");
-            Toast.makeText(getApplicationContext(),
-                    "DspPreset.clone() exception.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-
-        //set preset active in device
-        device.setActiveKeyPreset(preset.getName());
-
-        //save new preset to cc2540
-        preset.storeToPeripheral();
-
-        //update view
-        mPresetListAdapter.notifyDataSetChanged();
-    }
-
     // Adapter for holding devices found through scanning.
     private class PresetListAdapter extends BaseAdapter {
 
         @Override
         public int getCount() {
-            return HiFiToyPresetManager.getInstance().size() + 3;
+            return HiFiToyPresetManager.getInstance().size() + 2;
         }
 
         @Override
@@ -168,12 +125,9 @@ public class PresetManagerActivity extends ListActivity {
             TextView presetName_outl;
 
             if (i == getCount() - 1) {
-                view = getLayoutInflater().inflate(R.layout.merge_tool_item, null);
-
-            } else if (i == getCount() - 2) {
                 view = getLayoutInflater().inflate(R.layout.text_import_item, null);
 
-            } else if (i == getCount() - 3) {
+            } else if (i == getCount() - 2) {
                 view = getLayoutInflater().inflate(R.layout.direct_link_import_item, null);
 
             } else {

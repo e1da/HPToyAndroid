@@ -44,7 +44,6 @@ public class OptionsActivity extends BaseActivity implements View.OnClickListene
     TextView deviceMacLabel_outl;
     TextView restoreFactorySettings_outl;
     TextView changePairingCode_outl;
-    TextView presetManager_outl;
     LinearLayout autoOff_outl;
     LinearLayout advertiseMode_outl;
 
@@ -71,24 +70,12 @@ public class OptionsActivity extends BaseActivity implements View.OnClickListene
         setupOutlets();
     }
 
-    //back button handler
-    public boolean onOptionsItemSelected(MenuItem item){
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
     private void initOutlets() {
         deviceNameLayout_outl       = findViewById(R.id.deviceNameLayout_outl);
         deviceNameLabel_outl        = findViewById(R.id.deviceNameLabel_outl);
         deviceMacLabel_outl         = findViewById(R.id.deviceMacLabel_outl);
         restoreFactorySettings_outl = findViewById(R.id.restoreFactorySettings_outl);
         changePairingCode_outl      = findViewById(R.id.changePairingCode_outl);
-        presetManager_outl          = findViewById(R.id.presetManager_outl);
         autoOff_outl                = findViewById(R.id.autoOff_outl);
         advertiseMode_outl          = findViewById(R.id.advertiseMode_outl);
 
@@ -96,7 +83,6 @@ public class OptionsActivity extends BaseActivity implements View.OnClickListene
         deviceNameLayout_outl.setOnClickListener(this);
         restoreFactorySettings_outl.setOnClickListener(this);
         changePairingCode_outl.setOnClickListener(this);
-        presetManager_outl.setOnClickListener(this);
         autoOff_outl.setOnClickListener(this);
         advertiseMode_outl.setOnClickListener(this);
     }
@@ -121,10 +107,6 @@ public class OptionsActivity extends BaseActivity implements View.OnClickListene
                 break;
             case R.id.changePairingCode_outl:
                 showChangePairingCodeDialog();
-                break;
-            case R.id.presetManager_outl:
-                intent = new Intent(OptionsActivity.this, PresetManagerActivity.class);
-                startActivity(intent);
                 break;
             case R.id.autoOff_outl:
                 intent = new Intent(OptionsActivity.this, AutoOffActivity.class);
