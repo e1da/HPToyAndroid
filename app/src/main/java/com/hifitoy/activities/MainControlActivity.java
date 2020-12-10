@@ -24,7 +24,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
@@ -47,8 +46,6 @@ import com.hifitoy.hifitoyobjects.Volume;
 import com.hifitoy.widgets.AudioSourceWidget;
 import com.hifitoy.widgets.Slider;
 
-import java.io.IOException;
-
 
 public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekBarChangeListener,
                                                                 View.OnClickListener,
@@ -66,29 +63,22 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
     Slider      volumeSlider;
 
     TextView    bassActivity;
-    ImageView   bassTrebleInfo;
-
     TextView    trebleActivity;
-
     TextView    loudnessActivity;
-    ImageView   loudnessInfo;
 
     TextView    filtersActivity;
-    ImageView   filtersInfo;
-
     TextView    compressorActivity;
-    ImageView   compressorInfo;
 
     TextView    presetsActivity;
     TextView    savePresetBtn;
-
     TextView    optionsActivity;
 
+    ImageView mainInfo;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_control);
+        setContentView(R.layout.activity_main);
 
         ApplicationContext.getInstance().setContext(this);
 
@@ -191,6 +181,28 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
         setupOutlets();
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        setOutletsEnabled(hasFocus);
+    }
+
+    private void setOutletsEnabled(boolean enabled) {
+        volumeLabel.setEnabled(enabled);
+
+        bassActivity.setEnabled(enabled);
+        trebleActivity.setEnabled(enabled);
+        loudnessActivity.setEnabled(enabled);
+
+        filtersActivity.setEnabled(enabled);
+        compressorActivity.setEnabled(enabled);
+
+        presetsActivity.setEnabled(enabled);
+        savePresetBtn.setEnabled(enabled);
+        optionsActivity.setEnabled(enabled);
+
+        mainInfo.setEnabled(enabled);
+    }
+
     private void initActionBar() {
         ActionBar actionBar = getActionBar();
 
@@ -212,9 +224,9 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
 
 
     private void initOutlets() {
-        audioSourceGroup = findViewById(R.id.audio_source_group);
-        audioSourceInfo = findViewById(R.id.audio_source_info);
-        audioSource = findViewById(R.id.audio_source1_outl);
+        audioSourceGroup    = findViewById(R.id.audio_source_group);
+        audioSourceInfo     = findViewById(R.id.audio_source_info);
+        audioSource         = findViewById(R.id.audio_source1_outl);
 
         if (getPackageName().equals("com.hptoy")) {
             audioSourceGroup.setVisibility(View.GONE);
@@ -222,39 +234,33 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
             audioSourceGroup.setVisibility(View.VISIBLE);
         }
 
-        volumeLabel = findViewById(R.id.volumeLabel_outl);
-        volumeSlider = findViewById(R.id.volumeSeekBar_outl);
+        volumeLabel         = findViewById(R.id.volumeLabel_outl);
+        volumeSlider        = findViewById(R.id.volumeSeekBar_outl);
 
-        bassActivity = findViewById(R.id.bass_outl);
-        bassTrebleInfo = findViewById(R.id.bass_treble_info);
-        trebleActivity = findViewById(R.id.treble_outl);
+        bassActivity        = findViewById(R.id.bassActivity_outl);
+        trebleActivity      = findViewById(R.id.trebleActivity_outl);
+        loudnessActivity    = findViewById(R.id.loudnessActivity_outl);
 
-        loudnessActivity    = findViewById(R.id.loudness_outl);
-        loudnessInfo = findViewById(R.id.loudness_info);
+        filtersActivity     = findViewById(R.id.filtersActivity_outl);
+        compressorActivity  = findViewById(R.id.compressorActivity_outl);
 
-        filtersInfo = findViewById(R.id.filters_control_info);
-        filtersActivity = findViewById(R.id.filtersActivity_outl);
-        compressorInfo = findViewById(R.id.compressor_control_info);
-        compressorActivity = findViewById(R.id.compressorActivity_outl);
-        presetsActivity = findViewById(R.id.presetsActivity_outl);
-        savePresetBtn = findViewById(R.id.savePresetBtn_outl);
-        optionsActivity = findViewById(R.id.optionsActivity_outl);
+        presetsActivity     = findViewById(R.id.presetsActivity_outl);
+        savePresetBtn       = findViewById(R.id.savePresetBtn_outl);
+        optionsActivity     = findViewById(R.id.settingsActivity_outl);
+        mainInfo            = findViewById(R.id.mainInfo_outl);
 
         audioSourceInfo.setOnClickListener(this);
         audioSource.setOnCheckedListener(this);
         volumeLabel.setOnClickListener(this);
         bassActivity.setOnClickListener(this);
-        bassTrebleInfo.setOnClickListener(this);
         trebleActivity.setOnClickListener(this);
         loudnessActivity.setOnClickListener(this);
-        loudnessInfo.setOnClickListener(this);
-        filtersInfo.setOnClickListener(this);
         filtersActivity.setOnClickListener(this);
-        compressorInfo.setOnClickListener(this);
         compressorActivity.setOnClickListener(this);
         presetsActivity.setOnClickListener(this);
         savePresetBtn.setOnClickListener(this);
         optionsActivity.setOnClickListener(this);
+        mainInfo.setOnClickListener(this);
 
         volumeSlider.setOnSeekBarChangeListener(this);
     }
@@ -294,27 +300,19 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
                 new KeyboardDialog(this, this, n, "volume").show();
                 break;
 
-            case R.id.bass_outl:
+            case R.id.bassActivity_outl:
                 intent = new Intent(this, BassActivity.class);
                 startActivity(intent);
                 break;
 
-            case R.id.treble_outl:
+            case R.id.trebleActivity_outl:
                 intent = new Intent(this, TrebleActivity.class);
                 startActivity(intent);
                 break;
 
-            case R.id.bass_treble_info:
-                DialogSystem.getInstance().showDialog("Info", getString(R.string.bass_treble_info), "Close");
-                break;
-
-            case R.id.loudness_outl:
+            case R.id.loudnessActivity_outl:
                 intent = new Intent(this, LoudnessActivity.class);
                 startActivity(intent);
-                break;
-
-            case R.id.loudness_info:
-                DialogSystem.getInstance().showDialog("Info", getString(R.string.loudness_info), "Close");
                 break;
 
             case R.id.filtersActivity_outl:
@@ -322,17 +320,9 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
                 startActivity(intent);
                 break;
 
-            case R.id.filters_control_info:
-                DialogSystem.getInstance().showDialog("Info", getString(R.string.filters_info), "Close");
-                break;
-
             case R.id.compressorActivity_outl:
                 intent = new Intent(this, CompressorActivity.class);
                 startActivity(intent);
-                break;
-
-            case R.id.compressor_control_info:
-                DialogSystem.getInstance().showDialog("Info", getString(R.string.compressor_info), "Close");
                 break;
 
             case R.id.presetsActivity_outl:
@@ -341,13 +331,18 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
                 break;
 
             case R.id.savePresetBtn_outl:
+                savePresetBtn.setEnabled(false);
                 DialogSystem.getInstance().showTextDialog(savePresetHandler,
                         "Please input preset name", "Ok", "Cancel");
                 break;
 
-            case R.id.optionsActivity_outl:
+            case R.id.settingsActivity_outl:
                 intent = new Intent(this, OptionsActivity.class);
                 startActivity(intent);
+                break;
+
+            case R.id.mainInfo_outl:
+
                 break;
 
         }
@@ -465,7 +460,6 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
 
         @Override
         public void onNegativeClick(String text) {
-
         }
     };
 

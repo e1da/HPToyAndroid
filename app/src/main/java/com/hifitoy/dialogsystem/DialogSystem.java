@@ -341,6 +341,7 @@ public class DialogSystem {
     public interface OnClickTextDialog {
         void onPositiveClick(String text);
         void onNegativeClick(String text);
+
     }
 
 }
