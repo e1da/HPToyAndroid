@@ -4,8 +4,9 @@
     <string name="ble_device_name">HPToyPeripheral</string>
 
     <string name="discovery_info">
+        Сlicking on the icon opens the discovery menu window.
         This window shows all available online HP Toy devices, which you may choose to control.
-        Also you can rename UUID number for any simple name in the Options/Name menu.
+        Also you can rename UUID number for any simple name in the Settings/Name menu.
     </string>
 
     <string name="auto_off_title">Clip settings</string>

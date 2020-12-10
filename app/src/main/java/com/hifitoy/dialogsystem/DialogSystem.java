@@ -117,6 +117,17 @@ public class DialogSystem {
         dialog.show();
     }
 
+    public void showDialog(String title, View messageView, String button) {
+        final Context context = ApplicationContext.getInstance().getContext();
+
+        dialog = new BaseDialog(context);
+        dialog.setTitle(title);
+        dialog.setView(messageView);
+        DialogInterface.OnClickListener listener = null;
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, button, listener);
+        dialog.show();
+    }
+
     /*----------------------------- Show base dialog and text dialog -----------------------------*/
     public void showDialog(final OnClickDialog onClickDialog,
                            String title, String message,

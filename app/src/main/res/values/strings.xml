@@ -21,8 +21,9 @@
         After 5 minutes AUX input level less than Auto-Off threshold, the amp goes to standby.
         The wakeup event could be smartphone app connecting or USB-host On.
     </string>
-    <string name="volume_info">Volume info</string>
-    <string name="bass_treble_info">Classical HiFi knobs implemented with shelving filters</string>
+    <string name="volume_info">The slider adjusts hardware volume.
+        Also you can tap on the number to enter values from keyboard.</string>
+    <string name="bass_treble_info">Classical HiFi knobs implemented with shelving filters.</string>
     <string name="loudness_info">
         Fletcher-Munson loudness curves are implemented.
         You can control the Loudness boost frequency and Dry/Wet slider position defines less/more effect.
@@ -34,6 +35,13 @@
     <string name="compressor_info">Flexible Compressor/Expander dynamic range control.
         Required some basic understanding to modify parameters successfully.
     </string>
+    <string name="presets_info">List of all user and imported presets.
+        You can share all presets to other users.</string>
+    <string name="save_info">Saving all settings as a preset file.</string>
+    <string name="settings_info">This menu provides basic functions:\n
+        <i> - rename UUID number for any simple name;\n - change pairing code;\n
+            - adjust the clip threshold;\n - select output type;\n - select advertise mode;\n
+            - restore factory settings</i>.</string>
 
     <string name="right_arrow">\u232A</string>
 

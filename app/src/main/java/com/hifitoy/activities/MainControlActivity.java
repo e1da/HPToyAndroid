@@ -342,7 +342,8 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
                 break;
 
             case R.id.mainInfo_outl:
-
+                DialogSystem.getInstance().showDialog("Info",
+                        getLayoutInflater().inflate(R.layout.info_main, null), "Ok");
                 break;
 
         }
