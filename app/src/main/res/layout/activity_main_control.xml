@@ -140,13 +140,13 @@
                 android:layout_weight="1">
 
                 <TextView
-                    android:id="@+id/bass_treble_outl"
+                    android:id="@+id/bass_outl"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_alignParentEnd="false"
                     android:gravity="center_vertical"
                     android:layout_weight="1"
-                    android:text="Bass Treble"
+                    android:text="Bass"
                     android:textSize="16sp"/>
 
                 <ImageView
@@ -157,6 +157,31 @@
                     android:layout_marginRight="20dp"
                     android:layout_gravity="center_vertical"
                     android:src="@android:drawable/ic_menu_info_details" />
+            </RelativeLayout>
+
+            <!-- Treble block -->
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="#444444" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginLeft="20dp"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/treble_outl"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="false"
+                    android:gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:text="Treble"
+                    android:textSize="16sp"/>
+
             </RelativeLayout>
 
 

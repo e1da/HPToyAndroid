@@ -12,26 +12,26 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_gravity="center_vertical"
-            android:layout_marginLeft="20dp"
-            android:text="Bass"
+            android:layout_marginStart="20dp"
+            android:layout_weight="1"
+            android:text="Treble"
             android:textSize="20sp" />
 
         <TextView
-            android:id="@+id/bassLabel_outl"
+            android:id="@+id/trebleLabel_outl"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_gravity="center_vertical"
-            android:layout_marginRight="30dp"
+            android:layout_marginEnd="30dp"
+            android:layout_weight="1"
             android:text="-5db"
             android:textAlignment="textEnd"
             android:textSize="20sp" />
     </LinearLayout>
 
     <com.hifitoy.widgets.Slider
-        android:id="@+id/bassSlider_outl"
+        android:id="@+id/trebleSlider_outl"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_gravity="center_vertical"
@@ -40,7 +40,5 @@
         android:max="1000"
         android:progressTint="@color/colorOrange"
         android:thumbTint="@color/colorOrange"/>
-
-
 
 </LinearLayout>

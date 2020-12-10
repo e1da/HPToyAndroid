@@ -52,8 +52,6 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
                                                                 KeyboardDialog.OnResultListener {
     private static final String TAG = "HiFiToy";
 
-    private HiFiToyDevice hifiToyDevice;
-
     TextView discoveryBtn;
 
     LinearLayout        audioSourceGroup;
@@ -63,8 +61,10 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
     TextView    volumeLabel;
     Slider      volumeSlider;
 
-    TextView    bassTrebleActivity;
+    TextView    bassActivity;
     ImageView   bassTrebleInfo;
+
+    TextView    trebleActivity;
 
     TextView    loudnessActivity;
     ImageView   loudnessInfo;
@@ -181,8 +181,6 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
     @Override
     protected void onResume() {
         super.onResume();
-
-        hifiToyDevice = HiFiToyControl.getInstance().getActiveDevice();
         setupOutlets();
     }
 
@@ -220,8 +218,9 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
         volumeLabel = findViewById(R.id.volumeLabel_outl);
         volumeSlider = findViewById(R.id.volumeSeekBar_outl);
 
-        bassTrebleActivity = findViewById(R.id.bass_treble_outl);
+        bassActivity = findViewById(R.id.bass_outl);
         bassTrebleInfo = findViewById(R.id.bass_treble_info);
+        trebleActivity = findViewById(R.id.treble_outl);
 
         loudnessActivity    = findViewById(R.id.loudness_outl);
         loudnessInfo = findViewById(R.id.loudness_info);
@@ -235,8 +234,9 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
         audioSourceInfo.setOnClickListener(this);
         audioSource.setOnCheckedListener(this);
         volumeLabel.setOnClickListener(this);
-        bassTrebleActivity.setOnClickListener(this);
+        bassActivity.setOnClickListener(this);
         bassTrebleInfo.setOnClickListener(this);
+        trebleActivity.setOnClickListener(this);
         loudnessActivity.setOnClickListener(this);
         loudnessInfo.setOnClickListener(this);
         filtersInfo.setOnClickListener(this);
@@ -258,9 +258,10 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
         }
         discoveryBtn.setBackground(drawable);
 
-        HiFiToyPreset preset = hifiToyDevice.getActivePreset();
+        HiFiToyDevice dev = HiFiToyControl.getInstance().getActiveDevice();
+        HiFiToyPreset preset = dev.getActivePreset();
 
-        audioSource.setState(hifiToyDevice.getAudioSource().getSource());
+        audioSource.setState(dev.getAudioSource().getSource());
 
         volumeLabel.setText(preset.getVolume().getInfo());
         volumeSlider.setPercent(preset.getVolume().getDbPercent());
@@ -270,7 +271,7 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
     public void onClick(View v) {
         Intent intent;
         KeyboardNumber n;
-        HiFiToyPreset preset = hifiToyDevice.getActivePreset();
+        HiFiToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
 
         switch (v.getId()) {
             case R.id.audio_source_info:
@@ -282,8 +283,13 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
                 new KeyboardDialog(this, this, n, "volume").show();
                 break;
 
-            case R.id.bass_treble_outl:
-                intent = new Intent(this, BassTrebleActivity.class);
+            case R.id.bass_outl:
+                intent = new Intent(this, BassActivity.class);
+                startActivity(intent);
+                break;
+
+            case R.id.treble_outl:
+                intent = new Intent(this, TrebleActivity.class);
                 startActivity(intent);
                 break;
 
@@ -328,7 +334,7 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
 
     @Override
     public void onKeyboardResult(String tag, KeyboardNumber result) {
-        HiFiToyPreset preset = hifiToyDevice.getActivePreset();
+        HiFiToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
 
         try {
             if (tag.equals("volume")) {
@@ -348,14 +354,14 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
 
     //audio source change hadler
     public void onCheckedChanged(byte state) {
-        AudioSource audioSource = hifiToyDevice.getAudioSource();
+        AudioSource audioSource = HiFiToyControl.getInstance().getActiveDevice().getAudioSource();
         audioSource.setSourceWithWriteToDsp(state);
     }
 
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (!fromUser) return;
 
-        HiFiToyPreset p = hifiToyDevice.getActivePreset();
+        HiFiToyPreset p = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
 
         if (seekBar.equals(volumeSlider)){
             Volume v = p.getVolume();

@@ -109,8 +109,12 @@
             android:label="Link import"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activities.BassTrebleActivity"
+            android:name=".activities.BassActivity"
             android:label="Bass"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.TrebleActivity"
+            android:label="Treble"
             android:screenOrientation="portrait" />
         <activity
             android:name=".activities.LoudnessActivity"
