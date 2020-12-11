@@ -77,9 +77,8 @@ public class DialogSystem {
 
     /*---------------------------------- Utility. Get message from dialog -------------------------------------*/
     public String getDialogMessage(){
-        if (dialog != null){
-            TextView message = dialog.findViewById(android.R.id.message);
-            return message.getText().toString();
+        if (dialog != null) {
+            return dialog.getMessage();
         }
         return null;
     }
@@ -131,7 +130,44 @@ public class DialogSystem {
         d.show();
     }
 
+    public void showDialog(final OnClickDialog onClickDialog,
+                           String title, View messageView,
+                           String posButton, String negButton){
+        final Context context = ApplicationContext.getInstance().getContext();
+
+        BaseDialog d = new BaseDialog(context);
+        d.setTitle(title);
+        d.setView(messageView);
+        d.setButton(DialogInterface.BUTTON_POSITIVE, posButton, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (onClickDialog != null) onClickDialog.onPositiveClick();
+            }
+        });
+        d.setButton(DialogInterface.BUTTON_NEGATIVE, negButton, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (onClickDialog != null) onClickDialog.onNegativeClick();
+            }
+        });
+
+        if (d.getWindow() != null) {
+            d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        }
+        d.show();
+    }
+
     public void showTextDialog(final OnClickTextDialog onClickDialog, String title,
+                               String posButton, String negButton){
+        showEditTextDialog(false, onClickDialog, title, posButton, negButton);
+    }
+
+    public void showNumberTextDialog(final OnClickTextDialog onClickDialog, String title,
+                               String posButton, String negButton){
+        showEditTextDialog(true, onClickDialog, title, posButton, negButton);
+    }
+
+    private void showEditTextDialog(boolean numberType, final OnClickTextDialog onClickDialog, String title,
                                String posButton, String negButton){
         final Context context = ApplicationContext.getInstance().getContext();
 
@@ -141,6 +177,8 @@ public class DialogSystem {
         LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View inputView = inflater.inflate(R.layout.layout_input, null);
         final EditText input = inputView.findViewById(R.id.nameInput_outl);
+        if (numberType) input.setInputType(InputType.TYPE_CLASS_NUMBER);
+
         dialog.setView(inputView);
 
         dialog.setButton(DialogInterface.BUTTON_POSITIVE, posButton,
@@ -161,7 +199,9 @@ public class DialogSystem {
                     }
                 });
 
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        }
         dialog.show();
     }
 
@@ -200,54 +240,30 @@ public class DialogSystem {
     public void showPairingCodeDialog(){
         final Activity activity = (Activity)ApplicationContext.getInstance().getContext();
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity);
-        alertDialog.setTitle("Enter pairing code");
+        showNumberTextDialog(new OnClickTextDialog() {
+            @Override
+            public void onPositiveClick(String text) {
+                try {
+                    int pair_code = Integer.parseInt(text);
+                    Log.d(TAG, String.format("Pair code = %d", pair_code));
 
-        final EditText input = new EditText(activity);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        input.setLayoutParams(lp);
-        input.setInputType(InputType.TYPE_CLASS_NUMBER);
-        input.setFilters(new InputFilter[]{ new InputFilter.LengthFilter(4) });
+                    HiFiToyDevice d = HiFiToyControl.getInstance().getActiveDevice();
+                    d.setPairingCode(pair_code);
+                    HiFiToyDeviceManager.getInstance().store();
 
-        alertDialog.setView(input);
+                    //send pairing code to dsp
+                    HiFiToyControl.getInstance().startPairedProccess(pair_code);
+                } catch (NumberFormatException e) {
+                    Toast.makeText(activity, "The value of a pair code is not allowed.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
 
-        alertDialog.setPositiveButton("Send",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int which) {
-                        try {
-                            int pair_code = Integer.parseInt(input.getText().toString());
-                            Log.d(TAG, String.format("Pair code = %d", pair_code));
-
-                            HiFiToyDevice d = HiFiToyControl.getInstance().getActiveDevice();
-                            d.setPairingCode(pair_code);
-                            HiFiToyDeviceManager.getInstance().store();
-
-                            //send pairing code to dsp
-                            HiFiToyControl.getInstance().startPairedProccess(pair_code);
-                        } catch (NumberFormatException e) {
-                            Toast.makeText(activity, "The value of a pair code is not allowed.",
-                                    Toast.LENGTH_SHORT).show();
-                        } finally {
-                            activity.setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-                        }
-                    }
-                });
-        alertDialog.setNegativeButton("Cancel",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        HiFiToyControl.getInstance().disconnect();
-                        activity.setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-                        activity.finish();
-                    }
-                });
-
-
-        activity.setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_LOCKED);
-        Dialog dialog = alertDialog.create();
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        dialog.show();
+            @Override
+            public void onNegativeClick(String text) {
+                HiFiToyControl.getInstance().disconnect();
+            }
+        }, "Enter pairing code", "Send", "Cancel");
     }
 
     /*====================== OnClickDialog Interfaces ===============================*/

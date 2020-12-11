@@ -103,18 +103,7 @@ public class OptionsActivity extends BaseActivity implements View.OnClickListene
 
                 break;
             case R.id.restoreFactorySettings_outl:
-
-                DialogSystem.OnClickDialog dialogListener = new DialogSystem.OnClickDialog() {
-                    public void onPositiveClick(){
-                        HiFiToyControl.getInstance().getActiveDevice().restoreFactorySettings();
-                    }
-                    public void onNegativeClick(){
-                    }
-                };
-
-                DialogSystem.getInstance().showDialog(dialogListener, "Warning",
-                        "Are you sure you want to reset to factory defaults?",
-                        "Ok", "Cancel");
+                showRestoreFactoryDialog();
                 break;
 
             case R.id.changePairingCode_outl:
@@ -132,67 +121,66 @@ public class OptionsActivity extends BaseActivity implements View.OnClickListene
     }
 
     /*--------------------------- Dialogs implementation ------------------------------*/
+    public void showRestoreFactoryDialog(){
+        DialogSystem.OnClickDialog dialogListener = new DialogSystem.OnClickDialog() {
+            public void onPositiveClick(){
+                HiFiToyControl.getInstance().getActiveDevice().restoreFactorySettings();
+            }
+            public void onNegativeClick(){
+            }
+        };
+
+        DialogSystem.getInstance().showDialog(dialogListener, "Warning",
+                "Are you sure you want to reset to factory defaults?",
+                "Ok", "Cancel");
+    }
+
     public void showChangePairingCodeDialog(){
-        final Context context = ApplicationContext.getInstance().getContext();
-
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-        alertDialog.setTitle("Enter new pairing code");
-
         LinearLayout view = (LinearLayout)getLayoutInflater().inflate(R.layout.change_paircode, null);
         final EditText oldPairInput = view.findViewById(R.id.oldPairInput);
         final EditText newPairInput = view.findViewById(R.id.newPairInput);
         final EditText confirmPairInput = view.findViewById(R.id.confirmPairInput);
 
-        alertDialog.setView(view);
+        DialogSystem.getInstance().showDialog(new DialogSystem.OnClickDialog() {
+            @Override
+            public void onPositiveClick() {
+                try {
+                    int oldPair = Integer.parseInt(oldPairInput.getText().toString());
+                    int newPair = Integer.parseInt(newPairInput.getText().toString());
+                    int confirmPair = Integer.parseInt(confirmPairInput.getText().toString());
 
-        alertDialog.setPositiveButton("Change",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int which) {
-                        try {
-                            int oldPair = Integer.parseInt(oldPairInput.getText().toString());
-                            int newPair = Integer.parseInt(newPairInput.getText().toString());
-                            int confirmPair = Integer.parseInt(confirmPairInput.getText().toString());
+                    if (newPair == confirmPair) {
+                        if (hifiToyDevice.getPairingCode() == oldPair) {
+                            hifiToyDevice.setPairingCode(newPair);
+                            Log.d(TAG, String.format("New pair code = %d", hifiToyDevice.getPairingCode()));
 
-                            if (newPair == confirmPair) {
-                                if (hifiToyDevice.getPairingCode() == oldPair) {
-                                    hifiToyDevice.setPairingCode(newPair);
-                                    Log.d(TAG, String.format("New pair code = %d", hifiToyDevice.getPairingCode()));
+                            HiFiToyDeviceManager.getInstance().store();
+                            //send pairing code to dsp
+                            HiFiToyControl.getInstance().sendNewPairingCode(hifiToyDevice.getPairingCode());
 
-                                    HiFiToyDeviceManager.getInstance().store();
-                                    //send pairing code to dsp
-                                    HiFiToyControl.getInstance().sendNewPairingCode(hifiToyDevice.getPairingCode());
-
-                                    Toast.makeText(ApplicationContext.getInstance().getContext(),
-                                            "Pair code changed successfully!", Toast.LENGTH_SHORT).show();
-
-                                } else {
-                                    Toast.makeText(ApplicationContext.getInstance().getContext(),
-                                            "Error. Old pair code is not true.", Toast.LENGTH_SHORT).show();
-                                }
-                            } else {
-                                Toast.makeText(ApplicationContext.getInstance().getContext(),
-                                        "Error. Confirm and New strings are not equal.", Toast.LENGTH_SHORT).show();
-                            }
-
-                        } catch (NumberFormatException e) {
                             Toast.makeText(ApplicationContext.getInstance().getContext(),
-                                    "Error. The value of a pair code is not allowed.", Toast.LENGTH_SHORT).show();
-                        } finally {
-                            setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-                        }
-                    }
-                });
-        alertDialog.setNegativeButton("Cancel",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-                    }
-                });
+                                    "Pair code changed successfully!", Toast.LENGTH_SHORT).show();
 
-        setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_LOCKED);
-        Dialog dialog = alertDialog.create();
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        dialog.show();
+                        } else {
+                            Toast.makeText(ApplicationContext.getInstance().getContext(),
+                                    "Error. Old pair code is not true.", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(ApplicationContext.getInstance().getContext(),
+                                "Error. Confirm and New strings are not equal.", Toast.LENGTH_SHORT).show();
+                    }
+
+                } catch (NumberFormatException e) {
+                    Toast.makeText(ApplicationContext.getInstance().getContext(),
+                            "Error. The value of a pair code is not allowed.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onNegativeClick() {
+
+            }
+        }, "Enter new pairing code", view, "Change", "Cancel");
     }
 
     void showChangeDeviceNameDialog(){
