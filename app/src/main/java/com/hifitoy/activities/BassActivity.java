@@ -32,6 +32,7 @@ public class BassActivity extends BaseActivity implements KeyboardDialog.OnResul
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle("Bass");
         setContentView(R.layout.activity_bass);
 
         //show back button

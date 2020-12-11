@@ -9,7 +9,7 @@
         Also you can rename UUID number for any simple name in the Settings/Name menu.
     </string>
 
-    <string name="auto_off_title">Clip settings</string>
+    <string name="auto_off_title">Clip threshold</string>
 
     <string name="fileprovider_authority">com.hptoy.fileprovider</string>
     <string name="export_extra_subject">Preset from HPToy</string>

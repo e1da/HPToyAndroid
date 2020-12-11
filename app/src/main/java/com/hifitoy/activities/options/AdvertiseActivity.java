@@ -31,6 +31,7 @@ public class AdvertiseActivity extends BaseActivity implements View.OnClickListe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle("Advertise mode");
         setContentView(R.layout.activity_advertise_mode);
 
         //show back button
@@ -38,19 +39,6 @@ public class AdvertiseActivity extends BaseActivity implements View.OnClickListe
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         initOutlets();
-    }
-
-    //back button handler
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent;
-
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     @Override

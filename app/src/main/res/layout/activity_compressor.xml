@@ -83,7 +83,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1">
 
-                    <SeekBar
+                    <com.hifitoy.widgets.Slider
                         android:id="@+id/compressorSeekBar_outl"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -92,8 +92,8 @@
                         android:layout_marginRight="30dp"
                         android:layout_weight="1"
                         android:max="1000"
-                        android:progressTint="@color/colorSeekBar"
-                        android:thumbTint="@color/colorSeekBar" />
+                        android:progressTint="@color/colorOrange"
+                        android:thumbTint="@color/colorOrange" />
                 </RelativeLayout>
 
             </LinearLayout>

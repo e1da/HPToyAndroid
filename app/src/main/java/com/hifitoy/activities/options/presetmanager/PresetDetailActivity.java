@@ -7,11 +7,7 @@
 package com.hifitoy.activities.options.presetmanager;
 
 import android.app.ActionBar;
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -23,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
@@ -38,7 +35,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 
-public class PresetDetailActivity extends Activity implements View.OnClickListener{
+public class PresetDetailActivity extends BaseActivity implements View.OnClickListener{
     final static String TAG = "HiFiToy";
 
     HiFiToyPreset preset;
@@ -48,7 +45,6 @@ public class PresetDetailActivity extends Activity implements View.OnClickListen
     LinearLayout    setActivePresetLayout_outl;
     TextView        setActivePreset_outl;
     TextView        exportPreset_outl;
-    //TextView        exportPresetToFile_outl;
     LinearLayout    deletePresetLayout_outl;
     TextView        deletePreset_outl;
 
@@ -74,20 +70,7 @@ public class PresetDetailActivity extends Activity implements View.OnClickListen
     @Override
     protected void onResume() {
         super.onResume();
-        ApplicationContext.getInstance().setContext(this);
-
         setupOutlets();
-    }
-
-    //back button handler
-    public boolean onOptionsItemSelected(MenuItem item){
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     @Override
@@ -115,7 +98,8 @@ public class PresetDetailActivity extends Activity implements View.OnClickListen
         deletePreset_outl.setOnClickListener(this);
     }
 
-    private void setupOutlets() {
+    @Override
+    public void setupOutlets() {
         String presetName;
         if (preset.getName().length() > 23){
             presetName = preset.getName().substring(0, 20) + "...";

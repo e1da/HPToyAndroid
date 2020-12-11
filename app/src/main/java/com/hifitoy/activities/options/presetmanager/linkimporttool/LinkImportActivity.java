@@ -17,18 +17,18 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.hifitoy.ApplicationContext;
+import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.R;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 
 import java.io.BufferedInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class LinkImportActivity extends Activity {
+public class LinkImportActivity extends BaseActivity {
     final static String TAG = "HiFiToy";
 
     private EditText linkText;
@@ -36,6 +36,7 @@ public class LinkImportActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle("Direct link");
         setContentView(R.layout.activity_link_import);
 
         //show back button
@@ -46,13 +47,6 @@ public class LinkImportActivity extends Activity {
 
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        ApplicationContext.getInstance().setContext(this);
-        //registerReceiver(broadcastReceiver, makeIntentFilter());
-
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -63,9 +57,6 @@ public class LinkImportActivity extends Activity {
     //back button handler
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
             case R.id.importPresetFromLink_outl:
                 downloadPreset();
                 return true;

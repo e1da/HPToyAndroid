@@ -26,6 +26,7 @@ import android.widget.LinearLayout;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
+import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.activities.filters.config_fragment.BiquadConfigFragment;
 import com.hifitoy.activities.filters.filter_fragment.BackConfigFragment;
 import com.hifitoy.activities.filters.filter_fragment.FiltersBackground;
@@ -47,7 +48,7 @@ import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_HIGHPASS
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_LOWPASS;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC;
 
-public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpdateView, FiltersFragment.OnSetBackgroundListener {
+public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilterUpdateView, FiltersFragment.OnSetBackgroundListener {
     private static String TAG = "HiFiToy";
 
     private Filters filters;
@@ -217,7 +218,6 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
     @Override
     protected void onResume() {
         super.onResume();
-        ApplicationContext.getInstance().setContext(this);
 
         filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
 
@@ -245,13 +245,8 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
     }
 
 
-    //back button handler
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-
             case R.id.enabled_parametrics:
                 filters.setPEQEnabled(!filters.isPEQEnabled());
                 enabledParam_outl.setTitle(filters.isPEQEnabled() ? "PEQ On" : "PEQ Off");
@@ -299,6 +294,11 @@ public class FiltersActivity extends Activity implements ViewUpdater.IFilterUpda
                 return super.onOptionsItemSelected(item);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void setupOutlets() {
+        updateView();
     }
 
     private void updateFilter() {

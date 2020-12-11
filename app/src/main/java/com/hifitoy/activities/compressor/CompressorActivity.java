@@ -7,15 +7,10 @@
 package com.hifitoy.activities.compressor;
 
 import android.app.ActionBar;
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,22 +22,21 @@ import android.widget.TextView;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
-import com.hifitoy.activities.filters.FiltersActivity;
+import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoydevice.HiFiToyPreset;
-import com.hifitoy.hifitoyobjects.Biquad;
-import com.hifitoy.hifitoyobjects.PassFilter;
 import com.hifitoy.hifitoyobjects.drc.Drc;
 import com.hifitoy.hifitoyobjects.drc.DrcCoef;
+import com.hifitoy.widgets.Slider;
+
 import java.util.List;
 import java.util.Locale;
 
-public class CompressorActivity extends Activity implements SeekBar.OnSeekBarChangeListener, View.OnTouchListener {
+public class CompressorActivity extends BaseActivity implements SeekBar.OnSeekBarChangeListener, View.OnTouchListener {
     private static String TAG = "HiFiToy";
 
     private CompressorView  compressorView;
     private TextView        compressorLabel_outl;
-    private SeekBar         compressorSeekBar_outl;
+    private Slider          compressorSeekBar_outl;
 
     private Drc drc;
 
@@ -57,6 +51,8 @@ public class CompressorActivity extends Activity implements SeekBar.OnSeekBarCha
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitleTextSize(12);
+
         setContentView(R.layout.activity_compressor);
 
         //show back button
@@ -82,22 +78,15 @@ public class CompressorActivity extends Activity implements SeekBar.OnSeekBarCha
         return true;
     }
 
-
-    //back button handler
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-
             case R.id.time_const_outl:
                 Intent intentActivity = new Intent(this, TimeConstActivity.class);
                 startActivity(intentActivity);
-                break;
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
 
@@ -118,10 +107,11 @@ public class CompressorActivity extends Activity implements SeekBar.OnSeekBarCha
         compressorSeekBar_outl.setOnSeekBarChangeListener(this);
     }
 
-    private void setupOutlets() {
+    @Override
+    public void setupOutlets() {
         compressorLabel_outl.setText(String.format(Locale.getDefault(), "%d%%",
                                     (int)(drc.getEnabledChannel((byte)0) * 100)));
-        setSeekBar(compressorSeekBar_outl, drc.getEnabledChannel((byte)0));
+        compressorSeekBar_outl.setPercent(drc.getEnabledChannel((byte)0));
 
         updateViews();
     }
@@ -134,7 +124,7 @@ public class CompressorActivity extends Activity implements SeekBar.OnSeekBarCha
         float outputDb = ((p.getOutputDb() < -23.9f) && (p.getOutputDb() > -24.1f)) ?
                                                             0.0f : p.getOutputDb() + 24.0f;
 
-        setTitle(String.format(Locale.getDefault(), "in: %.1fdB  out: %.1fdB",
+        setTitle(String.format(Locale.getDefault(), "Compressor:: in: %.1fdB  out: %.1fdB",
                             inputDb, outputDb));
     }
 
@@ -146,8 +136,8 @@ public class CompressorActivity extends Activity implements SeekBar.OnSeekBarCha
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (seekBar.equals(compressorSeekBar_outl)){
-            drc.setEnabled(getSeekBarPercent(seekBar), (byte)0);
-            drc.setEnabled(getSeekBarPercent(seekBar), (byte)1);
+            drc.setEnabled(compressorSeekBar_outl.getPercent(), (byte)0);
+            drc.setEnabled(compressorSeekBar_outl.getPercent(), (byte)1);
 
             compressorLabel_outl.setText(String.format(Locale.getDefault(), "%d%%",
                                         (int)(drc.getEnabledChannel((byte)0) * 100)));
@@ -155,14 +145,6 @@ public class CompressorActivity extends Activity implements SeekBar.OnSeekBarCha
             drc.sendEnabledToPeripheral((byte)0, false);
             drc.sendEnabledToPeripheral((byte)1, false);
         }
-    }
-
-    private float getSeekBarPercent(SeekBar seekBar){//percent=[0.0 .. 1.0]
-        return (float)seekBar.getProgress() / seekBar.getMax();
-    }
-    private void setSeekBar(SeekBar seekBar, float percent){//percent=[0.0 .. 1.0]
-        int percentValue = (int)(percent * seekBar.getMax());
-        seekBar.setProgress(percentValue);
     }
 
     @Override

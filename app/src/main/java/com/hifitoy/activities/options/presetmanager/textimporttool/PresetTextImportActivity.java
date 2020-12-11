@@ -6,34 +6,28 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
-import com.hifitoy.activities.filters.FiltersActivity;
+import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.dialogsystem.DialogSystem;
-import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 
-public class PresetTextImportActivity extends Activity {
+public class PresetTextImportActivity extends BaseActivity {
     final static String TAG = "HiFiToy";
 
     private TextView presetTextData_outl;
-    private GestureDetector mDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle("Text");
         setContentView(R.layout.activity_text_import);
 
         //show back button
@@ -41,14 +35,6 @@ public class PresetTextImportActivity extends Activity {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         initOutlets();
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        ApplicationContext.getInstance().setContext(this);
-        //registerReceiver(broadcastReceiver, makeIntentFilter());
 
     }
 
@@ -61,9 +47,6 @@ public class PresetTextImportActivity extends Activity {
     //back button handler
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
             case R.id.pastePresetText_outl:
                 pastePresetData();
                 return true;
@@ -129,12 +112,4 @@ public class PresetTextImportActivity extends Activity {
 
     }
 
-
-    /*class TapGestureListener extends GestureDetector.SimpleOnGestureListener {
-        @Override
-        public boolean onDoubleTap(MotionEvent e) {
-            pastePresetData();
-            return true;
-        }
-    }*/
 }

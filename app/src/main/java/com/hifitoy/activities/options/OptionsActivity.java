@@ -52,6 +52,7 @@ public class OptionsActivity extends BaseActivity implements View.OnClickListene
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle("Options");
         setContentView(R.layout.activity_options);
 
         //show back button

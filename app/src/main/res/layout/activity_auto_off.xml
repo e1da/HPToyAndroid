@@ -44,15 +44,15 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp" />
 
-        <SeekBar
+        <com.hifitoy.widgets.Slider
             android:id="@+id/autoOffSeekBar_outl"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_weight="1"
             android:layout_marginStart="30dp"
             android:layout_marginEnd="30dp"
-            android:progressTint="@color/colorSeekBar"
-            android:thumbTint="@color/colorSeekBar"/>
+            android:progressTint="@color/colorOrange"
+            android:thumbTint="@color/colorOrange"/>
 
     </LinearLayout>
     <!-- clip -->
@@ -75,7 +75,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
-            android:text="Clip threshold"
+            android:text="Value"
             android:textSize="20sp" />
 
         <TextView
@@ -96,15 +96,15 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp" />
 
-    <SeekBar
+    <com.hifitoy.widgets.Slider
         android:id="@+id/clipSeekBar_outl"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_weight="1"
         android:layout_marginStart="30dp"
         android:layout_marginEnd="30dp"
-        android:progressTint="@color/colorSeekBar"
-        android:thumbTint="@color/colorSeekBar"/>
+        android:progressTint="@color/colorOrange"
+        android:thumbTint="@color/colorOrange"/>
 
     <View
         android:layout_width="fill_parent"

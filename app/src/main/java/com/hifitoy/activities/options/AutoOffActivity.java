@@ -8,11 +8,6 @@
 package com.hifitoy.activities.options;
 
 import android.app.ActionBar;
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.Menu;
@@ -28,6 +23,7 @@ import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.EnergyConfig;
+import com.hifitoy.widgets.Slider;
 
 public class AutoOffActivity extends BaseActivity implements SeekBar.OnSeekBarChangeListener {
     final static String TAG = "HiFiToy";
@@ -35,13 +31,14 @@ public class AutoOffActivity extends BaseActivity implements SeekBar.OnSeekBarCh
 
     LinearLayout    autoOffGroup_outl;
     TextView        autoOffLabel_outl;
-    SeekBar         autoOffSeekBar_outl;
+    Slider          autoOffSeekBar_outl;
     TextView        clipLabel_outl;
-    SeekBar         clipSeekBar_outl;
+    Slider          clipSeekBar_outl;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle("Clip threshold");
         setContentView(R.layout.activity_auto_off);
 
         //show back button
@@ -61,12 +58,7 @@ public class AutoOffActivity extends BaseActivity implements SeekBar.OnSeekBarCh
 
     //back button handler
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent;
-
         switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
             case SYNC_MENU_ID:
                 showEnergySyncDialog();
                 return true;
@@ -107,9 +99,9 @@ public class AutoOffActivity extends BaseActivity implements SeekBar.OnSeekBarCh
     public void setupOutlets() {
         EnergyConfig energy = HiFiToyControl.getInstance().getActiveDevice().getEnergyConfig();
 
-        setSeekBar(autoOffSeekBar_outl, energy.getLowThresholdDbPercent());
+        autoOffSeekBar_outl.setPercent(energy.getLowThresholdDbPercent());
         autoOffLabel_outl.setText(String.format("%ddB", (int)energy.getLowThresholdDb()));
-        setSeekBar(clipSeekBar_outl, energy.getHighThresholdDbPercent());
+        clipSeekBar_outl.setPercent(energy.getHighThresholdDbPercent());
         clipLabel_outl.setText(String.format("%ddB", (int)energy.getHighThresholdDb()));
     }
 
@@ -119,11 +111,11 @@ public class AutoOffActivity extends BaseActivity implements SeekBar.OnSeekBarCh
         EnergyConfig energy = HiFiToyControl.getInstance().getActiveDevice().getEnergyConfig();
 
         if (seekBar.equals(autoOffSeekBar_outl)){
-            energy.setLowThresholdDbPercent( getSeekBarPercent(autoOffSeekBar_outl) );
+            energy.setLowThresholdDbPercent( autoOffSeekBar_outl.getPercent() );
             autoOffLabel_outl.setText(String.format("%ddB", (int)energy.getLowThresholdDb()));
 
         } else if (seekBar.equals(clipSeekBar_outl)){
-            energy.setHighThresholdDbPercent( getSeekBarPercent(clipSeekBar_outl) );
+            energy.setHighThresholdDbPercent( clipSeekBar_outl.getPercent() );
             clipLabel_outl.setText(String.format("%ddB", (int)energy.getHighThresholdDb()));
         }
     }
@@ -133,15 +125,6 @@ public class AutoOffActivity extends BaseActivity implements SeekBar.OnSeekBarCh
     public void onStopTrackingTouch(SeekBar seekBar) {
 
     }
-
-    private void setSeekBar(SeekBar seekBar, double percent){ //percent=[0.0 .. 1.0]
-        int percentValue = (int)(percent * seekBar.getMax());
-        seekBar.setProgress(percentValue);
-    }
-    private float getSeekBarPercent(SeekBar seekBar){ //percent=[0.0 .. 1.0]
-        return (float)seekBar.getProgress() / seekBar.getMax();
-    }
-
 
     private void showEnergySyncDialog() {
         DialogSystem.OnClickDialog dialogListener = new DialogSystem.OnClickDialog() {

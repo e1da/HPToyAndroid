@@ -1,8 +1,6 @@
 package com.hifitoy.activities.options.presetmanager.mergetool;
 
 import android.app.ActionBar;
-import android.app.Activity;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,18 +13,16 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
-import com.hifitoy.activities.options.presetmanager.PresetManagerActivity;
+import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.dialogsystem.DialogSystem;
-import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 
 import java.util.Calendar;
 import java.util.Date;
 
-public class MergeToolActivity extends Activity {
+public class MergeToolActivity extends BaseActivity {
     final static String TAG = "HiFiToy";
 
     RadioGroup presets;
@@ -216,6 +212,7 @@ public class MergeToolActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle("Merge tool");
         setContentView(R.layout.activity_merge_tool);
 
         //show back button
@@ -229,8 +226,7 @@ public class MergeToolActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        ApplicationContext.getInstance().setContext(this);
-        updateViews();
+        setupOutlets();
     }
 
 
@@ -240,17 +236,11 @@ public class MergeToolActivity extends Activity {
         return true;
     }
 
-    //back button handler
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent;
-
         switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
             case R.id.resetMergeTool_outl:
                 mergeTool.reset();
-                updateViews();
+                setupOutlets();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -271,7 +261,7 @@ public class MergeToolActivity extends Activity {
                 RadioButton b = group.findViewById(checkedId);
                 if ((b != null) && (b.isChecked()) ) {
                     mergeTool.setPreset((HiFiToyPreset) b.getTag());
-                    updateViews();
+                    setupOutlets();
                 }
 
             }
@@ -280,19 +270,20 @@ public class MergeToolActivity extends Activity {
             @Override
             public void onClick(View v) {
                 mergeTool.prevState();
-                updateViews();
+                setupOutlets();
             }
         });
         nextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mergeTool.nextState();
-                updateViews();
+                setupOutlets();
             }
         });
     }
 
-    private void updateViews() {
+    @Override
+    public void setupOutlets() {
         presetElementLabel.setText(mergeTool.getStateString());
         setChecked(mergeTool.getPresetForState());
 

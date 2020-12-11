@@ -15,7 +15,7 @@
             android:layout_weight="1"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="20dp"
-            android:text="Bass"
+            android:text="Value"
             android:textSize="20sp" />
 
         <TextView

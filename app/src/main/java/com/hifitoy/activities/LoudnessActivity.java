@@ -34,6 +34,7 @@ public class LoudnessActivity extends BaseActivity implements SeekBar.OnSeekBarC
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle("Loudness");
         setContentView(R.layout.activity_loudness);
 
         //show back button

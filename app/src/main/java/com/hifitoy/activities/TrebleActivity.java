@@ -32,6 +32,7 @@ public class TrebleActivity extends BaseActivity implements KeyboardDialog.OnRes
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle("Treble");
         setContentView(R.layout.activity_treble);
 
         //show back button
