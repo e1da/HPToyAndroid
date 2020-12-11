@@ -4,27 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent">
 
 
 
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        android:layout_weight="1"
-        android:background="#444444"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp" />
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_alignParentEnd="false"
-        android:gravity="center_vertical"
+        android:layout_height="match_parent"
         android:layout_weight="1"
+        android:gravity="center_vertical"
         android:background="#333333"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
         android:textAlignment="center"
         android:text="PRESET ELEMENT" />
 
@@ -32,12 +22,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:layout_weight="1">
+        android:layout_weight="0.95">
 
         <Button
             android:id="@+id/prevBtn_outl"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Previous"/>
 
@@ -45,7 +35,6 @@
             android:id="@+id/presetElementLabel_outl"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignParentEnd="false"
             android:gravity="center_vertical"
             android:layout_weight="1"
             android:background="#000000"
@@ -57,46 +46,35 @@
         <Button
             android:id="@+id/nextBtn_outl"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Next"/>
 
     </LinearLayout>
 
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        android:layout_weight="1"
-        android:background="#444444"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp" />
-
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_alignParentEnd="false"
+        android:layout_height="match_parent"
         android:gravity="center_vertical"
         android:layout_weight="1"
         android:background="#333333"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
         android:textAlignment="center"
         android:text="PLEASE CHOOSE SOURCE PRESET" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="5">
+        android:layout_weight="0.2">
 
-    <RadioGroup
-        android:id="@+id/presetRadioGroup_outl"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="30dp"
-        android:layout_weight="5"
-        android:orientation="vertical">
-    </RadioGroup>
+        <RadioGroup
+            android:id="@+id/presetRadioGroup_outl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="30dp"
+            android:layout_weight="5"
+            android:orientation="vertical">
+        </RadioGroup>
 
 
 
