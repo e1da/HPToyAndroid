@@ -170,7 +170,7 @@ public class BassTrebleChannel implements Cloneable, Serializable {
         bassTrebleXmlData.addXmlElement("BassTrebleChannel", xmlData, attrib);
         return bassTrebleXmlData;
     }
-    public boolean importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
+    public void importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
         String elementName = null;
         int count = 0;
 
@@ -227,13 +227,12 @@ public class BassTrebleChannel implements Cloneable, Serializable {
 
         //check import result
         if (count != 8){
-            Log.d(TAG, "BassTrebleChannel=" + Integer.toString(channel) +
-                    ". Import from xml is not success.");
-            return false;
+            String msg = "BassTrebleChannel=" + Integer.toString(channel) +
+                    ". Import from xml is not success.";
+            Log.d(TAG, msg);
+            throw new IOException(msg);
         }
         //Log.d(TAG, getInfo());
-
-        return true;
     }
 
     public class BassFreq {

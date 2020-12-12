@@ -26,7 +26,7 @@ public interface HiFiToyObject {
     boolean importFromDataBufs(List<HiFiToyDataBuf> dataBufs);
 
     XmlData toXmlData();
-    boolean importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException;
+    void importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException;
     //-(void) importFromXml:(XmlParserWrapper *)xmlParser withAttrib:(NSDictionary<NSString *, NSString *> *)attributeDict;
 
 }

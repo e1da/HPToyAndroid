@@ -9,8 +9,10 @@ package com.hifitoy.hifitoydevice;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.util.Xml;
 
@@ -78,6 +80,11 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     public HiFiToyPreset() {
         characteristics = new ArrayList<>();
         setDefault();
+    }
+
+    public HiFiToyPreset(Uri uri) throws XmlPullParserException, IOException {
+        this();
+        importFromXml(uri);
     }
 
     @Override
@@ -271,7 +278,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     }
 
     @Override
-    public boolean importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
+    public void importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
         String elementName = null;
         int count = 0;
 
@@ -289,8 +296,9 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
                     if ((type == null) || (!type.equals("HiFiToy")) ||
                             (version == null) || (!version.equals("1.0"))) {
 
-                        Log.d(TAG, "Preset xml file is not correct. See \"Type\" or \"Version\" fields.");
-                        return false;
+                        String msg = "Preset xml file is not correct. See \"Type\" or \"Version\" fields.";
+                        Log.d(TAG, msg);
+                        throw new IOException(msg);
                     }
 
                 } else {
@@ -305,7 +313,8 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
                     for (int i = 0; i < characteristics.size(); i++){
                         HiFiToyObject o = characteristics.get(i);
 
-                        if ( (o.getAddress() == addr) && (o.importFromXml(xmlParser)) ) {
+                        if (o.getAddress() == addr) {
+                            o.importFromXml(xmlParser);
                             count++;
                         }
                     }
@@ -327,105 +336,104 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         if (count == characteristics.size()){
             updateChecksum();
 
-            Log.d(TAG, "Xml parsing is success complete.");
-            return true;
+            Log.d(TAG, "Xml parsing is successfully.");
+
         } else {
-            Log.d(TAG, "Xml parsing is not success complete.");
-
+            String msg = "Xml parsing is not success.";
+            Log.d(TAG, msg);
+            throw new IOException(msg);
         }
-
-        return false;
     }
 
-    public boolean importFromXml(InputStream in, String filename) {
-        if (in == null) return false;
+    public void importFromXml(InputStream in, String filename) throws XmlPullParserException, IOException{
+        if (in == null) throw new IOException("InputStream is null.");
 
-        try {
-            //get xml parser
-            XmlPullParser xmlParser = Xml.newPullParser();
-            xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            xmlParser.setInput(in, null);
+        String presetName = getPresetName(filename);
+        if (presetName== null) throw new IOException("Preset name is not correct.");
 
-            if (importFromXml(xmlParser)) {
-                name = filename;
-                return true;
+        //get xml parser
+        XmlPullParser xmlParser = Xml.newPullParser();
+        xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+        xmlParser.setInput(in, null);
+
+        importFromXml(xmlParser);
+        name = presetName;
+    }
+
+
+    private String getPresetName(String filename) {
+        if (filename == null) return null;
+
+        int end = filename.indexOf(".tpr");
+        if (end != -1) {
+            return filename.substring(0, end);
+        }
+
+        return filename;
+    }
+
+    private String getPresetName(Uri uri) {
+        if (uri == null) return null;
+
+        if ( (uri.getScheme() != null) && (uri.getScheme().equals("content")) ) {
+            Context c = ApplicationContext.getInstance().getContext();
+            Cursor cursor = c.getContentResolver().query(uri, null, null, null, null);
+
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    String filename = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                    return getPresetName(filename);
+                }
+                cursor.close();
             }
 
-        } catch (XmlPullParserException e) {
-            Log.d(TAG, e.toString());
-
-        } catch (IOException e) {
-            Log.d(TAG, e.toString());
-
         }
 
-        return false;
+        if (uri.getLastPathSegment() != null) {
+            return getPresetName(uri.getLastPathSegment());
+        }
+
+        return null;
     }
 
-
-    public boolean importFromXml(Uri uri) {
-        if (uri == null) return false;
+    public void importFromXml(Uri uri) throws XmlPullParserException, IOException{
+        if (uri == null) throw new IOException("Uri is null.");
 
         //get preset name
-        String filename = uri.getPathSegments().get(uri.getPathSegments().size() - 1);
-        int index = filename.lastIndexOf(".");
-        if (index != -1){
-            filename = filename.substring(0, index);
-        }
-        //check preset name
-        filename = checkPresetName(filename);
-        if (filename == null) return false;
+        String presetName = getPresetName(uri);
+        presetName = checkPresetName(presetName);
 
         //get scheme
         String scheme = uri.getScheme();
-        if (scheme == null) return false;
+        if (scheme == null) throw new IOException("Uri scheme is not correct.");
 
-        try {
-            //get file input stream
-            ContentResolver resolver = ApplicationContext.getInstance().getContext().getContentResolver();
-            InputStream in = resolver.openInputStream(uri);
+        //get file input stream
+        ContentResolver resolver = ApplicationContext.getInstance().getContext().getContentResolver();
+        InputStream in = resolver.openInputStream(uri);
 
-            return importFromXml(in, filename);
+        importFromXml(in, presetName);
 
-        } catch (FileNotFoundException e) {
-            Log.d(TAG, e.toString());
-        }
-
-        return false;
     }
 
-    public boolean importFromXml(String xmlData, String presetName) {
-        if (xmlData == null) return false;
+    public void importFromXml(String xmlData, String presetName) throws XmlPullParserException, IOException {
+        if (xmlData == null) throw new IOException("Xml data is not correct.");
 
-        String n = checkPresetName(presetName);
-        if (n == null) return false;
-        name = n;
+        name = checkPresetName(presetName);
 
-        try {
-            //get xml parser
-            XmlPullParser xmlParser = Xml.newPullParser();
-            xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            xmlParser.setInput(new StringReader(xmlData));
+        //get xml parser
+        XmlPullParser xmlParser = Xml.newPullParser();
+        xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+        xmlParser.setInput(new StringReader(xmlData));
 
-            if (importFromXml(xmlParser)) {
-                return true;
-            }
-
-        } catch (XmlPullParserException e) {
-            Log.d(TAG, e.toString());
-
-        } catch (IOException e) {
-            Log.d(TAG, e.toString());
-        }
-
-        return false;
+        importFromXml(xmlParser);
     }
 
-    private String checkPresetName(String name) {
+    private String checkPresetName(String name) throws IOException{
+        if (name == null) throw new IOException("Preset name is not correct");
+
         if (HiFiToyControl.getInstance().getActiveDevice().getActiveKeyPreset().equals(name)) {
-            String msg = String.format("Preset %s is exist and active. Import is not success.", name);
-            DialogSystem.getInstance().showDialog("Warning", msg, "Ok");
-            return null;
+            String msg = String.format("Preset %s is exists and active. Import is not success.", name);
+            throw new IOException(msg);
         }
 
         int index = 1;

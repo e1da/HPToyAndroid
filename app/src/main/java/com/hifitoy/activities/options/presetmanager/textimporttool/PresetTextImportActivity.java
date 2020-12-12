@@ -19,6 +19,10 @@ import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
 public class PresetTextImportActivity extends BaseActivity {
     final static String TAG = "HiFiToy";
 
@@ -84,18 +88,22 @@ public class PresetTextImportActivity extends BaseActivity {
         DialogSystem.OnClickTextDialog dialogListener = new DialogSystem.OnClickTextDialog() {
             public void onPositiveClick(String name){
                 if (name.length() > 0) {
-                    HiFiToyPreset importPreset = new HiFiToyPreset();
-                    if (importPreset.importFromXml(presetTextData_outl.getText().toString(), name)){
+                    try {
+                        HiFiToyPreset importPreset = new HiFiToyPreset();
+                        importPreset.importFromXml(presetTextData_outl.getText().toString(), name);
 
                         HiFiToyPresetManager.getInstance().setPreset(importPreset);
 
                         DialogSystem.getInstance().showDialog("Info",
-                                "Add " + importPreset.getName() + " preset", "Ok");
-                    } else {
-                        DialogSystem.getInstance().showDialog("Warning", "Import preset is not success.", "Ok");
+                                    "Add " + importPreset.getName() + " preset", "Ok");
+
+                    } catch (IOException | XmlPullParserException e) {
+                        DialogSystem.getInstance().showDialog("Error", e.getMessage(), "Ok");
+
+                    } finally {
+                        setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_SENSOR);
                     }
 
-                    setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_SENSOR);
                 } else {
                     Toast.makeText(getApplicationContext(),
                             "Name field is empty.", Toast.LENGTH_SHORT).show();

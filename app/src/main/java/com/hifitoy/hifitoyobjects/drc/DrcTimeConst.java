@@ -289,7 +289,7 @@ public class DrcTimeConst implements HiFiToyObject, Cloneable, Serializable {
     }
 
     @Override
-    public boolean importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
+    public void importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
         String elementName = null;
         int count = 0;
 
@@ -326,12 +326,11 @@ public class DrcTimeConst implements HiFiToyObject, Cloneable, Serializable {
 
         //check import result
         if (count != 3){
-            Log.d(TAG, "DrcTimeConst=" + Integer.toString(channel) +
-                    ". Import from xml is not success.");
-            return false;
+            String msg = "DrcTimeConst=" + Integer.toString(channel) +
+                    ". Import from xml is not success.";
+            Log.d(TAG, msg);
+            throw new IOException(msg);
         }
         Log.d(TAG, getInfo());
-
-        return true;
     }
 }

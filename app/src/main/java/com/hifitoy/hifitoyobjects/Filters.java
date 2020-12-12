@@ -535,7 +535,7 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
     }
 
     @Override
-    public boolean importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
+    public void importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
         String elementName = null;
         int count = 0;
 
@@ -551,7 +551,8 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
                     byte addr = ByteUtility.parse(addrStr);
 
                     for (int i = 0; i < 7; i++) {
-                        if ( (biquads[i].getAddress() == addr) && (biquads[i].importFromXml(xmlParser)) ) {
+                        if (biquads[i].getAddress() == addr) {
+                            biquads[i].importFromXml(xmlParser);
                             count++;
                         }
                     }
@@ -570,11 +571,11 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
 
         //check import result
         if (count != 7){
-            Log.d(TAG, "Filters=" + Integer.toString(address0) +
-                    ". Import from xml is not success.");
-            return false;
+            String msg = "Filters=" + Integer.toString(address0) +
+                    ". Import from xml is not success.";
+            Log.d(TAG, msg);
+            throw new IOException(msg);
         }
         Log.d(TAG, getInfo());
-        return true;
     }
 }

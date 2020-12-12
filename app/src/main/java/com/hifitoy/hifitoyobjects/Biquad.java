@@ -212,7 +212,7 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
     }
 
     @Override
-    public boolean importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
+    public void importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
         String elementName = null;
         int count = 0;
 
@@ -297,14 +297,13 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
 
         //check import result
         if (count != 14){
-            Log.d(TAG, "Biquad=" + Integer.toString(address0) +
-                    ". Import from xml is not success.");
-            return false;
+            String msg = "Biquad=" + Integer.toString(address0) + ". Import from xml is not success.";
+            Log.d(TAG, msg);
+            throw new IOException(msg);
         }
         params.setCoefs(b0, b1, b2 ,a1, a2);
         Log.d(TAG, getInfo());
 
-        return true;
     }
 
     public class BiquadParam implements Cloneable, Serializable {

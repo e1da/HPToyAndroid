@@ -51,6 +51,7 @@ public class PresetDetailActivity extends BaseActivity implements View.OnClickLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle("Preset detail");
         setContentView(R.layout.activity_preset_detail);
 
         //show back button

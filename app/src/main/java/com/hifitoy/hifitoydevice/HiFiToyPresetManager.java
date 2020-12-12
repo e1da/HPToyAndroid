@@ -9,24 +9,23 @@ package com.hifitoy.hifitoydevice;
 
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.util.Log;
 
 import com.hifitoy.ApplicationContext;
-import com.hifitoy.R;
-
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.LinkedList;
 import java.util.List;
+
+import com.hifitoy.dialogsystem.DialogSystem;
+
+import org.xmlpull.v1.XmlPullParserException;
 
 public class HiFiToyPresetManager {
     private static final String TAG = "HiFiToy";
@@ -48,8 +47,7 @@ public class HiFiToyPresetManager {
         }
     }
 
-    //store/restore
-    public void restore(){
+    private void restore(){
         Context context = ApplicationContext.getInstance().getContext();
 
         try {
@@ -84,7 +82,7 @@ public class HiFiToyPresetManager {
         return filename;
     }
 
-    public void restorePresetsFromAsserts() {
+    private void restorePresetsFromAsserts() {
         Context c = ApplicationContext.getInstance().getContext();
         AssetManager am = c.getAssets();
 
@@ -99,13 +97,13 @@ public class HiFiToyPresetManager {
 
                 for (String filename : list) {
                     HiFiToyPreset p = new HiFiToyPreset();
-                    p.importFromXml(am.open("base_presets/" + filename), parsePresetName(filename));
+                    p.importFromXml(am.open("base_presets/" + filename), filename);
 
                     presetList.add(p);
                     Log.d(TAG, "Import preset = '" + p.getInfo() + "'");
                 }
             }
-        } catch (IOException e) {
+        } catch (XmlPullParserException | IOException e) {
             Log.d(TAG, e.toString());
         }
 
@@ -114,7 +112,7 @@ public class HiFiToyPresetManager {
         Log.d(TAG, "Finished restore preset from asserts.");
     }
 
-    public void store(){
+    private void store(){
         Context context = ApplicationContext.getInstance().getContext();
         try {
             FileOutputStream fos = context.openFileOutput("HiFiToyPresetMap.dat",
@@ -246,6 +244,27 @@ public class HiFiToyPresetManager {
         }
         return null;
     }
+
+    public void importPreset(Uri uri) {
+        if (uri == null) {
+            DialogSystem.getInstance().showDialog("Error", "Uri is null.", "Ok");
+            return;
+        }
+
+        try {
+            HiFiToyPreset importPreset = new HiFiToyPreset(uri);
+
+            //add new preset to list and store
+            HiFiToyPresetManager.getInstance().setPreset(importPreset);
+
+            DialogSystem.getInstance().showDialog("Completed",
+                    "Preset '" + importPreset.getName() + "' imported successfully.", "Ok");
+
+        } catch (IOException | XmlPullParserException e) {
+            DialogSystem.getInstance().showDialog("Error", e.getMessage(), "Ok");
+        }
+    }
+
 
     public void description() {
         Log.d(TAG, "=============== <PresetList> ======================");

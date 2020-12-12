@@ -286,7 +286,7 @@ public class BassTreble implements HiFiToyObject, Cloneable, Serializable {
     }
 
     @Override
-    public boolean importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
+    public void importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
         String elementName = null;
         int count = 0;
 
@@ -302,16 +302,20 @@ public class BassTreble implements HiFiToyObject, Cloneable, Serializable {
                     byte channel = Byte.parseByte(channelStr);
 
                     if (bassTreble127.getChannel() == channel) {
-                        if (bassTreble127.importFromXml(xmlParser)) count++;
+                        bassTreble127.importFromXml(xmlParser);
+                        count++;
                     }
                     if (bassTreble34.getChannel() == channel) {
-                        if (bassTreble34.importFromXml(xmlParser)) count++;
+                        bassTreble34.importFromXml(xmlParser);
+                        count++;
                     }
                     if (bassTreble56.getChannel() == channel) {
-                        if (bassTreble56.importFromXml(xmlParser)) count++;
+                        bassTreble56.importFromXml(xmlParser);
+                        count++;
                     }
                     if (bassTreble8.getChannel() == channel) {
-                        if (bassTreble8.importFromXml(xmlParser)) count++;
+                        bassTreble8.importFromXml(xmlParser);
+                        count++;
                     }
                 }
             }
@@ -337,12 +341,11 @@ public class BassTreble implements HiFiToyObject, Cloneable, Serializable {
 
         //check import result
         if (count != 12){
-            Log.d(TAG, "BassTreble. Import from xml is not success.");
-            return false;
+            String msg = "BassTreble. Import from xml is not success.";
+            Log.d(TAG, msg);
+            throw new IOException(msg);
         }
         Log.d(TAG, getInfo());
-
-        return true;
     }
 
 }

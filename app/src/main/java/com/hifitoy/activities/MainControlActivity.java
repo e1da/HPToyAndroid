@@ -46,6 +46,10 @@ import com.hifitoy.hifitoyobjects.Volume;
 import com.hifitoy.widgets.AudioSourceWidget;
 import com.hifitoy.widgets.Slider;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
 
 public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekBarChangeListener,
                                                                 View.OnClickListener,
@@ -411,8 +415,6 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
                 preset.setName(name);
                 preset.updateChecksum();
 
-                //restore current preset
-                HiFiToyPresetManager.getInstance().restore();
                 //add new preset to list and store
                 HiFiToyPresetManager.getInstance().setPreset(preset, false);
 
@@ -428,8 +430,6 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
                                                               @Override
                                                               public void onPositiveClick() {
                                                                   try {
-                                                                      //restore current preset
-                                                                      HiFiToyPresetManager.getInstance().restore();
                                                                       //add new preset to list and store
                                                                       HiFiToyPresetManager.getInstance().setPreset(preset, true);
 
@@ -471,27 +471,7 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
 
         if (intent.getAction().equals(Intent.ACTION_VIEW)){
             Uri uri = intent.getData();
-            if (uri == null) return;
-
-
-            HiFiToyPreset importPreset = new HiFiToyPreset();
-            if (importPreset.importFromXml(uri)){
-                //check duplicate name
-                String name = importPreset.getName();
-                int count = 0;
-                while (HiFiToyPresetManager.getInstance().isPresetExist(name)){
-                    count++;
-                    name = importPreset.getName() + "_" + count;
-                }
-                importPreset.setName(name);
-                HiFiToyPresetManager.getInstance().setPreset(importPreset);
-
-                DialogSystem.getInstance().showDialog("Info",
-                        "Add " + importPreset.getName() + " preset", "Ok");
-            } else {
-                DialogSystem.getInstance().showDialog("Warning", "Import preset is not success.", "Ok");
-            }
-
+            HiFiToyPresetManager.getInstance().importPreset(uri);
         }
     }
 

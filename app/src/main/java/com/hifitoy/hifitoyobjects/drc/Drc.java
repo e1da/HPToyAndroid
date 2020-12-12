@@ -307,7 +307,7 @@ public class Drc implements HiFiToyObject, Cloneable, Serializable {
     }
 
     @Override
-    public boolean importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
+    public void importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
         String elementName = null;
         int count = 0;
 
@@ -323,10 +323,12 @@ public class Drc implements HiFiToyObject, Cloneable, Serializable {
                     byte channel = Byte.parseByte(channelStr);
 
                     if ((coef17 != null) && (coef17.getChannel() == channel)){
-                        if (coef17.importFromXml(xmlParser)) count++;
+                        coef17.importFromXml(xmlParser);
+                        count++;
                     }
                     if ((coef8 != null) && (coef8.getChannel() == channel)){
-                        if (coef8.importFromXml(xmlParser)) count++;
+                        coef8.importFromXml(xmlParser);
+                        count++;
                     }
                 }
                 if (elementName.equals("DrcTimeConst")){
@@ -335,10 +337,12 @@ public class Drc implements HiFiToyObject, Cloneable, Serializable {
                     byte channel = Byte.parseByte(channelStr);
 
                     if ((timeConst17 != null) && (timeConst17.getChannel() == channel)){
-                        if (timeConst17.importFromXml(xmlParser)) count++;
+                        timeConst17.importFromXml(xmlParser);
+                        count++;
                     }
                     if ((timeConst8 != null) && (timeConst8.getChannel() == channel)){
-                        if (timeConst8.importFromXml(xmlParser)) count++;
+                        timeConst8.importFromXml(xmlParser);
+                        count++;
                     }
                 }
             }
@@ -371,12 +375,11 @@ public class Drc implements HiFiToyObject, Cloneable, Serializable {
 
         //check import result
         if (count != 20){
-            Log.d(TAG, "Drc. Import from xml is not success.");
-            return false;
+            String msg = "Drc. Import from xml is not success.";
+            Log.d(TAG, msg);
+            throw new IOException(msg);
         }
         Log.d(TAG, getInfo());
-
-        return true;
     }
 
     public class DrcEvaluation {

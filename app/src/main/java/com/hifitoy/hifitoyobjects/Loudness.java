@@ -185,7 +185,7 @@ public class Loudness implements HiFiToyObject, Cloneable, Serializable {
     }
 
     @Override
-    public boolean importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
+    public void importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
         String elementName = null;
         int count = 0;
 
@@ -200,7 +200,8 @@ public class Loudness implements HiFiToyObject, Cloneable, Serializable {
                     if (addrStr == null) continue;
                     byte address = ByteUtility.parse(addrStr);
 
-                    if ( (biquad.getAddress() == address) && (biquad.importFromXml(xmlParser)) ){
+                    if (biquad.getAddress() == address){
+                        biquad.importFromXml(xmlParser);
                         count++;
                     }
                 }
@@ -237,10 +238,10 @@ public class Loudness implements HiFiToyObject, Cloneable, Serializable {
 
         //check import result
         if (count != 5){
-            Log.d(TAG, "Loudness. Import from xml is not success.");
-            return false;
+            String msg = "Loudness. Import from xml is not success.";
+            Log.d(TAG, msg);
+            throw new IOException(msg);
         }
         Log.d(TAG, getInfo());
-        return true;
     }
 }

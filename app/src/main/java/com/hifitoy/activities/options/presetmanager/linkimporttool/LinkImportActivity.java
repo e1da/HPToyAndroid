@@ -23,7 +23,10 @@ import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -157,18 +160,22 @@ public class LinkImportActivity extends BaseActivity {
                 public void onPositiveClick(String name){
 
                     if (name.length() > 0) {
-                        HiFiToyPreset importPreset = new HiFiToyPreset();
-                        if (importPreset.importFromXml(presetString, name)){
+                        try {
+                            HiFiToyPreset importPreset = new HiFiToyPreset();
+                            importPreset.importFromXml(presetString, name);
 
                             HiFiToyPresetManager.getInstance().setPreset(importPreset);
 
                             DialogSystem.getInstance().showDialog("Info",
-                                    "Add " + importPreset.getName() + " preset", "Ok");
-                        } else {
-                            DialogSystem.getInstance().showDialog("Warning", "Import preset is not success.", "Ok");
+                                        "Add " + importPreset.getName() + " preset", "Ok");
+
+                        } catch (IOException | XmlPullParserException e) {
+                            DialogSystem.getInstance().showDialog("Error", e.getMessage(), "Ok");
+
+                        } finally {
+                            c.setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_SENSOR);
                         }
 
-                        c.setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_SENSOR);
                     } else {
                         Toast.makeText(c,
                                 "Name field is empty.", Toast.LENGTH_SHORT).show();
