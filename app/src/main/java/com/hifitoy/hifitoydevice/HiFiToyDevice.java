@@ -7,28 +7,10 @@
 
 package com.hifitoy.hifitoydevice;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
-import com.hifitoy.ApplicationContext;
-import com.hifitoy.dialogsystem.DialogSystem;
-import com.hifitoy.hifitoycontrol.CommonCommand;
-import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoynumbers.Checksummer;
-import com.hifitoy.hifitoyobjects.BinaryOperation;
-import com.hifitoy.hifitoyobjects.Biquad;
-import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 
-import java.io.Externalizable;
 import java.io.Serializable;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
-
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC;
 
 public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Serializable {
     private static final String TAG = "HiFiToy";

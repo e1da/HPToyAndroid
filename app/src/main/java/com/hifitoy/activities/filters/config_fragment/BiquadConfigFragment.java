@@ -21,17 +21,16 @@ import android.widget.TextView;
 import com.hifitoy.R;
 import com.hifitoy.activities.filters.ViewUpdater;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoyobjects.Biquad;
-import com.hifitoy.hifitoyobjects.Biquad.BiquadParam;
 import com.hifitoy.hifitoyobjects.PassFilter;
 import com.hifitoy.hifitoyobjects.Filters;
+import com.hifitoy.hifitoyobjects.biquad.Biquad;
 import com.hifitoy.widgets.SegmentedControlWidget;
 
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Order.BIQUAD_ORDER_2;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_USER;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_HIGHPASS;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_LOWPASS;
+import static com.hifitoy.hifitoyobjects.biquad.Order.BIQUAD_ORDER_2;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_HIGHPASS;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_LOWPASS;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_PARAMETRIC;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_USER;
 
 public class BiquadConfigFragment extends Fragment implements ViewUpdater.IFilterUpdateView {
     private final String TAG = "HiFiToy";
@@ -86,7 +85,7 @@ public class BiquadConfigFragment extends Fragment implements ViewUpdater.IFilte
                 Log.d(TAG, "onCheckedChanged");
 
                 Biquad b = filters.getActiveBiquad();
-                BiquadParam bp = b.getParams();
+                Biquad.BiquadParam bp = b.getParams();
 
                 if (checkedIndex == 1) { // set text
 

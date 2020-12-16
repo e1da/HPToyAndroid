@@ -18,8 +18,8 @@ import com.hifitoy.dialogsystem.KeyboardDialog;
 import com.hifitoy.dialogsystem.KeyboardNumber;
 import com.hifitoy.dialogsystem.KeyboardNumber.NumberType;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoyobjects.Biquad;
-import com.hifitoy.hifitoyobjects.Biquad.BiquadParam;
+import com.hifitoy.hifitoyobjects.biquad.Biquad;
+import com.hifitoy.hifitoyobjects.biquad.Biquad.BiquadParam;
 import com.hifitoy.hifitoyobjects.Filters;
 import com.hifitoy.hifitoyobjects.PassFilter;
 import com.hifitoy.widgets.ValueWidget;
@@ -29,9 +29,9 @@ import java.util.Locale;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_HIGHPASS;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_LOWPASS;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_HIGHPASS;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_LOWPASS;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_PARAMETRIC;
 
 public class GuiConfigFragment extends Fragment implements View.OnClickListener,
                                                             KeyboardDialog.OnResultListener {

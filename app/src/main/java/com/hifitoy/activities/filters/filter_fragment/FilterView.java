@@ -20,16 +20,16 @@ import android.util.Size;
 import android.view.View;
 
 import com.hifitoy.hifitoyobjects.BinaryOperation;
-import com.hifitoy.hifitoyobjects.Biquad;
 import com.hifitoy.hifitoyobjects.Filters;
+import com.hifitoy.hifitoyobjects.biquad.Biquad;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_ALLPASS;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_HIGHPASS;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_LOWPASS;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_ALLPASS;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_HIGHPASS;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_LOWPASS;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_PARAMETRIC;
 
 public class FilterView extends View {
     private static String TAG = "HiFiToy";

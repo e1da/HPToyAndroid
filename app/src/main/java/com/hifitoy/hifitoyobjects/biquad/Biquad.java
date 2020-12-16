@@ -4,14 +4,18 @@
  *   Created by Artem Khlyupin on 06/03/2019
  *   Copyright © 2019 Artem Khlyupin. All rights reserved.
  */
-package com.hifitoy.hifitoyobjects;
+package com.hifitoy.hifitoyobjects.biquad;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoynumbers.ByteUtility;
 import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoynumbers.Number523;
+import com.hifitoy.hifitoyobjects.BinaryOperation;
+import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
+import com.hifitoy.hifitoyobjects.HiFiToyObject;
 import com.hifitoy.xml.XmlData;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -30,11 +34,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-public class Biquad implements HiFiToyObject, Cloneable, Serializable{
+public class Biquad implements HiFiToyObject, Cloneable, Serializable {
     private static final String TAG = "HiFiToy";
     private static final int FS = 96000;
 
-    private boolean hiddenGui;
     private boolean enabled;
 
     private byte address0;
@@ -43,7 +46,6 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
     private BiquadParam params;
 
     public Biquad(byte address0, byte address1) {
-        hiddenGui = false;
         enabled = true;
 
         this.address0 = address0;
@@ -104,7 +106,7 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
     @Override
     public void sendToPeripheral(boolean response) {
 
-        if (params.type.getValue() == BiquadParam.Type.BIQUAD_USER) {
+        if (params.type.getValue() == Type.BIQUAD_USER) {
             ByteBuffer b = ByteBuffer.allocate(22).order(ByteOrder.LITTLE_ENDIAN);
             b.put(address0);
             b.put(address1);
@@ -127,8 +129,8 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
                 b.put(params.order.getValue());
                 b.put(params.type.getValue());
             } else {
-                b.put(BiquadParam.Order.BIQUAD_ORDER_2);
-                b.put(BiquadParam.Type.BIQUAD_OFF);
+                b.put(Order.BIQUAD_ORDER_2);
+                b.put(Type.BIQUAD_OFF);
             }
             b.putShort(params.freq);
             b.putFloat(params.qFac);
@@ -168,7 +170,7 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
     }
 
     public float getAFR(float freqX) {
-        if ( (!hiddenGui) && (enabled) ) {
+        if (enabled) {
             return params.getAFR(freqX);
         }
         return 1.0f;
@@ -184,9 +186,9 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
     public XmlData toXmlData() {
         XmlData xmlData = new XmlData();
 
-        xmlData.addXmlElement("HiddenGui", hiddenGui);
-        xmlData.addXmlElement("Order", params.order.value);
-        xmlData.addXmlElement("Type", params.type.value);
+        xmlData.addXmlElement("HiddenGui", false);
+        xmlData.addXmlElement("Order", params.order.getValue());
+        xmlData.addXmlElement("Type", params.type.getValue());
 
         xmlData.addXmlElement("MaxFreq", params.maxFreq);
         xmlData.addXmlElement("MinFreq", params.minFreq);
@@ -235,7 +237,6 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
                 if (elementValue == null) continue;
 
                 if (elementName.equals("HiddenGui")){
-                    hiddenGui = (Byte.parseByte(elementValue) == 1);
                     count++;
                 }
                 if (elementName.equals("Order")){
@@ -367,6 +368,7 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
             setCoefs(b0, b1, b2, a1, a2);
         }
 
+        @NonNull
         @Override
         public BiquadParam clone() throws CloneNotSupportedException{
             BiquadParam p = (BiquadParam) super.clone();
@@ -538,8 +540,8 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
         private void update(float b0, float b1, float b2, float a1, float a2) {
             float arg, w0;
 
-            if (order.value == Order.BIQUAD_ORDER_2){
-                switch (type.value){
+            if (order.getValue() == Order.BIQUAD_ORDER_2){
+                switch (type.getValue()){
                     case Type.BIQUAD_LOWPASS:
                         arg = 2 * b1 / a1 + 1;
                         if ((arg < 1.0f) && (arg > -1.0f)) break;
@@ -609,12 +611,12 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
             float bandwidth = 1.41f;
             float alpha, a0;
 
-            if (type.value == Type.BIQUAD_USER) return;
+            if (type.getValue() == Type.BIQUAD_USER) return;
 
             float s = (float)Math.sin(w0), c = (float)Math.cos(w0);
 
-            if (order.value == Order.BIQUAD_ORDER_2){
-                switch (type.value){
+            if (order.getValue() == Order.BIQUAD_ORDER_2){
+                switch (type.getValue()){
                     case Type.BIQUAD_LOWPASS:
                         alpha = s / (2 * qFac);
                         a0 =  1 + alpha;
@@ -677,7 +679,7 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
                 a2 = 0;
                 b2 = 0;
 
-                switch (type.value){
+                switch (type.getValue()){
                     case Type.BIQUAD_LOWPASS:
                         a1 = (float)Math.pow(2.7, -w0);
                         b0 = 1.0f - a1;
@@ -771,9 +773,9 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
             return (float)( Math.sqrt(Math.pow(A1, 2) + Math.pow(A2, 2)) / B );
         }
         public float getAFR(float freqX) {
-            if (order.value == Order.BIQUAD_ORDER_2) {
+            if (order.getValue() == Order.BIQUAD_ORDER_2) {
 
-                switch (type.value) {
+                switch (type.getValue()) {
                     case Type.BIQUAD_LOWPASS:
                         return getLPF(freqX);
                     case Type.BIQUAD_HIGHPASS:
@@ -791,7 +793,8 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
 
         //get info
         public String getInfo() {
-            switch (type.value) {
+
+            switch (type.getValue()) {
                 case Type.BIQUAD_LOWPASS:
                 case Type.BIQUAD_HIGHPASS:
                 case Type.BIQUAD_BANDPASS:
@@ -810,88 +813,6 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
             return "";
         }
 
-        //utility classes
-        public class Type implements Cloneable, Serializable{
-            public final static byte BIQUAD_LOWPASS       = 2;
-            public final static byte BIQUAD_HIGHPASS      = 1;
-            public final static byte BIQUAD_OFF           = 0;
-            public final static byte BIQUAD_PARAMETRIC    = 3;
-            public final static byte BIQUAD_ALLPASS       = 4;
-            public final static byte BIQUAD_BANDPASS      = 5;
-            public final static byte BIQUAD_USER          = 6;
-            public final static byte BIQUAD_DEFAULT       = BIQUAD_PARAMETRIC;
-
-            private byte value;
-
-            public Type() {
-                value = BIQUAD_DEFAULT;
-            }
-            public void setValue(byte value) {
-                if (value > BIQUAD_USER) value = BIQUAD_USER;
-                if (value < BIQUAD_OFF) value = BIQUAD_OFF;
-
-                this.value = value;
-            }
-            public byte getValue() {
-                return value;
-            }
-
-            @Override
-            public Type clone() throws CloneNotSupportedException{
-                return (Type) super.clone();
-            }
-
-            @Override
-            public boolean equals(Object o) {
-                if (this == o) return true;
-                if (o == null || getClass() != o.getClass()) return false;
-                Type type = (Type) o;
-                return value == type.value;
-            }
-
-            @Override
-            public int hashCode() {
-                return Objects.hash(value);
-            }
-        }
-
-        public class Order implements Cloneable, Serializable{
-            public final static byte BIQUAD_ORDER_1 = 0;
-            public final static byte BIQUAD_ORDER_2 = 1;
-
-            private byte value;
-
-            public Order() {
-                value = BIQUAD_ORDER_2;
-            }
-            public void setValue(byte value) {
-                if (value > BIQUAD_ORDER_2) value = BIQUAD_ORDER_2;
-                if (value < BIQUAD_ORDER_1) value = BIQUAD_ORDER_1;
-
-                this.value = value;
-            }
-            public byte getValue() {
-                return value;
-            }
-
-            @Override
-            public Order clone() throws CloneNotSupportedException{
-                return (Order) super.clone();
-            }
-
-            @Override
-            public boolean equals(Object o) {
-                if (this == o) return true;
-                if (o == null || getClass() != o.getClass()) return false;
-                Order order = (Order) o;
-                return value == order.value;
-            }
-
-            @Override
-            public int hashCode() {
-                return Objects.hash(value);
-            }
-        }
     }
 
 

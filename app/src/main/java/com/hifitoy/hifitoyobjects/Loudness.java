@@ -13,6 +13,7 @@ import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoynumbers.ByteUtility;
 import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoynumbers.Number523;
+import com.hifitoy.hifitoyobjects.biquad.Biquad;
 import com.hifitoy.tas5558.TAS5558;
 import com.hifitoy.xml.XmlData;
 import org.xmlpull.v1.XmlPullParser;
@@ -27,7 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_BANDPASS;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_BANDPASS;
 
 public class Loudness implements HiFiToyObject, Cloneable, Serializable {
     private static final String TAG = "HiFiToy";

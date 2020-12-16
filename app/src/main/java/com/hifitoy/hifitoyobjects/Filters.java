@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.hifitoy.hifitoynumbers.ByteUtility;
 import com.hifitoy.hifitoynumbers.FloatUtility;
+import com.hifitoy.hifitoyobjects.biquad.Biquad;
 import com.hifitoy.tas5558.TAS5558;
 import com.hifitoy.xml.XmlData;
 import org.xmlpull.v1.XmlPullParser;
@@ -24,12 +25,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_ALLPASS;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_BANDPASS;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_HIGHPASS;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_LOWPASS;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_OFF;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_ALLPASS;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_BANDPASS;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_HIGHPASS;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_LOWPASS;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_OFF;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_PARAMETRIC;
 import static com.hifitoy.tas5558.TAS5558.BIQUAD_FILTER_REG;
 
 public class Filters implements HiFiToyObject, Cloneable, Serializable {
@@ -56,7 +57,7 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
             Biquad.BiquadParam p = biquads[i].getParams();
             p.setBorderFreq((short)20000, (short)20);
 
-            p.setTypeValue(Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC);
+            p.setTypeValue(BIQUAD_PARAMETRIC);
             p.setFreq((short)(100 * (i + 1)));
             p.setQFac(1.41f);
             p.setDbVolume(0.0f);

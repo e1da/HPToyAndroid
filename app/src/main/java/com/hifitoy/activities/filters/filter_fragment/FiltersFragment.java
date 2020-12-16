@@ -25,18 +25,18 @@ import android.view.ViewGroup;
 import com.hifitoy.R;
 import com.hifitoy.activities.filters.ViewUpdater;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoyobjects.Biquad;
 import com.hifitoy.hifitoyobjects.Filters;
 import com.hifitoy.hifitoyobjects.PassFilter;
+import com.hifitoy.hifitoyobjects.biquad.Biquad;
 
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Order.BIQUAD_ORDER_1;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Order.BIQUAD_ORDER_2;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_ALLPASS;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_HIGHPASS;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_LOWPASS;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_OFF;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_USER;
+import static com.hifitoy.hifitoyobjects.biquad.Order.BIQUAD_ORDER_1;
+import static com.hifitoy.hifitoyobjects.biquad.Order.BIQUAD_ORDER_2;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_ALLPASS;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_HIGHPASS;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_LOWPASS;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_OFF;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_PARAMETRIC;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_USER;
 
 public class FiltersFragment extends Fragment implements View.OnTouchListener, ViewUpdater.IFilterUpdateView {
     private static String TAG = "HiFiToy";

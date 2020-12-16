@@ -34,19 +34,18 @@ import com.hifitoy.activities.filters.filter_fragment.FiltersFragment;
 import com.hifitoy.activities.filters.import_fragment.FilterImportFragment;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoydevice.HiFiToyPreset;
-import com.hifitoy.hifitoyobjects.Biquad;
 import com.hifitoy.hifitoyobjects.Filters;
 import com.hifitoy.hifitoyobjects.PassFilter;
+import com.hifitoy.hifitoyobjects.biquad.Biquad;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Locale;
 
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_ALLPASS;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_HIGHPASS;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_LOWPASS;
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_ALLPASS;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_HIGHPASS;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_LOWPASS;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_PARAMETRIC;
 
 public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilterUpdateView, FiltersFragment.OnSetBackgroundListener {
     private static String TAG = "HiFiToy";

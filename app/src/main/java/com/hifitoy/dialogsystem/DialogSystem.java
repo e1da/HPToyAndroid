@@ -31,8 +31,6 @@ import com.hifitoy.R;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
-import com.hifitoy.hifitoydevice.PeripheralData;
-import com.hifitoy.hifitoyobjects.Biquad;
 
 public class DialogSystem {
     private static final String TAG = "HiFiToy";

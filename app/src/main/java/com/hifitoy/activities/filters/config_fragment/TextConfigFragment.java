@@ -21,9 +21,9 @@ import com.hifitoy.dialogsystem.KeyboardDialog;
 import com.hifitoy.dialogsystem.KeyboardNumber;
 import com.hifitoy.dialogsystem.KeyboardNumber.NumberType;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoyobjects.Biquad;
-import com.hifitoy.hifitoyobjects.Biquad.BiquadParam;
 import com.hifitoy.hifitoyobjects.Filters;
+import com.hifitoy.hifitoyobjects.biquad.Biquad;
+import com.hifitoy.hifitoyobjects.biquad.Biquad.BiquadParam;
 import com.hifitoy.widgets.ValueWidget;
 import com.hifitoy.R;
 

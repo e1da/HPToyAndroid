@@ -17,7 +17,7 @@ import com.hifitoy.R;
 import com.hifitoy.dialogsystem.KeyboardDialog;
 import com.hifitoy.dialogsystem.KeyboardNumber;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoyobjects.Biquad;
+import com.hifitoy.hifitoyobjects.biquad.Biquad;
 import com.hifitoy.hifitoyobjects.Loudness;
 import com.hifitoy.widgets.Slider;
 
