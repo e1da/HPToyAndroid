@@ -3,11 +3,6 @@ package com.hifitoy.hifitoydevice;
 
 import android.util.Xml;
 
-import com.hifitoy.hifitoyobjects.Biquad;
-import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
-import com.hifitoy.hifitoyobjects.HiFiToyObject;
-import com.hifitoy.hifitoyobjects.Volume;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -105,12 +100,8 @@ public class HiFiToyPresetTest {
             xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             xmlParser.setInput(data);
 
-            if (p1.importFromXml(xmlParser)) {
-                assertEquals(p0, p1);
-
-            } else {
-                fail("Import from XML fail.");
-            }
+            p1.importFromXml(xmlParser);
+            assertEquals(p0, p1);
 
         } catch (XmlPullParserException e) {
             System.out.println(e.toString());

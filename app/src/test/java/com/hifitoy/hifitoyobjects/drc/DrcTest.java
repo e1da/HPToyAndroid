@@ -97,12 +97,8 @@ public class DrcTest {
             xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             xmlParser.setInput(data);
 
-            if (drc1.importFromXml(xmlParser)) {
-                assertEquals(drc0, drc1);
-
-            } else {
-                fail("Import from XML fail.");
-            }
+            drc1.importFromXml(xmlParser);
+            assertEquals(drc0, drc1);
 
         } catch (XmlPullParserException e) {
             System.out.println(e.toString());

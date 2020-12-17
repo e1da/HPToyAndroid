@@ -2,6 +2,8 @@ package com.hifitoy.hifitoyobjects;
 
 import android.util.Xml;
 
+import com.hifitoy.hifitoyobjects.biquad.Biquad;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,11 +14,8 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_HIGHPASS;
 import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
@@ -92,12 +91,8 @@ public class BiquadTest {
             xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             xmlParser.setInput(data);
 
-            if (b1.importFromXml(xmlParser)) {
-                assertEquals(b0, b1);
-
-            } else {
-                fail("Import from XML fail.");
-            }
+            b1.importFromXml(xmlParser);
+            assertEquals(b0, b1);
 
         } catch (XmlPullParserException e) {
             System.out.println(e.toString());

@@ -76,12 +76,8 @@ public class FiltersTest {
             xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             xmlParser.setInput(data);
 
-            if (f1.importFromXml(xmlParser)) {
-                assertEquals(f0, f1);
-
-            } else {
-                fail("Import from XML fail.");
-            }
+            f1.importFromXml(xmlParser);
+            assertEquals(f0, f1);
 
         } catch (XmlPullParserException e) {
             System.out.println(e.toString());

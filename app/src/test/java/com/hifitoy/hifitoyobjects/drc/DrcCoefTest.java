@@ -106,12 +106,8 @@ public class DrcCoefTest {
             xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             xmlParser.setInput(data);
 
-            if (dc1.importFromXml(xmlParser)) {
-                assertEquals(dc0, dc1);
-
-            } else {
-                fail("Import from XML fail.");
-            }
+            dc1.importFromXml(xmlParser);
+            assertEquals(dc0, dc1);
 
         } catch (XmlPullParserException e) {
             System.out.println(e.toString());
