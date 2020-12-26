@@ -18,7 +18,6 @@ import java.util.Objects;
 public class LowpassBiquad extends PassBiquad {
     public LowpassBiquad(Biquad b) {
         super(b);
-        setCoefs(b.getB0(), b.getB1(), b.getB2(), b.getA1(), b.getA2());
     }
 
     public LowpassBiquad(byte addr, byte bindAddr) {
@@ -36,24 +35,7 @@ public class LowpassBiquad extends PassBiquad {
     @NonNull
     @Override
     public LowpassBiquad clone() throws CloneNotSupportedException{
-        //TODO : check this method
-        LowpassBiquad lp = (LowpassBiquad) super.clone();
-        return lp;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        //TODO : check this method
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LowpassBiquad lp = (LowpassBiquad) o;
-        return (freq == lp.freq) &&
-                FloatUtility.isFloatDiffLessThan(lp.q, q, 0.02f);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(freq, q);
+        return (LowpassBiquad) super.clone();
     }
 
     //setters getters

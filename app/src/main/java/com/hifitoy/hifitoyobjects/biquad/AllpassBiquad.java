@@ -9,6 +9,8 @@ package com.hifitoy.hifitoyobjects.biquad;
 import android.support.annotation.NonNull;
 
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoynumbers.FloatUtility;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Objects;
@@ -33,24 +35,8 @@ public class AllpassBiquad extends PassBiquad {
 
     @NonNull
     @Override
-    public AllpassBiquad clone() throws CloneNotSupportedException{
-        //TODO : check this method
-        AllpassBiquad ap = (AllpassBiquad) super.clone();
-        return ap;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        //TODO : check this method
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AllpassBiquad ap = (AllpassBiquad) o;
-        return (freq == ap.freq);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(freq);
+    public AllpassBiquad clone() throws CloneNotSupportedException {
+        return (AllpassBiquad) super.clone();
     }
 
     //setters getters

@@ -34,23 +34,7 @@ public class BandpassBiquad extends PassBiquad {
     @NonNull
     @Override
     public BandpassBiquad clone() throws CloneNotSupportedException {
-        //TODO : check this method
-        BandpassBiquad bb = (BandpassBiquad) super.clone();
-        return bb;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        //TODO : check this method
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        BandpassBiquad bb = (BandpassBiquad) o;
-        return (freq == bb.freq);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(freq);
+        return (BandpassBiquad) super.clone();
     }
 
     //setters getters

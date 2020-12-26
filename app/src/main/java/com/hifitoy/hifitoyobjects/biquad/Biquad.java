@@ -88,7 +88,7 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(addr, bindAddr, enabled);
+        return Objects.hash(addr, bindAddr);
     }
 
     //setters getters

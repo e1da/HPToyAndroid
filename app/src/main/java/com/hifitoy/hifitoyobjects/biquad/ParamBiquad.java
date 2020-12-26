@@ -9,6 +9,7 @@ package com.hifitoy.hifitoyobjects.biquad;
 import android.support.annotation.NonNull;
 
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoynumbers.FloatUtility;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -30,7 +31,6 @@ public class ParamBiquad extends Biquad implements IFreq {
 
     public ParamBiquad(Biquad b) {
         super(b);
-        init();
     }
 
     public ParamBiquad(byte addr, byte bindAddr) {
@@ -55,6 +55,21 @@ public class ParamBiquad extends Biquad implements IFreq {
         q = 1.41f;
         dbVolume = 0.0f;
         update();
+    }
+
+    @NonNull
+    @Override
+    public ParamBiquad clone() throws CloneNotSupportedException{
+        return (ParamBiquad) super.clone();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!super.equals(o)) return false;
+        ParamBiquad pb = (ParamBiquad) o;
+        return (freq == pb.freq) &&
+                (FloatUtility.isFloatDiffLessThan(q, pb.q, 0.02f) &&
+                        (FloatUtility.isFloatDiffLessThan(dbVolume, pb.dbVolume, 0.02f)) );
     }
 
     //setters getters

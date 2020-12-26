@@ -9,9 +9,11 @@ package com.hifitoy.hifitoyobjects.biquad;
 import android.support.annotation.NonNull;
 
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoynumbers.FloatUtility;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Objects;
 
 public abstract class PassBiquad extends Biquad implements IFreq{
     protected short freq;
@@ -42,6 +44,14 @@ public abstract class PassBiquad extends Biquad implements IFreq{
 
     public PassBiquad() {
         this((byte)0, (byte)0);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!super.equals(o)) return false;
+        PassBiquad pb = (PassBiquad) o;
+        return (freq == pb.freq) &&
+                (FloatUtility.isFloatDiffLessThan(q, pb.q, 0.02f));
     }
 
 
