@@ -20,8 +20,13 @@ import android.util.Size;
 import android.view.View;
 
 import com.hifitoy.hifitoyobjects.BinaryOperation;
-import com.hifitoy.hifitoyobjects.Filters;
+import com.hifitoy.hifitoyobjects.biquad.IFreq;
+import com.hifitoy.hifitoyobjects.biquad.LowpassBiquad;
+import com.hifitoy.hifitoyobjects.biquad.Type;
+import com.hifitoy.hifitoyobjects.filter.Filter;
 import com.hifitoy.hifitoyobjects.biquad.Biquad;
+import com.hifitoy.hifitoyobjects.filter.HighpassFilter;
+import com.hifitoy.hifitoyobjects.filter.LowpassFilter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +39,7 @@ import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_PARAMETRIC;
 public class FilterView extends View {
     private static String TAG = "HiFiToy";
 
-    private Filters filters;
+    private Filter filters;
     private int[] drawFreqUnitArray = new int[]{20, 100, 1000, 10000};
 
     private final int MIN_VIEW_DB = -30;
@@ -65,12 +70,12 @@ public class FilterView extends View {
         super(context);
         filters = null;
     }
-    public FilterView(Context context, Filters filters) {
+    public FilterView(Context context, Filter filters) {
         super(context);
         this.filters = filters;
     }
 
-    public void setFilters(Filters f) {
+    public void setFilters(Filter f) {
         this.filters = f;
     }
 
@@ -291,7 +296,7 @@ public class FilterView extends View {
         int highpass_freq_pix = 0;
         int lowpass_freq_pix = 0;
 
-        byte type = filters.getActiveBiquad().getParams().getTypeValue();
+        byte type = Type.getType(filters.getActiveBiquad());
         if (type == BIQUAD_HIGHPASS) highpass_freq_pix = getHPBorderPixel();
         if (type == BIQUAD_LOWPASS) lowpass_freq_pix = getLPBorderPixel();
 
@@ -390,6 +395,10 @@ public class FilterView extends View {
             Biquad b = biquads.get(i);
 
             if (!b.isEnabled()) continue;
+            if (!IFreq.class.isAssignableFrom(b.getClass())) {
+                continue;
+            }
+            short freq = ((IFreq)b).getFreq();
 
             Paint p = new Paint();
             p.setStyle(Paint.Style.STROKE);
@@ -405,8 +414,8 @@ public class FilterView extends View {
 
             Path path = new Path();
 
-            path.moveTo(freqToPixel(b.getParams().getFreq()), border_top);
-            path.lineTo(freqToPixel(b.getParams().getFreq()), getHeight() - border_bottom);
+            path.moveTo(freqToPixel(freq), border_top);
+            path.lineTo(freqToPixel(freq), getHeight() - border_bottom);
             c.drawPath(path, p);
         }
 
@@ -418,7 +427,8 @@ public class FilterView extends View {
         Paint p = new Paint();
         p.setStyle(Paint.Style.FILL);
 
-        if (filters.getLowpass() == null) {
+        LowpassFilter lpf = new LowpassFilter(filters);
+        if (lpf.isEmpty()) {
 
             if (filters.isActiveNullLP()) {
                 p.setColor(0xFFFF8000); // orange
@@ -439,7 +449,8 @@ public class FilterView extends View {
             }
         }
 
-        if (filters.getHighpass() == null) {
+        HighpassFilter hpf = new HighpassFilter(filters);
+        if (hpf.isEmpty()) {
 
             if (filters.isActiveNullHP()) {
                 p.setColor(0xFFFF8000); // orange

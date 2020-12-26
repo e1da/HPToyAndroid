@@ -85,7 +85,7 @@ public class DrcTest {
 
     }
 
-    @Test
+    /*@Test
     public void testXmlExportImport() {
         drc0.setEnabled(1.0f, (byte)0);
         assertNotEquals(drc0, drc1);
@@ -108,6 +108,6 @@ public class DrcTest {
             fail("IO Exception.");
         }
 
-    }
+    }*/
 
 }

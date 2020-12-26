@@ -94,7 +94,7 @@ public class DrcCoefTest {
 
     }
 
-    @Test
+    /*@Test
     public void testXmlExportImport() {
         dc0.getPoint0().setOutputDb(-60.0f);
         assertNotEquals(dc0, dc1);
@@ -117,7 +117,7 @@ public class DrcCoefTest {
             fail("IO Exception.");
         }
 
-    }
+    }*/
 
 
 }

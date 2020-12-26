@@ -186,7 +186,7 @@ public class DrcCoef implements HiFiToyObject, Cloneable, Serializable {
     }
 
     @Override
-    public String getInfo() {
+    public String toString() {
         return "0:" + point0.getInfo() + " 1:" + point1.getInfo() +
                 " 2:" + point2.getInfo() + " 3:" + point3.getInfo();
     }
@@ -236,7 +236,7 @@ public class DrcCoef implements HiFiToyObject, Cloneable, Serializable {
         return false;
     }
 
-    @Override
+    /*@Override
     public XmlData toXmlData() {
         XmlData xmlData = new XmlData();
         xmlData.addXmlElement("InputDb0", point0.inputDb);
@@ -319,8 +319,8 @@ public class DrcCoef implements HiFiToyObject, Cloneable, Serializable {
             Log.d(TAG, msg);
             throw new IOException(msg);
         }
-        Log.d(TAG, getInfo());
-    }
+        Log.d(TAG, toString());
+    }*/
 
 
     public static class DrcPoint implements Cloneable, Serializable{

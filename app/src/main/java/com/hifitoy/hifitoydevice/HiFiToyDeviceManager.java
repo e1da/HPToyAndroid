@@ -73,6 +73,8 @@ public class HiFiToyDeviceManager {
         Log.d(TAG, "Restore HiFiToyDeviceMap.");
 
         Context context = ApplicationContext.getInstance().getContext();
+        if (context == null) return;
+
         try {
             FileInputStream fis = context.openFileInput("HiFiToyDeviceMap.dat");
             ObjectInputStream is = new ObjectInputStream(fis);
@@ -99,6 +101,8 @@ public class HiFiToyDeviceManager {
         Log.d(TAG, "Store HiFiToyDeviceMap.");
 
         Context context = ApplicationContext.getInstance().getContext();
+        if (context == null) return;
+
         try {
             FileOutputStream fos = context.openFileOutput("HiFiToyDeviceMap.dat",
                     Context.MODE_PRIVATE);

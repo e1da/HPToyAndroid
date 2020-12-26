@@ -279,7 +279,7 @@ public class PresetDetailActivity extends BaseActivity implements View.OnClickLi
 
     private File savePresetToFile(HiFiToyPreset preset) {
         //get xml string of preset
-        XmlData xmlData = preset.toXmlData();
+        XmlData xmlData = null;//preset.toXmlData(); //TODO : fixed it
         String xmlString = xmlData.toString();
 
         //create file to save on internal storage

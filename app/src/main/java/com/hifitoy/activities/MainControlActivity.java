@@ -284,7 +284,7 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
 
         audioSource.setState(dev.getAudioSource().getSource());
 
-        volumeLabel.setText(preset.getVolume().getInfo());
+        volumeLabel.setText(preset.getVolume().toString());
         volumeSlider.setPercent(preset.getVolume().getDbPercent());
 
     }
@@ -388,7 +388,7 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
             Volume v = p.getVolume();
 
             v.setDbPercent(volumeSlider.getPercent());
-            volumeLabel.setText(v.getInfo());
+            volumeLabel.setText(v.toString());
 
             v.sendToPeripheral(false);
         }

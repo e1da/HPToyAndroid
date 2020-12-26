@@ -17,6 +17,7 @@ import com.hifitoy.R;
 import com.hifitoy.dialogsystem.KeyboardDialog;
 import com.hifitoy.dialogsystem.KeyboardNumber;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoyobjects.biquad.BandpassBiquad;
 import com.hifitoy.hifitoyobjects.biquad.Biquad;
 import com.hifitoy.hifitoyobjects.Loudness;
 import com.hifitoy.widgets.Slider;
@@ -67,10 +68,10 @@ public class LoudnessActivity extends BaseActivity implements SeekBar.OnSeekBarC
     public void setupOutlets() {
         Loudness l = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getLoudness();
 
-        loudnessLabel.setText(l.getInfo());
+        loudnessLabel.setText(l.toString());
         loudnessSlider.setPercent(l.getGain() / 2);
         loudnessFreqLabel.setText(l.getFreqInfo());
-        loudnessFreqSlider.setPercent(l.getBiquad().getParams().getFreqPercent());
+        loudnessFreqSlider.setPercent(l.getBiquad().getFreqPercent());
     }
 
     @Override
@@ -87,7 +88,7 @@ public class LoudnessActivity extends BaseActivity implements SeekBar.OnSeekBarC
 
             case R.id.loudnessFreqLabel_outl:
                 n = new KeyboardNumber(KeyboardNumber.NumberType.POSITIVE_INTEGER,
-                        l.getBiquad().getParams().getFreq());
+                        l.getBiquad().getFreq());
                 new KeyboardDialog(this, this, n, "loudnessFreq").show();
                 break;
         }
@@ -110,8 +111,8 @@ public class LoudnessActivity extends BaseActivity implements SeekBar.OnSeekBarC
                 int r = Integer.parseInt(result.getValue());
                 if (r > 32767) r = 32767; // TODO: fix bad solution
 
-                Biquad b = l.getBiquad();
-                b.getParams().setFreq((short)r);
+                BandpassBiquad b = l.getBiquad();
+                b.setFreq((short)r);
                 b.sendToPeripheral(true);
 
                 setupOutlets();
@@ -131,17 +132,17 @@ public class LoudnessActivity extends BaseActivity implements SeekBar.OnSeekBarC
         if (seekBar.equals(loudnessSlider)){
             l.setGain(loudnessSlider.getPercent() * 2);
 
-            loudnessLabel.setText(l.getInfo());
+            loudnessLabel.setText(l.toString());
 
             l.sendToPeripheral(false);
         }
 
         if (seekBar.equals(loudnessFreqSlider)){
-            Biquad.BiquadParam bp = l.getBiquad().getParams();
+            BandpassBiquad bb = l.getBiquad();
 
-            bp.setFreqPercent(loudnessFreqSlider.getPercent());
+            bb.setFreqPercent(loudnessFreqSlider.getPercent());
             //round freq
-            bp.setFreq(freqRound(bp.getFreq()));
+            bb.setFreq(freqRound(bb.getFreq()));
 
             loudnessFreqLabel.setText(l.getFreqInfo());
             l.getBiquad().sendToPeripheral(false);

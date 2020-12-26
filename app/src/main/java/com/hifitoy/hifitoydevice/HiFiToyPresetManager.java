@@ -91,7 +91,7 @@ public class HiFiToyPresetManager {
         presetList.clear();
         presetList.add(new HiFiToyPreset()); // add No processing
 
-        try {
+        /*try {
             list = am.list("base_presets");
             if ((list != null) && (list.length > 0) ) {
 
@@ -100,12 +100,12 @@ public class HiFiToyPresetManager {
                     p.importFromXml(am.open("base_presets/" + filename), filename);
 
                     presetList.add(p);
-                    Log.d(TAG, "Import preset = '" + p.getInfo() + "'");
+                    Log.d(TAG, "Import preset = '" + p.toString() + "'");
                 }
             }
         } catch (XmlPullParserException | IOException e) {
             Log.d(TAG, e.toString());
-        }
+        }*/
 
         store();
 
@@ -269,7 +269,7 @@ public class HiFiToyPresetManager {
     public void description() {
         Log.d(TAG, "=============== <PresetList> ======================");
         for (HiFiToyPreset p : presetList) {
-            Log.d(TAG, "name=" + p.getInfo());
+            Log.d(TAG, "name=" + p.toString());
         }
         Log.d(TAG, "================</PresetList>======================");
     }

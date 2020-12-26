@@ -11,6 +11,10 @@ import java.nio.ByteBuffer;
 public class FloatUtility {
 
     public static boolean isFloatEqualWithAccuracy(float arg0, float arg1, int accuracy) {
+        if ( ((arg0 > 0) && (arg1 < 0)) || ((arg0 < 0) && (arg1 > 0)) ) {
+            return false; // different sign
+        }
+
         ByteBuffer b = ByteBuffer.allocate(4);
         b.putFloat(arg0);
         int arg0Int = b.getInt(0);
@@ -18,10 +22,11 @@ public class FloatUtility {
         b.putFloat(0, arg1);
         int arg1Int = b.getInt(0);
 
-        if (arg0Int < 0) arg0Int = 0x80000000 - arg0Int; //float mantis to 2`s complement
-        if (arg1Int < 0) arg1Int = 0x80000000 - arg1Int; //float mantis to 2`s complement
+        //if (arg0Int < 0) arg0Int = 0x80000000 - arg0Int; //float mantis to 2`s complement
+        //if (arg1Int < 0) arg1Int = 0x80000000 - arg1Int; //float mantis to 2`s complement
 
-        int diff = (arg0Int > arg1Int) ? (arg0Int - arg1Int) : (arg1Int - arg0Int);
+        //int diff = (arg0Int > arg1Int) ? (arg0Int - arg1Int) : (arg1Int - arg0Int);
+        int diff = Math.abs(arg0Int - arg1Int);
 
         return (diff < accuracy);
     }

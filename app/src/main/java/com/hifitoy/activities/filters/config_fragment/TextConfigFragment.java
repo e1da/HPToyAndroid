@@ -21,13 +21,11 @@ import com.hifitoy.dialogsystem.KeyboardDialog;
 import com.hifitoy.dialogsystem.KeyboardNumber;
 import com.hifitoy.dialogsystem.KeyboardNumber.NumberType;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoyobjects.Filters;
+import com.hifitoy.hifitoyobjects.biquad.TextBiquad;
+import com.hifitoy.hifitoyobjects.filter.Filter;
 import com.hifitoy.hifitoyobjects.biquad.Biquad;
-import com.hifitoy.hifitoyobjects.biquad.Biquad.BiquadParam;
 import com.hifitoy.widgets.ValueWidget;
 import com.hifitoy.R;
-
-import java.util.Locale;
 
 public class TextConfigFragment extends Fragment implements View.OnClickListener,
                                                         KeyboardDialog.OnResultListener {
@@ -40,7 +38,7 @@ public class TextConfigFragment extends Fragment implements View.OnClickListener
     private ValueWidget a2Widget;
     private Button      syncCoefButton;
 
-    private Filters filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
+    private Filter filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -99,40 +97,40 @@ public class TextConfigFragment extends Fragment implements View.OnClickListener
     }
 
     public void updateView() {
-        BiquadParam bp = filters.getActiveBiquad().getParams();
+        /*TextBiquad b = (TextBiquad) filters.getActiveBiquad();
 
-        b0Widget.setText("B0:", String.format(Locale.getDefault(), "%.6f", bp.getB0()), "");
-        b1Widget.setText("B1:", String.format(Locale.getDefault(), "%.6f", bp.getB1()), "");
-        b2Widget.setText("B2:", String.format(Locale.getDefault(), "%.6f", bp.getB2()), "");
-        a1Widget.setText("A1:", String.format(Locale.getDefault(), "%.6f", bp.getA1()), "");
-        a2Widget.setText("A2:", String.format(Locale.getDefault(), "%.6f", bp.getA2()), "");
+        b0Widget.setText("B0:", String.format(Locale.getDefault(), "%.6f", b.getB0()), "");
+        b1Widget.setText("B1:", String.format(Locale.getDefault(), "%.6f", b.getB1()), "");
+        b2Widget.setText("B2:", String.format(Locale.getDefault(), "%.6f", b.getB2()), "");
+        a1Widget.setText("A1:", String.format(Locale.getDefault(), "%.6f", b.getA1()), "");
+        a2Widget.setText("A2:", String.format(Locale.getDefault(), "%.6f", b.getA2()), "");*/
     }
 
     @Override
     public void onClick(View v) {
-        BiquadParam bp = filters.getActiveBiquad().getParams();
+        TextBiquad b = (TextBiquad) filters.getActiveBiquad();
         KeyboardNumber n;
         String tag;
 
         if (v == b0Widget) {
             tag = "b0";
-            n = new KeyboardNumber(NumberType.MAX_REAL, bp.getB0());
+            n = new KeyboardNumber(NumberType.MAX_REAL, b.getB0());
 
         } else if (v == b1Widget) {
             tag = "b1";
-            n = new KeyboardNumber(NumberType.MAX_REAL, bp.getB1());
+            n = new KeyboardNumber(NumberType.MAX_REAL, b.getB1());
 
         } else if (v == b2Widget) {
             tag = "b2";
-            n = new KeyboardNumber(NumberType.MAX_REAL, bp.getB2());
+            n = new KeyboardNumber(NumberType.MAX_REAL, b.getB2());
 
         } else if (v == a1Widget) {
             tag = "a1";
-            n = new KeyboardNumber(NumberType.MAX_REAL, bp.getA1());
+            n = new KeyboardNumber(NumberType.MAX_REAL, b.getA1());
 
         } else if (v == a2Widget) {
             tag = "a2";
-            n = new KeyboardNumber(NumberType.MAX_REAL, bp.getA2());
+            n = new KeyboardNumber(NumberType.MAX_REAL, b.getA2());
 
         } else {
             return;
@@ -144,23 +142,23 @@ public class TextConfigFragment extends Fragment implements View.OnClickListener
     @Override
     public void onKeyboardResult(String tag, KeyboardNumber result) {
         try {
-            BiquadParam bp = filters.getActiveBiquad().getParams();
+            TextBiquad b = (TextBiquad) filters.getActiveBiquad();
             float rs = Float.parseFloat(result.getValue());
 
             if (tag.equals("b0")) {
-                bp.setB0(rs);
+                b.setB0(rs);
 
             } else if (tag.equals("b1")) {
-                bp.setB1(rs);
+                b.setB1(rs);
 
             } else if (tag.equals("b2")) {
-                bp.setB2(rs);
+                b.setB2(rs);
 
             } else if (tag.equals("a1")) {
-                bp.setA1(rs);
+                b.setA1(rs);
 
             } else if (tag.equals("a2")) {
-                bp.setA2(rs);
+                b.setA2(rs);
 
             }
             updateView();

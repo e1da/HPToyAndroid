@@ -86,7 +86,7 @@ public class DrcTimeConstTest {
 
     }
 
-    @Test
+    /*@Test
     public void testXmlExportImport() {
         dt0.setEnergyMS(1.0f);
         assertNotEquals(dt0, dt1);
@@ -109,7 +109,7 @@ public class DrcTimeConstTest {
             fail("IO Exception.");
         }
 
-    }
+    }*/
 
     @Test
     public void testSetGetEnergy() {

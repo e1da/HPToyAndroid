@@ -7,12 +7,8 @@
 package com.hifitoy.activities.filters;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.FragmentTransaction;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,7 +20,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
 import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.activities.filters.config_fragment.BiquadConfigFragment;
@@ -34,9 +29,13 @@ import com.hifitoy.activities.filters.filter_fragment.FiltersFragment;
 import com.hifitoy.activities.filters.import_fragment.FilterImportFragment;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoyobjects.Filters;
-import com.hifitoy.hifitoyobjects.PassFilter;
+import com.hifitoy.hifitoyobjects.biquad.AllpassBiquad;
+import com.hifitoy.hifitoyobjects.biquad.ParamBiquad;
+import com.hifitoy.hifitoyobjects.biquad.Type;
+import com.hifitoy.hifitoyobjects.filter.Filter;
 import com.hifitoy.hifitoyobjects.biquad.Biquad;
+import com.hifitoy.hifitoyobjects.filter.HighpassFilter;
+import com.hifitoy.hifitoyobjects.filter.LowpassFilter;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -50,7 +49,7 @@ import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_PARAMETRIC;
 public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilterUpdateView, FiltersFragment.OnSetBackgroundListener {
     private static String TAG = "HiFiToy";
 
-    private Filters filters;
+    private Filter filters;
 
     MenuItem enabledParam_outl;
     MenuItem typeScale_outl;
@@ -238,7 +237,7 @@ public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilter
         } else {
             getMenuInflater().inflate(R.menu.filters_menu, menu);
             enabledParam_outl = menu.findItem(R.id.enabled_parametrics);
-            enabledParam_outl.setTitle(filters.isPEQEnabled() ? "PEQ On" : "PEQ Off");
+            enabledParam_outl.setTitle(filters.isBiquadEnabled(BIQUAD_PARAMETRIC) ? "PEQ On" : "PEQ Off");
         }
         return true;
     }
@@ -247,8 +246,9 @@ public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilter
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
             case R.id.enabled_parametrics:
-                filters.setPEQEnabled(!filters.isPEQEnabled());
-                enabledParam_outl.setTitle(filters.isPEQEnabled() ? "PEQ On" : "PEQ Off");
+                boolean paramEn = filters.isBiquadEnabled(BIQUAD_PARAMETRIC);
+                filters.setBiquadEnabled(BIQUAD_PARAMETRIC, !paramEn);
+                enabledParam_outl.setTitle(filters.isBiquadEnabled(BIQUAD_PARAMETRIC) ? "PEQ On" : "PEQ Off");
                 ViewUpdater.getInstance().update();
                 break;
 
@@ -367,7 +367,7 @@ public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilter
         }
 
         Biquad b = filters.getActiveBiquad();
-        byte type = b.getParams().getTypeValue();
+        byte type = Type.getType(b);
 
         if (filters.isActiveNullLP()) {
             setTitle("LP: Off");
@@ -376,20 +376,20 @@ public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilter
             setTitle("HP: Off");
 
         } else if (type == BIQUAD_LOWPASS) {
-            PassFilter lp = filters.getLowpass();
-            setTitle("LP:" + lp.getInfo());
+            LowpassFilter lp = new LowpassFilter(filters);
+            setTitle("LP:" + lp.toString());
 
         } else if (type == BIQUAD_HIGHPASS) {
-            PassFilter hp = filters.getHighpass();
-            setTitle("HP:" + hp.getInfo());
+            HighpassFilter hp = new HighpassFilter(filters);
+            setTitle("HP:" + hp.toString());
 
         } else if (type == BIQUAD_PARAMETRIC) {
             setTitle(String.format(Locale.getDefault(), "PEQ%d: %s",
-                                    filters.getActiveBiquadIndex() + 1, b.getInfo()));
+                                    filters.getActiveBiquadIndex() + 1, ((ParamBiquad)b).toString()));
 
         } else if (type == BIQUAD_ALLPASS) {
             setTitle(String.format(Locale.getDefault(), "APF%d: %s",
-                    filters.getActiveBiquadIndex() + 1, b.getInfo()));
+                    filters.getActiveBiquadIndex() + 1, ((AllpassBiquad)b).toString()));
 
         } else {
             setTitle("Filters menu");

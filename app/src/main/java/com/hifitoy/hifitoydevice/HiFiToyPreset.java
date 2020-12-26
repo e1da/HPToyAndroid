@@ -11,52 +11,38 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.util.Xml;
 
 import com.hifitoy.ApplicationContext;
-import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoynumbers.ByteUtility;
 import com.hifitoy.hifitoynumbers.Checksummer;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import com.hifitoy.hifitoyobjects.basstreble.BassTreble;
 import com.hifitoy.hifitoyobjects.drc.Drc;
-import com.hifitoy.hifitoyobjects.Filters;
+import com.hifitoy.hifitoyobjects.filter.DFilter;
+import com.hifitoy.hifitoyobjects.filter.Filter;
 import com.hifitoy.hifitoyobjects.HiFiToyObject;
 import com.hifitoy.hifitoyobjects.Loudness;
 import com.hifitoy.hifitoyobjects.Volume;
-import com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel;
 import com.hifitoy.hifitoyobjects.drc.DrcCoef;
 import com.hifitoy.hifitoyobjects.drc.DrcTimeConst;
 import com.hifitoy.tas5558.TAS5558;
-import com.hifitoy.xml.XmlData;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 
-import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.BassFreq.BASS_FREQ_125;
-import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.BassTrebleCh.BASS_TREBLE_CH_127;
-import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.TrebleFreq.TREBLE_FREQ_9000;
 import static com.hifitoy.hifitoyobjects.drc.Drc.DrcEvaluation.POST_VOLUME_EVAL;
 import static com.hifitoy.hifitoyobjects.drc.DrcChannel.DRC_CH_1_7;
 import static com.hifitoy.hifitoyobjects.drc.DrcCoef.POINT0_INPUT_DB;
@@ -71,11 +57,11 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     // HiFiToy CHARACTERISTICS, pointer to all characteristics
     private List<HiFiToyObject> characteristics;
 
-    public Filters     filters;
-    public Volume      masterVolume;
-    public BassTreble  bassTreble;
-    public Loudness    loudness;
-    public Drc         drc;
+    public DFilter      dFilter;
+    public Volume       masterVolume;
+    public BassTreble   bassTreble;
+    public Loudness     loudness;
+    public Drc          drc;
 
     public HiFiToyPreset() {
         characteristics = new ArrayList<>();
@@ -96,7 +82,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         boolean b0 = true;//checkSum == that.checkSum;//!!!Warning
 
         return b0 &&
-                Objects.equals(filters, that.filters) &&
+                Objects.equals(dFilter, that.dFilter) &&
                 Objects.equals(masterVolume, that.masterVolume) &&
                 Objects.equals(bassTreble, that.bassTreble) &&
                 Objects.equals(loudness, that.loudness) &&
@@ -105,14 +91,14 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(checkSum, filters, masterVolume, bassTreble, loudness, drc);
+        return Objects.hash(checkSum, dFilter, masterVolume, bassTreble, loudness, drc);
     }
 
     @Override
     public HiFiToyPreset clone() throws CloneNotSupportedException{
         HiFiToyPreset preset = (HiFiToyPreset) super.clone();
 
-        preset.filters = filters.clone();
+        preset.dFilter = dFilter.clone();
         preset.masterVolume = masterVolume.clone();
         preset.bassTreble = bassTreble.clone();
         preset.loudness = loudness.clone();
@@ -127,7 +113,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
 
     public void updateCharacteristics() {
         characteristics.clear();
-        characteristics.add(filters);
+        characteristics.add(dFilter);
         characteristics.add(masterVolume);
         characteristics.add(bassTreble);
         characteristics.add(loudness);
@@ -138,7 +124,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         name = "No processing";
 
         //Filters
-        filters = new Filters(TAS5558.BIQUAD_FILTER_REG, (byte)(TAS5558.BIQUAD_FILTER_REG + 7));
+        dFilter = new DFilter();
 
         //MasterVolume
         masterVolume = new Volume(TAS5558.MASTER_VOLUME_REG, 0.0f, 0.0f, Volume.HW_MUTE_DB);
@@ -178,11 +164,11 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     public short getChecksum() {
         return checkSum;
     }
-    public Filters getFilters() {
-        return filters;
+    public Filter getFilters() {
+        return dFilter.getFilterCh0();
     }
-    public void setFilters(Filters f) {
-        filters = f;
+    public void setFilters(Filter f) {
+        dFilter.setFilterCh0(f);
     }
 
     public Volume getVolume() {
@@ -209,7 +195,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
 
     public void storeToPeripheral() {
         PeripheralData peripheralData = new PeripheralData();
-        peripheralData.setBiquadTypes(filters.getBiquadTypes());
+        peripheralData.setBiquadTypes(getFilters().getBiquadTypes());
         peripheralData.setDataBufs(getDataBufs());
         peripheralData.exportPresetWithDialog("Sending Preset...");
     }
@@ -220,7 +206,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     }
 
     @Override
-    public String getInfo() {
+    public String toString() {
         return name;
     }
 
@@ -261,7 +247,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         return true;
     }
 
-    @Override
+    /*@Override
     public XmlData toXmlData() {
         XmlData xmlData = new XmlData();
         for (int i = 0; i < characteristics.size(); i++){
@@ -358,7 +344,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
 
         importFromXml(xmlParser);
         name = presetName;
-    }
+    }*/
 
 
     private String getPresetName(String filename) {
@@ -411,7 +397,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         ContentResolver resolver = ApplicationContext.getInstance().getContext().getContentResolver();
         InputStream in = resolver.openInputStream(uri);
 
-        importFromXml(in, presetName);
+        //importFromXml(in, presetName);
 
     }
 
@@ -425,7 +411,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
         xmlParser.setInput(new StringReader(xmlData));
 
-        importFromXml(xmlParser);
+        //importFromXml(xmlParser);
     }
 
     private String checkPresetName(String name) throws IOException{

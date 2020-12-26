@@ -6,6 +6,8 @@
  */
 package com.hifitoy.hifitoyobjects.biquad;
 
+import com.hifitoy.hifitoynumbers.FloatUtility;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -45,4 +47,17 @@ public class Order implements Cloneable, Serializable {
     public int hashCode() {
         return Objects.hash(value);
     }
+
+    public static byte getOrder(Biquad b) {
+        if ( (FloatUtility.isFloatNull(b.getB2())) && (FloatUtility.isFloatNull(b.getA2())) &&
+                (!FloatUtility.isFloatNull(b.getB0())) && (!FloatUtility.isFloatNull(b.getB1())) &&
+                (!FloatUtility.isFloatNull(b.getA1())) ) {
+            return Order.BIQUAD_ORDER_1;
+
+        } else {
+            return Order.BIQUAD_ORDER_2;
+
+        }
+    }
+
 }

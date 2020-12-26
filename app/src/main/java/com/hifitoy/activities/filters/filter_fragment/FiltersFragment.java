@@ -25,25 +25,26 @@ import android.view.ViewGroup;
 import com.hifitoy.R;
 import com.hifitoy.activities.filters.ViewUpdater;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoyobjects.Filters;
-import com.hifitoy.hifitoyobjects.PassFilter;
+import com.hifitoy.hifitoyobjects.biquad.AllpassBiquad;
+import com.hifitoy.hifitoyobjects.biquad.IFreq;
+import com.hifitoy.hifitoyobjects.biquad.ParamBiquad;
+import com.hifitoy.hifitoyobjects.biquad.Type;
+import com.hifitoy.hifitoyobjects.filter.Filter;
 import com.hifitoy.hifitoyobjects.biquad.Biquad;
+import com.hifitoy.hifitoyobjects.filter.HighpassFilter;
+import com.hifitoy.hifitoyobjects.filter.LowpassFilter;
 
-import static com.hifitoy.hifitoyobjects.biquad.Order.BIQUAD_ORDER_1;
-import static com.hifitoy.hifitoyobjects.biquad.Order.BIQUAD_ORDER_2;
 import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_ALLPASS;
 import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_HIGHPASS;
 import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_LOWPASS;
-import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_OFF;
 import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_PARAMETRIC;
-import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_USER;
 
 public class FiltersFragment extends Fragment implements View.OnTouchListener, ViewUpdater.IFilterUpdateView {
     private static String TAG = "HiFiToy";
 
     ViewGroup.LayoutParams  lp;
 
-    private Filters filters;
+    private Filter filters;
     private FilterView filterView;
     private GestureDetector mDetector;
     private ScaleGestureDetector mScaleDetector;
@@ -141,7 +142,7 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
         filterView.setEnabled(enabled);
     }
 
-    public void setFilters(Filters f) {
+    public void setFilters(Filter f) {
         filters = f;
         filterView.setFilters(f);
     }
@@ -191,7 +192,8 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
                     float dy = translation.y - prevTranslation.y;
 
                     if (dy > 300) {
-                        filters.upOrderFor(BIQUAD_LOWPASS);
+                        LowpassFilter lp = new LowpassFilter(filters);
+                        lp.upOrder();
                         prevTranslation.y = translation.y;
                     }
 
@@ -199,7 +201,8 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
                     float dy = translation.y - prevTranslation.y;
 
                     if (dy > 300) {
-                        filters.upOrderFor(BIQUAD_HIGHPASS);
+                        HighpassFilter hp = new HighpassFilter(filters);
+                        hp.upOrder();
                         prevTranslation.y = translation.y;
                     }
 
@@ -214,8 +217,14 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
     }
 
     private void moved(Biquad biquad, Point translation) {
-        byte type = biquad.getParams().getTypeValue();
-        if ((type == BIQUAD_OFF) || (type == BIQUAD_USER)) return;
+        byte type = Type.getType(biquad);
+
+        IFreq iFreq;
+        if (IFreq.class.isAssignableFrom(biquad.getClass())) {
+            iFreq = ((IFreq)biquad);
+        } else {
+            return;
+        }
 
         float dx = (float)(translation.x -  prevTranslation.x) / 4;
         float dy = translation.y -  prevTranslation.y;
@@ -226,42 +235,25 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
 
 
             deltaFreq -= (int)deltaFreq; //get fraction part
-            float freqPix = filterView.freqToPixel(biquad.getParams().getFreq());
-            deltaFreq += filterView.pixelToFreq(freqPix + dx) - biquad.getParams().getFreq();
+            float freqPix = filterView.freqToPixel(iFreq.getFreq());
+            deltaFreq += filterView.pixelToFreq(freqPix + dx) - iFreq.getFreq();
 
-            //NSLog(@"dx=%f delta=%f", dx, delta_freq);
 
             if (Math.abs(deltaFreq) >= 1.0) {
 
                 if (type == BIQUAD_HIGHPASS) {
-                    PassFilter hp = filters.getHighpass();
-                    PassFilter lp = filters.getLowpass();
-
-                    short newFreq = (short)(hp.getFreq() + deltaFreq);
-                    if ((lp != null) && (newFreq > lp.getFreq())) newFreq = lp.getFreq();
-
-                    if (hp.getFreq() != newFreq) {
-                        hp.setFreq(newFreq);
-                        //ble send
-                        hp.sendToPeripheral(false);
-                    }
+                    HighpassFilter hp = new HighpassFilter(filters);
+                    hp.setFreq((short)(hp.getFreq() + deltaFreq));
+                    hp.sendToPeripheral(false);
 
                 } else if (type == BIQUAD_LOWPASS) {
-                    PassFilter hp = filters.getHighpass();
-                    PassFilter lp = filters.getLowpass();
-
-                    short newFreq = (short)(lp.getFreq() + deltaFreq);
-                    if ((hp != null) && (newFreq < hp.getFreq())) newFreq = hp.getFreq();
-
-                    if (lp.getFreq() != newFreq) {
-                        lp.setFreq(newFreq);
-                        //ble send
-                        lp.sendToPeripheral(false);
-                    }
+                    LowpassFilter lp = new LowpassFilter(filters);
+                    lp.setFreq((short)(lp.getFreq() + deltaFreq));
+                    lp.sendToPeripheral(false);
 
                 } else { // parametric allpass
-                    short oldFreq = biquad.getParams().getFreq();
-                    biquad.getParams().setFreq((short)(oldFreq + deltaFreq));
+                    short oldFreq = iFreq.getFreq();
+                    iFreq.setFreq((short)(oldFreq + deltaFreq));
                     //ble send
                     biquad.sendToPeripheral(false);
                 }
@@ -271,20 +263,34 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
         prevTranslation.x = translation.x;
 
         // update order or volume
-        if ((type == BIQUAD_HIGHPASS) || (type == BIQUAD_LOWPASS))  {
-            if (!xHysteresisFlag) {
-                if (dy < -300 ) {
-                    filters.downOrderFor(type); // decrement order
+        if ((type == BIQUAD_HIGHPASS) && (!xHysteresisFlag)) {
+            HighpassFilter hp = new HighpassFilter(filters);
+            if (dy < -300 ) {
+                hp.downOrder();
 
-                    yHysteresisFlag = true;
-                    prevTranslation.y = translation.y;
+                yHysteresisFlag = true;
+                prevTranslation.y = translation.y;
 
-                } else if (dy > 300 ) {
-                    filters.upOrderFor(type); // increment order
+            } else if (dy > 300 ) {
+                hp.upOrder();
 
-                    yHysteresisFlag = true;
-                    prevTranslation.y = translation.y;
-                }
+                yHysteresisFlag = true;
+                prevTranslation.y = translation.y;
+            }
+
+        } else if ((type == BIQUAD_LOWPASS) && (!xHysteresisFlag)) {
+            LowpassFilter lp = new LowpassFilter(filters);
+            if (dy < -300 ) {
+                lp.downOrder();
+
+                yHysteresisFlag = true;
+                prevTranslation.y = translation.y;
+
+            } else if (dy > 300 ) {
+                lp.upOrder();
+
+                yHysteresisFlag = true;
+                prevTranslation.y = translation.y;
             }
 
         } else if (type == BIQUAD_PARAMETRIC) {
@@ -292,11 +298,12 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
             if (((Math.abs(translation.y) > filterView.getHeight() * 0.1) || (yHysteresisFlag)) && (!xHysteresisFlag)){
                 yHysteresisFlag = true;
 
-                float newVolInPix = filterView.dbToPixel(biquad.getParams().getDbVolume()) + dy / 4.0f;
-                biquad.getParams().setDbVolume(filterView.pixelToDb(newVolInPix));
+                ParamBiquad pb = (ParamBiquad)biquad;
+                float newVolInPix = filterView.dbToPixel(pb.getDbVolume()) + dy / 4.0f;
+                pb.setDbVolume(filterView.pixelToDb(newVolInPix));
 
                 //ble send
-                biquad.sendToPeripheral(false);
+                pb.sendToPeripheral(false);
 
             }
             prevTranslation.y = translation.y;
@@ -329,25 +336,34 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
         private void longPressHandler(Point tapPoint) {
             if ( (filters.isActiveNullHP()) || (filters.isActiveNullLP()) ) return;
             Biquad b = filters.getActiveBiquad();
+            byte bIndex = filters.getBiquadIndex(b);
 
-            if ( (!update) && (checkCrossParamFilters(b, tapPoint.x)) ) {
-                if (b.getParams().getTypeValue() == BIQUAD_PARAMETRIC) {
+            if ( (!update) && (checkCross(b, tapPoint)) ) {
+                byte type = Type.getType(b);
+                byte addr = b.getAddress();
+                byte bindAddr = b.getBindAddr();
+
+                if (type == BIQUAD_PARAMETRIC) {
+                    short freq = ((ParamBiquad)b).getFreq();
+                    b = new AllpassBiquad(addr, bindAddr);
+                    filters.setBiquad(bIndex, b);
+
                     b.setEnabled(true);
-                    b.getParams().setOrderValue(BIQUAD_ORDER_1);
-                    b.getParams().setTypeValue(BIQUAD_ALLPASS);
+                    ((AllpassBiquad)b).setFreq(freq);
 
-                    b.sendToPeripheral(true);
+                    ((AllpassBiquad)b).sendToPeripheral(true);
                     ViewUpdater.getInstance().update();
                     update = true;
 
-                } else if (b.getParams().getTypeValue() == BIQUAD_ALLPASS) {
-                    b.setEnabled(filters.isPEQEnabled());
-                    b.getParams().setOrderValue(BIQUAD_ORDER_2);
-                    b.getParams().setTypeValue(BIQUAD_PARAMETRIC);
-                    b.getParams().setQFac(1.41f);
-                    b.getParams().setDbVolume(0.0f);
+                } else if (type == BIQUAD_ALLPASS) {
+                    short freq = ((AllpassBiquad)b).getFreq();
+                    b = new ParamBiquad(addr, bindAddr);
+                    filters.setBiquad(bIndex, b);
 
-                    b.sendToPeripheral(true);
+                    b.setEnabled(filters.isBiquadEnabled(BIQUAD_PARAMETRIC));
+                    ((ParamBiquad)b).setFreq(freq);
+
+                    ((ParamBiquad)b).sendToPeripheral(true);
                     ViewUpdater.getInstance().update();
                     update = true;
                 }
@@ -366,7 +382,8 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
         private void selectActiveFilter(Point tapPoint) {
             byte tempIndex = filters.getActiveBiquadIndex();
 
-            if (filters.getLowpass() == null) {
+            LowpassFilter lpf = new LowpassFilter(filters);
+            if (lpf.isEmpty()) {
                 PointF p = new PointF(filterView.freqToPixel(filterView.maxFreq),
                         filterView.dbToPixel(filters.getAFR(filterView.maxFreq)));
 
@@ -380,7 +397,8 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
                 }
             }
 
-            if (filters.getHighpass() == null) {
+            HighpassFilter hpf = new HighpassFilter(filters);
+            if (hpf.isEmpty()) {
                 PointF p = new PointF(filterView.freqToPixel(filterView.minFreq),
                         filterView.dbToPixel(filters.getAFR(filterView.minFreq)));
 
@@ -399,13 +417,6 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
                 filters.nextActiveBiquadIndex();
                 Biquad b = filters.getActiveBiquad();
 
-                byte type = b.getParams().getTypeValue();
-
-                if ((type != BIQUAD_LOWPASS) && (type != BIQUAD_HIGHPASS) && (type != BIQUAD_PARAMETRIC) && (type != BIQUAD_ALLPASS)) {
-                    continue;
-                }
-
-
                 if (checkCross(b, tapPoint)) {
                     ViewUpdater.getInstance().update();
                     return;
@@ -416,8 +427,8 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
         }
 
         //utility methods
-        private boolean checkCrossParamFilters(Biquad biquad, float pointX) {
-            return (Math.abs(pointX - filterView.freqToPixel(biquad.getParams().getFreq())) < 50);
+        private boolean checkCrossFilters(short freq, float pointX) {
+            return (Math.abs(pointX - filterView.freqToPixel(freq)) < 50);
         }
 
         private boolean checkCrossPassFilters(int startX, int endX, Point tapPoint) {
@@ -435,21 +446,25 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
         }
 
         private boolean checkCross(Biquad biquad, Point tapPoint) {
+            byte type = Type.getType(biquad);
 
-            if (biquad.getParams().getTypeValue() == BIQUAD_HIGHPASS) {
+            if (type == BIQUAD_HIGHPASS) {
                 int startX = filterView.freqToPixel(filterView.minFreq);
                 int endX = filterView.getHPBorderPixel();
                 return checkCrossPassFilters(startX, endX, tapPoint);
 
-            } else if (biquad.getParams().getTypeValue() == BIQUAD_LOWPASS) {
+            } else if (type == BIQUAD_LOWPASS) {
                 int startX = filterView.getLPBorderPixel();
                 int endX = filterView.freqToPixel(filterView.maxFreq);
                 return checkCrossPassFilters(startX, endX, tapPoint);
 
+            } else if (IFreq.class.isAssignableFrom(biquad.getClass())){
+                short freq = ((IFreq)biquad).getFreq();
+                return checkCrossFilters(freq, tapPoint.x);
+
             }
 
-            //parametric, allpass
-            return checkCrossParamFilters(biquad, tapPoint.x);
+            return false;
         }
     }
 
@@ -461,12 +476,13 @@ public class FiltersFragment extends Fragment implements View.OnTouchListener, V
 
         public boolean onScale(ScaleGestureDetector detector) {
             //Log.d(TAG, "onScale");
-            Biquad b = filters.getActiveBiquad();
-            if (b.getParams().getTypeValue() != BIQUAD_PARAMETRIC) return true;
 
-            float q = b.getParams().getQFac() / detector.getScaleFactor();
-            b.getParams().setQFac(q);
-            b.sendToPeripheral(false);
+            if (Type.getType(filters.getActiveBiquad()) != BIQUAD_PARAMETRIC) return true;
+            ParamBiquad pb = (ParamBiquad)filters.getActiveBiquad();
+
+            float q = pb.getQ() / detector.getScaleFactor();
+            pb.setQ(q);
+            pb.sendToPeripheral(false);
 
             ViewUpdater.getInstance().update();
             return true;

@@ -1,29 +1,32 @@
 /*
- *   Filters.java
+ *   Filter.java
  *
  *   Created by Artem Khlyupin on 08/03/2019
- *   Copyright © 2019 Artem Khlyupin. All rights reserved.
+ *   Copyright © 2019-2021 Artem Khlyupin. All rights reserved.
  */
-package com.hifitoy.hifitoyobjects;
+package com.hifitoy.hifitoyobjects.filter;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.hifitoy.hifitoynumbers.ByteUtility;
+
 import com.hifitoy.hifitoynumbers.FloatUtility;
+import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
+import com.hifitoy.hifitoyobjects.HiFiToyObject;
+import com.hifitoy.hifitoyobjects.biquad.AllpassBiquad;
+import com.hifitoy.hifitoyobjects.biquad.BandpassBiquad;
 import com.hifitoy.hifitoyobjects.biquad.Biquad;
-import com.hifitoy.tas5558.TAS5558;
-import com.hifitoy.xml.XmlData;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import java.io.IOException;
+import com.hifitoy.hifitoyobjects.biquad.HighpassBiquad;
+import com.hifitoy.hifitoyobjects.biquad.IFreq;
+import com.hifitoy.hifitoyobjects.biquad.LowpassBiquad;
+import com.hifitoy.hifitoyobjects.biquad.ParamBiquad;
+import com.hifitoy.hifitoyobjects.biquad.TextBiquad;
+import com.hifitoy.hifitoyobjects.biquad.Type;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_ALLPASS;
 import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_BANDPASS;
@@ -31,70 +34,58 @@ import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_HIGHPASS;
 import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_LOWPASS;
 import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_OFF;
 import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_PARAMETRIC;
-import static com.hifitoy.tas5558.TAS5558.BIQUAD_FILTER_REG;
+import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_USER;
+import static com.hifitoy.hifitoyobjects.filter.Order.FILTER_ORDER_0;
 
-public class Filters implements HiFiToyObject, Cloneable, Serializable {
+public class Filter implements HiFiToyObject, Cloneable, Serializable {
     private static final String TAG = "HiFiToy";
+    private static final int SIZE = 7;
 
-    private Biquad[] biquads; // 7 biquads
+    protected final Biquad[] biquads = new Biquad[SIZE];
 
-    private byte address0;
-    private byte address1; //if == 0 then off else stereo (2nd channel)
+    protected byte    activeBiquadIndex;
+    protected boolean activeNullLP;
+    protected boolean activeNullHP;
 
-    private byte    activeBiquadIndex;
-    private boolean activeNullLP;
-    private boolean activeNullHP;
+    public Filter(Filter f) throws CloneNotSupportedException {
+        for (int i = 0; i < SIZE; i++) {
+            biquads[i] = f.biquads[i].clone();
+        }
 
-    public Filters(byte address0, byte address1) {
-        this.address0 = address0;
-        this.address1 = address1;
+        activeBiquadIndex = f.activeBiquadIndex;
+        activeNullLP = f.activeNullLP;
+        activeNullHP = f.activeNullHP;
+    }
 
-        biquads = new Biquad[7];
+    public Filter(byte addr, byte bindAddr) {
 
-        for (byte i = 0; i < 7; i++) {
-            biquads[i] = new Biquad((byte)(address0 + i), (address1 != 0) ? (byte)(address1 + i) : (byte)0);
+        for (byte i = 0; i < SIZE; i++) {
+            ParamBiquad pb = new ParamBiquad((byte)(addr + i),
+                    (bindAddr == 0) ? 0 : (byte)(bindAddr + i));
+            pb.setFreq((short)(100 * (i + 1)));
 
-            Biquad.BiquadParam p = biquads[i].getParams();
-            p.setBorderFreq((short)20000, (short)20);
-
-            p.setTypeValue(BIQUAD_PARAMETRIC);
-            p.setFreq((short)(100 * (i + 1)));
-            p.setQFac(1.41f);
-            p.setDbVolume(0.0f);
+            biquads[i] = pb;
         }
 
         activeBiquadIndex = 0;
-    }
-    public Filters() {
-        this(BIQUAD_FILTER_REG, (byte)(TAS5558.BIQUAD_FILTER_REG + 7));
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Filters filters = (Filters) o;
-        return address0 == filters.address0 &&
-                address1 == filters.address1 &&
-                Arrays.equals(biquads, filters.biquads);
+        Filter filters = (Filter) o;
+        return Arrays.equals(biquads, filters.biquads);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(address0, address1);
-        result = 31 * result + Arrays.hashCode(biquads);
-        return result;
+        return Arrays.hashCode(biquads);
     }
 
     @Override
-    public Filters clone() throws CloneNotSupportedException{
-        Filters p = (Filters) super.clone();
-        p.biquads = new Biquad[7];
-
-        for (int i = 0; i < 7; i++) {
-            p.biquads[i] = biquads[i].clone();
-        }
-        return p;
+    public Filter clone() throws CloneNotSupportedException {
+        return new Filter(this);
     }
 
     //getters / setters
@@ -123,7 +114,7 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
     }
 
     public int getBiquadLength() {
-        return 7;
+        return SIZE;
     }
 
     public void setBiquad(byte index, Biquad b) {
@@ -131,6 +122,7 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
             biquads[index] = b;
         }
     }
+
     public Biquad getBiquad(byte index) {
         if ((index >= 0) && (index < biquads.length) ) {
             return biquads[index];
@@ -141,10 +133,11 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
         return getBiquad(activeBiquadIndex);
     }
 
-    public Biquad[] getBiquads() {
+    Biquad[] getBiquads() {
         return biquads;
     }
-    byte getBiquadIndex(Biquad b) {
+
+    public byte getBiquadIndex(Biquad b) {
         for (byte i = 0; i < biquads.length; i++) {
             if (biquads[i] == b) {
                 return i;
@@ -156,7 +149,7 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
     public byte[] getBiquadTypes() {
         byte[] types = new byte[biquads.length];
         for (byte i = 0; i < biquads.length; i++) {
-            types[i] = biquads[i].getParams().getTypeValue();
+            types[i] = Type.getType(biquads[i]);
         }
         return types;
     }
@@ -178,7 +171,7 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
     }
 
     public void nextActiveBiquadIndex() {
-        byte type = getActiveBiquad().getParams().getTypeValue();
+        byte type = Type.getType(getActiveBiquad());
         byte nextType;
         Biquad b;
         int counter = 0;
@@ -190,7 +183,7 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
             if (activeBiquadIndex > 6) activeBiquadIndex = 0;
 
             b = getActiveBiquad();
-            nextType = b.getParams().getTypeValue();
+            nextType = Type.getType(b);
 
         } while (((type == BIQUAD_LOWPASS) && (nextType == BIQUAD_LOWPASS)) ||
                 ((type == BIQUAD_HIGHPASS) && (nextType == BIQUAD_HIGHPASS)) ||
@@ -198,7 +191,7 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
 
     }
     public void prevActiveBiquadIndex() {
-        byte type = getActiveBiquad().getParams().getTypeValue();
+        byte type = Type.getType(getActiveBiquad());
         byte nextType;
         Biquad b;
         int counter = 0;
@@ -210,7 +203,7 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
             if (activeBiquadIndex < 0) activeBiquadIndex = 6;
 
             b = getActiveBiquad();
-            nextType = b.getParams().getTypeValue();
+            nextType = Type.getType(b);
 
         } while (((type == BIQUAD_LOWPASS) && (nextType == BIQUAD_LOWPASS)) ||
                 ((type == BIQUAD_HIGHPASS) && (nextType == BIQUAD_HIGHPASS)) ||
@@ -225,14 +218,14 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
         for (byte i = 0 ; i < 7; i++) {
             Biquad b = getBiquad(i);
 
-            if (b.getParams().getTypeValue() == typeValue) {
+            if (Type.getType(b) == typeValue) {
                 biquads.add(b);
             }
         }
         return biquads;
     }
 
-    private Biquad getFreeBiquad() {
+    protected Biquad getFreeBiquad() {
         List<Biquad> offBiquads = getBiquads(BIQUAD_OFF);
         if (offBiquads.size() > 0) {
             return offBiquads.get(0);
@@ -243,22 +236,22 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
 
             //try find parametric with db == 0
             for (int i = 0; i < paramBiquads.size(); i++) {
-                Biquad p = paramBiquads.get(i);
+                ParamBiquad pb = (ParamBiquad) paramBiquads.get(i);
 
-                if (FloatUtility.isFloatNull(p.getParams().getDbVolume())) {
-                    return p;
+                if (FloatUtility.isFloatNull(pb.getDbVolume())) {
+                    return pb;
                 }
             }
 
             //find parametric with min abs db
-            Biquad p = paramBiquads.get(0);
+            ParamBiquad pb = (ParamBiquad) paramBiquads.get(0);
             for (int i = 1; i < paramBiquads.size(); i++) {
-                Biquad current = paramBiquads.get(i);
-                if ( (Math.abs(p.getParams().getDbVolume())) > (Math.abs(current.getParams().getDbVolume())) ) {
-                    p = current;
+                ParamBiquad current = (ParamBiquad) paramBiquads.get(i);
+                if ( (Math.abs(pb.getDbVolume())) > (Math.abs(current.getDbVolume())) ) {
+                    pb = current;
                 }
             }
-            return p;
+            return pb;
         }
 
         List<Biquad> allpassBiquads = getBiquads(BIQUAD_ALLPASS);
@@ -269,18 +262,12 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
         return null;
     }
 
-    public PassFilter getLowpass() {
-        List<Biquad> lpBiquads = getBiquads(BIQUAD_LOWPASS);
-        if (lpBiquads.size() == 0) return null;
-
-        return new PassFilter(lpBiquads, BIQUAD_LOWPASS);
+    /*public LPFilter getLowpass() {
+        return (LPFilter) this;
     }
 
-    public PassFilter getHighpass() {
-        List<Biquad> hpBiquads = getBiquads(BIQUAD_HIGHPASS);
-        if (hpBiquads.size() == 0) return null;
-
-        return new PassFilter(hpBiquads, BIQUAD_HIGHPASS);
+    public HPFilter getHighpass() {
+        return (HPFilter) this;
     }
 
     private boolean isLowpassFull() {
@@ -290,9 +277,9 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
     private boolean isHighpassFull() {
         List<Biquad> hpBiquads = getBiquads(BIQUAD_HIGHPASS);
         return hpBiquads.size() >= 2;
-    }
+    }*/
 
-    public void upOrderFor(byte type) {
+    /*public void upOrderFor(byte type) {
         short freq;
 
         //check type and get freq
@@ -382,13 +369,12 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
         //update lp biquads with order
         PassFilter p = new PassFilter(biquads, type);
         p.sendToPeripheral(true);
-    }
+    }*/
 
-    public boolean isPEQEnabled() {
+    public boolean isBiquadEnabled(byte biquadType) {
         boolean result = true;
 
-        List<Biquad> biquads = getBiquads(BIQUAD_PARAMETRIC);
-        biquads.addAll(getBiquads(BIQUAD_ALLPASS));
+        List<Biquad> biquads = getBiquads(biquadType);
         if (biquads.size() == 0) return false;
 
         for (int i = 0; i < biquads.size(); i++) {
@@ -411,10 +397,8 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
         return result;
     }
 
-    //set enablend and send to dsp
-    public void setPEQEnabled(boolean enabled) {
-        List<Biquad> biquads = getBiquads(BIQUAD_PARAMETRIC);
-        biquads.addAll(getBiquads(BIQUAD_ALLPASS));
+    public void setBiquadEnabled(byte biquadType, boolean enabled) {
+        List<Biquad> biquads = getBiquads(biquadType);
 
         for (int i = 0; i < biquads.size(); i++) {
             Biquad b = biquads.get(i);
@@ -433,18 +417,17 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
 
         //get freqs from all params, hp, lp
         for (int i = 0; i < 7; i++) {
-            byte bType = biquads[i].getParams().getTypeValue();
-            boolean enabled = biquads[i].isEnabled();
-            boolean typeCondition = (bType == BIQUAD_HIGHPASS) || (bType == BIQUAD_LOWPASS) ||
-                                    (bType == BIQUAD_PARAMETRIC) || (bType == BIQUAD_BANDPASS);
-            boolean biquadCondition = (b == null) || (biquads[i] != b);
+            if ((b != null) && (biquads[i] == b)) continue;
 
-            if ( (enabled) && (typeCondition) && (biquadCondition)) {
-                freqs.add(biquads[i].getParams().getFreq());
+            if (IFreq.class.isAssignableFrom(biquads[i].getClass())) {
+                short f = ((IFreq)biquads[i]).getFreq();
+                freqs.add(f);
             }
         }
-        if (getLowpass() == null) freqs.add((short)20000);
-        if (getHighpass() == null) freqs.add((short)20);
+        LowpassFilter lpf = new LowpassFilter(this);
+        HighpassFilter hpf = new HighpassFilter(this);
+        if (lpf.getOrder() == FILTER_ORDER_0) freqs.add((short)20000);
+        if (hpf.getOrder() == FILTER_ORDER_0) freqs.add((short)20);
 
         if (freqs.size() < 2) return freq;
         Collections.sort(freqs);
@@ -479,17 +462,18 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
     /*============================= HiFiToyObject protocol implements ===================================*/
     @Override
     public byte getAddress() {
-        return address0;
+        return biquads[0].getAddress();
     }
 
+    @NonNull
     @Override
-    public String getInfo() {
+    public String toString() {
         return "Filters is 7 biquads";
     }
 
     @Override
     public void sendToPeripheral(boolean response) {
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < SIZE; i++) {
             biquads[i].sendToPeripheral(true);
         }
     }
@@ -498,7 +482,7 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
     public List<HiFiToyDataBuf> getDataBufs() {
         List<HiFiToyDataBuf> l = new ArrayList<>();
 
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < SIZE; i++) {
             l.addAll(biquads[i].getDataBufs());
         }
         return l;
@@ -508,7 +492,29 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
     public boolean importFromDataBufs(List<HiFiToyDataBuf> dataBufs) {
         if (dataBufs == null) return false;
 
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < SIZE; i++) {
+            Biquad b = new Biquad(biquads[i]);
+            if (b.importFromDataBufs(dataBufs)) {
+                byte type = Type.getType(b);
+
+                if (type == BIQUAD_LOWPASS) {
+                    biquads[i] = new LowpassBiquad(b);
+                } else if (type == BIQUAD_HIGHPASS) {
+                    biquads[i] = new HighpassBiquad(b);
+                } else if (type == BIQUAD_PARAMETRIC) {
+                    biquads[i] = new ParamBiquad(b);
+                } else if (type == BIQUAD_ALLPASS) {
+                    biquads[i] = new AllpassBiquad(b);
+                } else if (type == BIQUAD_BANDPASS) {
+                    biquads[i] = new BandpassBiquad(b);
+                } else if (type == BIQUAD_USER) {
+                    biquads[i] = new TextBiquad(b);
+                }
+
+            } else {
+                return false;
+            }
+
             if (!biquads[i].importFromDataBufs(dataBufs)) {
                 return false;
             }
@@ -518,7 +524,7 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
         return true;
     }
 
-    @Override
+    /*@Override
     public XmlData toXmlData() {
         XmlData xmlData = new XmlData();
 
@@ -527,11 +533,11 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
         }
 
         XmlData filtersXmlData = new XmlData();
-        Map<String, String> attrib = new HashMap<>();
+        /*Map<String, String> attrib = new HashMap<>();
         attrib.put("Address", ByteUtility.toString(address0));
-        attrib.put("Address1", ByteUtility.toString(address1));
+        attrib.put("Address1", ByteUtility.toString(address1));*/
 
-        filtersXmlData.addXmlElement("Filters", xmlData, attrib);
+    /*    filtersXmlData.addXmlElement("Filters", xmlData, null);
         return filtersXmlData;
     }
 
@@ -572,11 +578,11 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
 
         //check import result
         if (count != 7){
-            String msg = "Filters=" + Integer.toString(address0) +
+            String msg = "Filters=" + getAddress() +
                     ". Import from xml is not success.";
             Log.d(TAG, msg);
             throw new IOException(msg);
         }
-        Log.d(TAG, getInfo());
-    }
+        Log.d(TAG, toString());
+    }*/
 }

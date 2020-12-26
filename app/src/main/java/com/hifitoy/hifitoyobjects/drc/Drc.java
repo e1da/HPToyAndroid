@@ -163,7 +163,7 @@ public class Drc implements HiFiToyObject, Cloneable, Serializable {
     }
 
     @Override
-    public String getInfo() {
+    public String toString() {
         return "Drc info";
     }
 
@@ -281,7 +281,7 @@ public class Drc implements HiFiToyObject, Cloneable, Serializable {
         return false;
     }
 
-    @Override
+    /*@Override
     public XmlData toXmlData() {
         XmlData xmlData = new XmlData();
 
@@ -379,8 +379,8 @@ public class Drc implements HiFiToyObject, Cloneable, Serializable {
             Log.d(TAG, msg);
             throw new IOException(msg);
         }
-        Log.d(TAG, getInfo());
-    }
+        Log.d(TAG, toString());
+    }*/
 
     public class DrcEvaluation {
         public final static byte DISABLED_EVAL      = 0;

@@ -149,7 +149,7 @@ public class BassTreble implements HiFiToyObject, Cloneable, Serializable {
     }
 
     @Override
-    public String getInfo() {
+    public String toString() {
         return "BassTreble";
     }
 
@@ -264,7 +264,7 @@ public class BassTreble implements HiFiToyObject, Cloneable, Serializable {
         return false;
     }
 
-    @Override
+    /*@Override
     public XmlData toXmlData() {
         XmlData xmlData = new XmlData();
 
@@ -345,7 +345,7 @@ public class BassTreble implements HiFiToyObject, Cloneable, Serializable {
             Log.d(TAG, msg);
             throw new IOException(msg);
         }
-        Log.d(TAG, getInfo());
-    }
+        Log.d(TAG, toString());
+    }*/
 
 }

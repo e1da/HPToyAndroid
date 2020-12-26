@@ -74,7 +74,7 @@ public class BassTrebleTest {
 
     }
 
-    @Test
+    /*@Test
     public void testXmlExportImport() {
         bt0.setEnabledChannel((byte)0, 0.1f);
         assertNotEquals(bt0, bt1);
@@ -97,5 +97,5 @@ public class BassTrebleTest {
             fail("IO Exception.");
         }
 
-    }
+    }*/
 }

@@ -112,7 +112,7 @@ public class Volume implements HiFiToyObject, Cloneable, Serializable {
     }
 
     @Override
-    public String getInfo() {
+    public String toString() {
         if (db > HW_MUTE_DB) {
             return String.format(Locale.getDefault(),"%.1f", db);
         }
@@ -166,7 +166,7 @@ public class Volume implements HiFiToyObject, Cloneable, Serializable {
         return false;
     }
 
-    @Override
+    /*@Override
     public XmlData toXmlData() {
         XmlData xmlData = new XmlData();
 
@@ -225,6 +225,6 @@ public class Volume implements HiFiToyObject, Cloneable, Serializable {
             Log.d(TAG, msg);
             throw new IOException(msg);
         }
-        Log.d(TAG, getInfo());
-    }
+        Log.d(TAG, toString());
+    }*/
 }

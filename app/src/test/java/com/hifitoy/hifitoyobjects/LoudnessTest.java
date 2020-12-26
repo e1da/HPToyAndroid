@@ -88,7 +88,7 @@ public class LoudnessTest {
 
     }
 
-    @Test
+    /*@Test
     public void testXmlExportImport() {
         l0.setGain(0.05f);
         assertNotEquals(l0, l1);
@@ -111,6 +111,6 @@ public class LoudnessTest {
             fail("IO Exception.");
         }
 
-    }
+    }*/
 
 }

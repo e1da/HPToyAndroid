@@ -13,6 +13,7 @@ import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoynumbers.ByteUtility;
 import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoynumbers.Number523;
+import com.hifitoy.hifitoyobjects.biquad.BandpassBiquad;
 import com.hifitoy.hifitoyobjects.biquad.Biquad;
 import com.hifitoy.tas5558.TAS5558;
 import com.hifitoy.xml.XmlData;
@@ -33,7 +34,7 @@ import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_BANDPASS;
 public class Loudness implements HiFiToyObject, Cloneable, Serializable {
     private static final String TAG = "HiFiToy";
 
-    private Biquad biquad;
+    private BandpassBiquad biquad;
 
     private float LG;
     private float LO;
@@ -46,14 +47,9 @@ public class Loudness implements HiFiToyObject, Cloneable, Serializable {
         gain    = 0.0f;
         offset  = 0.0f;
 
-        biquad = new Biquad(TAS5558.LOUDNESS_BIQUAD_REG);
-        Biquad.BiquadParam p = biquad.getParams();
-        p.setTypeValue(BIQUAD_BANDPASS);
-
-        p.setBorderFreq((short)200, (short)30);
-        p.setFreq((short)60);
-        p.setQFac(0.0f);
-        p.setDbVolume(0.0f);
+        biquad = new BandpassBiquad(TAS5558.LOUDNESS_BIQUAD_REG);
+        biquad.setBorderFreq((short)200, (short)30);
+        biquad.setFreq((short)60);
     }
 
     @Override
@@ -91,12 +87,12 @@ public class Loudness implements HiFiToyObject, Cloneable, Serializable {
         return gain;
     }
     public void setFreq(short freq){
-        biquad.getParams().setFreq(freq);
+        biquad.setFreq(freq);
     }
     public short getFreq() {
-        return biquad.getParams().getFreq();
+        return biquad.getFreq();
     }
-    public Biquad getBiquad() {
+    public BandpassBiquad getBiquad() {
         return biquad;
     }
 
@@ -110,7 +106,7 @@ public class Loudness implements HiFiToyObject, Cloneable, Serializable {
     }
 
     @Override
-    public String getInfo() {
+    public String toString() {
         return String.format(Locale.getDefault(), "%d%%", (int)(gain * 100));
     }
 
@@ -167,7 +163,7 @@ public class Loudness implements HiFiToyObject, Cloneable, Serializable {
         return false;
     }
 
-    @Override
+    /*@Override
     public XmlData toXmlData() {
         XmlData xmlData = new XmlData();
 
@@ -243,6 +239,6 @@ public class Loudness implements HiFiToyObject, Cloneable, Serializable {
             Log.d(TAG, msg);
             throw new IOException(msg);
         }
-        Log.d(TAG, getInfo());
-    }
+        Log.d(TAG, toString());
+    }*/
 }

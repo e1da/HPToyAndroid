@@ -19,7 +19,7 @@ import android.view.ViewGroup;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
-import com.hifitoy.hifitoyobjects.Filters;
+import com.hifitoy.hifitoyobjects.filter.Filter;
 
 public class FilterImportFragment extends Fragment implements View.OnTouchListener {
     private final String TAG = "HiFiToy";
@@ -30,7 +30,7 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
     private Point firstTap = new Point(0, 0);
     private Point prevTranslation;
 
-    private Filters tempFilters;
+    private Filter tempFilters;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,10 +59,11 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
 
             try {
                 tempFilters = preset.getFilters().clone();
-
             } catch (CloneNotSupportedException e) {
                 Log.d(TAG, e.toString());
             }
+
+
         }
     }
 
@@ -80,7 +81,7 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
 
             //update active preset
             presetCollectionView.setActiveIndex(index);
-            Filters f = HiFiToyPresetManager.getInstance().getPreset(index).getFilters();
+            Filter f = HiFiToyPresetManager.getInstance().getPreset(index).getFilters();
             updateFilters(f);
 
             //smooth animation
@@ -119,7 +120,7 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
         return true;
     }
 
-    private void updateFilters(Filters f) {
+    private void updateFilters(Filter f) {
         HiFiToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
         preset.setFilters(f);
         f.sendToPeripheral(true);

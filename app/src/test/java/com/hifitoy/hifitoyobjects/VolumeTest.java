@@ -83,7 +83,7 @@ public class VolumeTest {
 
     }
 
-    @Test
+    /*@Test
     public void testXmlExportImport() {
         v0.setDbPercent(0.05f);
         assertNotEquals(v0, v1);
@@ -106,5 +106,5 @@ public class VolumeTest {
             fail("IO Exception.");
         }
 
-    }
+    }*/
 }

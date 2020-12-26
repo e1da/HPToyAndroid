@@ -16,17 +16,16 @@ import java.io.IOException;
 import java.util.List;
 
 public interface HiFiToyObject {
+    int FS = 96000;
 
     byte getAddress();
-    String getInfo();
 
     void sendToPeripheral(boolean response);
 
     List<HiFiToyDataBuf> getDataBufs();
     boolean importFromDataBufs(List<HiFiToyDataBuf> dataBufs);
 
-    XmlData toXmlData();
-    void importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException;
-    //-(void) importFromXml:(XmlParserWrapper *)xmlParser withAttrib:(NSDictionary<NSString *, NSString *> *)attributeDict;
+    //XmlData toXmlData();
+    //void importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException;
 
 }

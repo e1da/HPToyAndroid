@@ -170,7 +170,7 @@ public class DrcTimeConst implements HiFiToyObject, Cloneable, Serializable {
     }
 
     @Override
-    public String getInfo() {
+    public String toString() {
         return String.format(Locale.getDefault(),
                 "Energy=%.1f Attack=%.1f Decay=%.1f", energyMS, attackMS, decayMS);
     }
@@ -273,7 +273,7 @@ public class DrcTimeConst implements HiFiToyObject, Cloneable, Serializable {
         return false;
     }
 
-    @Override
+    /*@Override
     public XmlData toXmlData() {
         XmlData xmlData = new XmlData();
         xmlData.addXmlElement("Energy", energyMS);
@@ -331,6 +331,6 @@ public class DrcTimeConst implements HiFiToyObject, Cloneable, Serializable {
             Log.d(TAG, msg);
             throw new IOException(msg);
         }
-        Log.d(TAG, getInfo());
-    }
+        Log.d(TAG, toString());
+    }*/
 }

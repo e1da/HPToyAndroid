@@ -19,9 +19,12 @@ import com.hifitoy.dialogsystem.KeyboardNumber;
 import com.hifitoy.dialogsystem.KeyboardNumber.NumberType;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoyobjects.biquad.Biquad;
-import com.hifitoy.hifitoyobjects.biquad.Biquad.BiquadParam;
-import com.hifitoy.hifitoyobjects.Filters;
-import com.hifitoy.hifitoyobjects.PassFilter;
+import com.hifitoy.hifitoyobjects.biquad.IFreq;
+import com.hifitoy.hifitoyobjects.biquad.ParamBiquad;
+import com.hifitoy.hifitoyobjects.biquad.Type;
+import com.hifitoy.hifitoyobjects.filter.Filter;
+import com.hifitoy.hifitoyobjects.filter.HighpassFilter;
+import com.hifitoy.hifitoyobjects.filter.LowpassFilter;
 import com.hifitoy.widgets.ValueWidget;
 import com.hifitoy.R;
 
@@ -41,7 +44,7 @@ public class GuiConfigFragment extends Fragment implements View.OnClickListener,
     private ValueWidget qFacWidget;
     private ValueWidget volumeWidget;
 
-    private Filters filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
+    private Filter filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -75,43 +78,45 @@ public class GuiConfigFragment extends Fragment implements View.OnClickListener,
     }
 
     public void updateView() {
-        BiquadParam bp = filters.getActiveBiquad().getParams();
+        Biquad b = filters.getActiveBiquad();
 
-        if (bp.getTypeValue() == BIQUAD_PARAMETRIC) {
+        if (Type.getType(b) == BIQUAD_PARAMETRIC) {
             freqWidget.setVisibility(VISIBLE);
             qFacWidget.setVisibility(VISIBLE);
             volumeWidget.setVisibility(VISIBLE);
 
-            freqWidget.setText("Freq:", String.format(Locale.getDefault(), "%d", bp.getFreq()), "Hz");
-            qFacWidget.setText("Q:", String.format(Locale.getDefault(), "%.2f", bp.getQFac()), "");
-            volumeWidget.setText("Vol:", String.format(Locale.getDefault(), "%.1f", bp.getDbVolume()), "Db");
+            ParamBiquad pb = (ParamBiquad)b;
+            freqWidget.setText("Freq:", String.format(Locale.getDefault(), "%d", pb.getFreq()), "Hz");
+            qFacWidget.setText("Q:", String.format(Locale.getDefault(), "%.2f", pb.getQ()), "");
+            volumeWidget.setText("Vol:", String.format(Locale.getDefault(), "%.1f", pb.getDbVolume()), "Db");
 
         } else {
             freqWidget.setVisibility(VISIBLE);
             qFacWidget.setVisibility(INVISIBLE);
             volumeWidget.setVisibility(INVISIBLE);
 
-            freqWidget.setText("Freq:", String.format(Locale.getDefault(), "%d", bp.getFreq()), "Hz");
+            short freq = ((IFreq)b).getFreq();
+            freqWidget.setText("Freq:", String.format(Locale.getDefault(), "%d", freq), "Hz");
         }
     }
 
     @Override
     public void onClick(View v) {
-        BiquadParam bp = filters.getActiveBiquad().getParams();
+        Biquad b = filters.getActiveBiquad();
         KeyboardNumber n;
         String tag;
 
-        if (v == freqWidget) {
+        if ( (v == freqWidget) && (IFreq.class.isAssignableFrom(b.getClass())) ) {
             tag = "freq";
-            n = new KeyboardNumber(NumberType.POSITIVE_INTEGER, bp.getFreq());
+            n = new KeyboardNumber(NumberType.POSITIVE_INTEGER, ((IFreq)b).getFreq());
 
         } else if (v == qFacWidget) {
             tag = "q";
-            n = new KeyboardNumber(NumberType.POSITIVE_DOUBLE, bp.getQFac());
+            n = new KeyboardNumber(NumberType.POSITIVE_DOUBLE, ((ParamBiquad)b).getQ());
 
         } else if (v == volumeWidget) {
             tag = "db";
-            n = new KeyboardNumber(NumberType.FLOAT, bp.getDbVolume());
+            n = new KeyboardNumber(NumberType.FLOAT, ((ParamBiquad)b).getDbVolume());
 
         } else {
             return;
@@ -124,35 +129,34 @@ public class GuiConfigFragment extends Fragment implements View.OnClickListener,
     public void onKeyboardResult(String tag, KeyboardNumber result) {
         try {
             Biquad b = filters.getActiveBiquad();
-            BiquadParam bp = b.getParams();
 
             if (tag.equals("freq")) {
                 int f = Integer.parseInt(result.getValue());
 
-                if (bp.getTypeValue() == BIQUAD_LOWPASS) {
-                    PassFilter lp = filters.getLowpass();
+                if (Type.getType(b) == BIQUAD_LOWPASS) {
+                    LowpassFilter lp = new LowpassFilter(filters);
                     lp.setFreq((short)f);
                     lp.sendToPeripheral(true);
 
-                } else if (bp.getTypeValue() == BIQUAD_HIGHPASS) {
-                    PassFilter hp = filters.getHighpass();
+                } else if (Type.getType(b) == BIQUAD_HIGHPASS) {
+                    HighpassFilter hp = new HighpassFilter(filters);
                     hp.setFreq((short)f);
                     hp.sendToPeripheral(true);
 
                 } else {
-                    bp.setFreq((short) f);
-                    b.sendToPeripheral(true);
+                    ((ParamBiquad)b).setFreq((short) f);
+                    ((ParamBiquad)b).sendToPeripheral(true);
                 }
 
             } else if (tag.equals("q")) {
                 float q = Float.parseFloat(result.getValue());
-                bp.setQFac(q);
-                b.sendToPeripheral(true);
+                ((ParamBiquad)b).setQ(q);
+                ((ParamBiquad)b).sendToPeripheral(true);
 
             } else if (tag.equals("db")) {
                 float db = Float.parseFloat(result.getValue());
-                bp.setDbVolume(db);
-                b.sendToPeripheral(true);
+                ((ParamBiquad)b).setDbVolume(db);
+                ((ParamBiquad)b).sendToPeripheral(true);
 
             }
 

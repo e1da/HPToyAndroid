@@ -97,7 +97,7 @@ public class MergeToolActivity extends BaseActivity {
                 mergePreset.masterVolume = volumeSource.masterVolume.clone();
                 mergePreset.bassTreble = bassTrebleSource.bassTreble.clone();
                 mergePreset.loudness = loudnessSource.loudness.clone();
-                mergePreset.filters = filtersSource.filters.clone();
+                mergePreset.dFilter = filtersSource.dFilter.clone();
                 mergePreset.drc = compressorSource.drc.clone();
                 mergePreset.updateCharacteristics();
                 mergePreset.updateChecksum();
