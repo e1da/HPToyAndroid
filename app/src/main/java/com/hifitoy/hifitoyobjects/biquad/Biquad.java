@@ -79,16 +79,20 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable {
         return addr == biquad.addr &&
                 bindAddr == biquad.bindAddr &&
                 enabled == biquad.enabled &&
-                FloatUtility.isFloatDiffLessThan(biquad.b0, b0, 0.01f) &&
-                FloatUtility.isFloatDiffLessThan(biquad.b1, b1, 0.01f) &&
-                FloatUtility.isFloatDiffLessThan(biquad.b2, b2, 0.01f) &&
-                FloatUtility.isFloatDiffLessThan(biquad.a1, a1, 0.01f) &&
-                FloatUtility.isFloatDiffLessThan(biquad.a2, a2, 0.01f);
+                dataEquals(biquad);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(addr, bindAddr);
+    }
+
+    public boolean dataEquals(Biquad b) {
+        return FloatUtility.isFloatDiffLessThan(b.b0, b0, 0.01f) &&
+                FloatUtility.isFloatDiffLessThan(b.b1, b1, 0.01f) &&
+                FloatUtility.isFloatDiffLessThan(b.b2, b2, 0.01f) &&
+                FloatUtility.isFloatDiffLessThan(b.a1, a1, 0.01f) &&
+                FloatUtility.isFloatDiffLessThan(b.a2, a2, 0.01f);
     }
 
     //setters getters

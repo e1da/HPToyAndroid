@@ -55,6 +55,21 @@ public class DFilterTest {
     }
 
     @Test
+    public void testImport2() {
+        df1.bindChannels(false);
+        LowpassFilter lpf = new LowpassFilter(df1.getFilterCh0());
+        lpf.upOrder();
+        lpf.setFreq((short)2500);
+
+        if (!df0.importFromDataBufs(df1.getDataBufs())) {
+            fail("Import fail");
+        }
+
+        assertEquals(df0, df1);
+
+    }
+
+    @Test
     public void testStereo() {
         df0.bindChannels(false);
         assertNotEquals(df0, df1);

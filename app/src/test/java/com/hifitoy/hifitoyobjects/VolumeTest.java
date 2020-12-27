@@ -1,14 +1,9 @@
 package com.hifitoy.hifitoyobjects;
 
-import android.util.Xml;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.List;
 import java.util.Locale;
 import static org.junit.Assert.*;

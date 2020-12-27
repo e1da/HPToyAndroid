@@ -70,6 +70,10 @@ public class Filter implements HiFiToyObject, Cloneable, Serializable {
         activeBiquadIndex = 0;
     }
 
+    public Filter(byte addr) {
+        this(addr, (byte)0);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -81,6 +85,15 @@ public class Filter implements HiFiToyObject, Cloneable, Serializable {
     @Override
     public int hashCode() {
         return Arrays.hashCode(biquads);
+    }
+
+    public boolean dataEquals(Filter f) {
+        for (int i = 0; i < SIZE; i++) {
+            if (!biquads[i].dataEquals(f.biquads[i])) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -512,10 +525,6 @@ public class Filter implements HiFiToyObject, Cloneable, Serializable {
                 }
 
             } else {
-                return false;
-            }
-
-            if (!biquads[i].importFromDataBufs(dataBufs)) {
                 return false;
             }
         }

@@ -9,15 +9,13 @@ package com.hifitoy.hifitoyobjects.filter;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.hifitoy.hifitoydevice.HiFiToyPreset;
+
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import com.hifitoy.hifitoyobjects.HiFiToyObject;
 import com.hifitoy.hifitoyobjects.biquad.Biquad;
 import com.hifitoy.tas5558.TAS5558;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -87,7 +85,7 @@ public class DFilter implements HiFiToyObject,  Cloneable{
                 b.setBindAddr( (byte)(TAS5558.BIQUAD_FILTER_REG + 7 + i) );
             }
 
-            filterCh0.sendToPeripheral(true);
+            //filterCh0.sendToPeripheral(true);
             filterCh1 = null;
 
         } else {
@@ -138,12 +136,17 @@ public class DFilter implements HiFiToyObject,  Cloneable{
 
     @Override
     public boolean importFromDataBufs(List<HiFiToyDataBuf> dataBufs) {
-        boolean res = filterCh0.importFromDataBufs(dataBufs);
+        binded = false;
+        filterCh0 = new Filter(TAS5558.BIQUAD_FILTER_REG);
+        filterCh1 = new Filter((byte)(TAS5558.BIQUAD_FILTER_REG + 7));
 
-        if ( (res) && (filterCh1 != null) ) {
-            res = filterCh1.importFromDataBufs(dataBufs);
+        if (!filterCh0.importFromDataBufs(dataBufs)) return false;
+        if (!filterCh1.importFromDataBufs(dataBufs)) return false;
+
+        if (filterCh0.dataEquals(filterCh1)) {
+            bindChannels(true);
         }
 
-        return res;
+        return true;
     }
 }

@@ -15,6 +15,7 @@ public class FloatUtilityTest {
         assertFalse(FloatUtility.isFloatEqualWithAccuracy(1.0f, 1.0000038147f, 16));
         assertFalse(FloatUtility.isFloatEqualWithAccuracy(2.0f, -4.0f, 16));
         assertFalse(FloatUtility.isFloatEqualWithAccuracy(2.0f, 4.0f, 16));
+
     }
 
     @Test

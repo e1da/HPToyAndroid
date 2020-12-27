@@ -6,6 +6,7 @@
  */
 package com.hifitoy.hifitoyobjects.biquad;
 
+import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoyobjects.filter.HighpassFilter;
 
 import org.junit.Test;
@@ -72,6 +73,30 @@ public class TypeTest {
         Biquad b = new Biquad((byte)6);
         b.setCoefs(1, 2, 3, 4, 5);
         assertEquals(Type.getType(b), Type.BIQUAD_USER);
+    }
+
+    @Test
+    public void testHighpassType() {
+        Biquad b = new Biquad();
+        HighpassBiquad hp = new HighpassBiquad(b.getAddress(), b.getBindAddr());
+        hp.setFreq((short)20);
+
+
+        assertEquals(Type.getType(hp), Type.BIQUAD_HIGHPASS);
+    }
+
+    @Test
+    public void testLowpassType() {
+        LowpassBiquad lp = new LowpassBiquad();
+        lp.setFreq((short)2500);
+        lp.setQ(0.71f);
+
+        Biquad b = new Biquad();
+        b.importFromDataBufs(lp.getDataBufs());
+
+        byte type = Type.getType(b);
+
+        assertEquals(type, Type.BIQUAD_LOWPASS);
     }
 
 
