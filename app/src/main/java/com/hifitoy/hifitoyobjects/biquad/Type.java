@@ -77,7 +77,8 @@ public class Type {
         Collections.sort(l);
 
         TypeDiff res = l.get(0);
-        if (res.diff > 2048.0) return BIQUAD_USER;
+        //if (res.diff > 2048.0) return BIQUAD_USER;
+        if (res.diff > 1048576.0f) return BIQUAD_USER;
         return res.type;
 
 
