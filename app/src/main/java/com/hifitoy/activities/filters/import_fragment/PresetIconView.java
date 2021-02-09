@@ -33,7 +33,7 @@ public class PresetIconView extends FrameLayout {
 
     private void init(Context context, HiFiToyPreset preset) {
         if (preset != null) {
-            filterView = new FilterView(context, preset.getFilters());
+            filterView = new FilterView(context, preset.getActiveFilter());
             filterView.controlLineVisible = false;
             filterView.unitVisible = false;
             filterView.allFilterActive = true;

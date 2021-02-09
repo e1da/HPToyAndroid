@@ -1,20 +1,13 @@
 package com.hifitoy.hifitoydevice;
 
 
-import android.util.Xml;
-
 import com.hifitoy.hifitoyobjects.biquad.ParamBiquad;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.List;
 import java.util.Locale;
 
 import static org.junit.Assert.*;
@@ -78,7 +71,7 @@ public class HiFiToyPresetTest {
 
     @Test
     public void testImport1() {
-        ParamBiquad b = (ParamBiquad) p0.getFilters().getBiquad((byte)6);
+        ParamBiquad b = (ParamBiquad) p0.getActiveFilter().getBiquad((byte)6);
         b.setDbVolume(12.0f);
         assertNotEquals(p0, p1);
 

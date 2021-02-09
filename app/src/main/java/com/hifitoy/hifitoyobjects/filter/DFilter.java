@@ -15,14 +15,16 @@ import com.hifitoy.hifitoyobjects.HiFiToyObject;
 import com.hifitoy.hifitoyobjects.biquad.Biquad;
 import com.hifitoy.tas5558.TAS5558;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class DFilter implements HiFiToyObject, Cloneable {
+public class DFilter implements HiFiToyObject, Cloneable, Serializable {
     private static final String TAG = "HiFiToy";
 
     private boolean binded;
+    private byte    activeChannel;
 
     @NonNull
     private Filter filterCh0;
@@ -31,6 +33,7 @@ public class DFilter implements HiFiToyObject, Cloneable {
 
     public DFilter() {
         binded = true;
+        activeChannel = 0;
         filterCh0 = new Filter(TAS5558.BIQUAD_FILTER_REG, (byte)(TAS5558.BIQUAD_FILTER_REG + 7));
         filterCh1 = null;
     }
@@ -85,7 +88,7 @@ public class DFilter implements HiFiToyObject, Cloneable {
                 b.setBindAddr( (byte)(TAS5558.BIQUAD_FILTER_REG + 7 + i) );
             }
 
-            //filterCh0.sendToPeripheral(true);
+            filterCh0.sendToPeripheral(true);
             filterCh1 = null;
 
         } else {
@@ -103,11 +106,33 @@ public class DFilter implements HiFiToyObject, Cloneable {
         }
     }
 
+    public byte getActiveChannel() {
+        return activeChannel;
+    }
+
+    public void setActiveChannel(byte ch) {
+        activeChannel = (ch == 0) ? 0 : (byte)1;
+    }
+
     public Filter getFilterCh0() {
         return filterCh0;
     }
     public void setFilterCh0(Filter f) {
         filterCh0 = f;
+    }
+
+    public Filter getFilterCh1() {
+        return filterCh1;
+    }
+
+    public Filter getActiveFilter() {
+        if ( (isChannelsBinded()) || (getActiveChannel() == 0) )  {
+            return filterCh0;
+
+        } else {
+            return filterCh1;
+
+        }
     }
 
     @Override

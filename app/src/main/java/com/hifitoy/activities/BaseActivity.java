@@ -11,6 +11,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -22,8 +23,8 @@ import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
 import com.hifitoy.dialogsystem.DiscoveryDialog;
 
-public abstract class BaseActivity extends Activity {
-    private TextView title;
+public abstract class BaseActivity extends FragmentActivity {
+    protected TextView title;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

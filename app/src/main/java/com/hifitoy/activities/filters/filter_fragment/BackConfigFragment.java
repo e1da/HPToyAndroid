@@ -6,7 +6,7 @@
  */
 package com.hifitoy.activities.filters.filter_fragment;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.os.Bundle;

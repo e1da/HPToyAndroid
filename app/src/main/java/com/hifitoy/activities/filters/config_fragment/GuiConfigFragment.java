@@ -6,7 +6,7 @@
  */
 package com.hifitoy.activities.filters.config_fragment;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -44,7 +44,7 @@ public class GuiConfigFragment extends Fragment implements View.OnClickListener,
     private ValueWidget qFacWidget;
     private ValueWidget volumeWidget;
 
-    private Filter filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
+    private Filter filter = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getActiveFilter();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -77,8 +77,12 @@ public class GuiConfigFragment extends Fragment implements View.OnClickListener,
         super.onPause();
     }
 
+    public void setFilter(Filter f) {
+        filter = f;
+    }
+
     public void updateView() {
-        Biquad b = filters.getActiveBiquad();
+        Biquad b = filter.getActiveBiquad();
 
         if (Type.getType(b) == BIQUAD_PARAMETRIC) {
             freqWidget.setVisibility(VISIBLE);
@@ -102,7 +106,7 @@ public class GuiConfigFragment extends Fragment implements View.OnClickListener,
 
     @Override
     public void onClick(View v) {
-        Biquad b = filters.getActiveBiquad();
+        Biquad b = filter.getActiveBiquad();
         KeyboardNumber n;
         String tag;
 
@@ -128,18 +132,18 @@ public class GuiConfigFragment extends Fragment implements View.OnClickListener,
     @Override
     public void onKeyboardResult(String tag, KeyboardNumber result) {
         try {
-            Biquad b = filters.getActiveBiquad();
+            Biquad b = filter.getActiveBiquad();
 
             if (tag.equals("freq")) {
                 int f = Integer.parseInt(result.getValue());
 
                 if (Type.getType(b) == BIQUAD_LOWPASS) {
-                    LowpassFilter lp = new LowpassFilter(filters);
+                    LowpassFilter lp = new LowpassFilter(filter);
                     lp.setFreq((short)f);
                     lp.sendToPeripheral(true);
 
                 } else if (Type.getType(b) == BIQUAD_HIGHPASS) {
-                    HighpassFilter hp = new HighpassFilter(filters);
+                    HighpassFilter hp = new HighpassFilter(filter);
                     hp.setFreq((short)f);
                     hp.sendToPeripheral(true);
 

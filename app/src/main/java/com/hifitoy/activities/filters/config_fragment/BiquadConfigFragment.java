@@ -6,14 +6,14 @@
  */
 package com.hifitoy.activities.filters.config_fragment;
 
-import android.app.FragmentTransaction;
+import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -46,7 +46,7 @@ public class BiquadConfigFragment extends Fragment implements ViewUpdater.IFilte
     private SegmentedControlWidget  biquadInputTypeWidget;
     private LinearLayout            biquadData;
 
-    private Filter filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
+    private Filter filter = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getActiveFilter();
 
     TextConfigFragment textFragment   = new TextConfigFragment();
     GuiConfigFragment guiFragment    = new GuiConfigFragment();
@@ -69,7 +69,7 @@ public class BiquadConfigFragment extends Fragment implements ViewUpdater.IFilte
         prevBiquadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                filters.decActiveBiquadIndex();
+                filter.decActiveBiquadIndex();
                 ViewUpdater.getInstance().update();
             }
         });
@@ -77,7 +77,7 @@ public class BiquadConfigFragment extends Fragment implements ViewUpdater.IFilte
         nextBiquadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                filters.incActiveBiquadIndex();
+                filter.incActiveBiquadIndex();
                 ViewUpdater.getInstance().update();
             }
         });
@@ -87,7 +87,7 @@ public class BiquadConfigFragment extends Fragment implements ViewUpdater.IFilte
             public void onCheckedChanged(SegmentedControlWidget segmentedControl, int checkedIndex) {
                 Log.d(TAG, "onCheckedChanged");
 
-                Biquad b = filters.getActiveBiquad();
+                Biquad b = filter.getActiveBiquad();
                 byte type = Type.getType(b);
 
                 if (checkedIndex == 1) { // set text
@@ -100,11 +100,11 @@ public class BiquadConfigFragment extends Fragment implements ViewUpdater.IFilte
 
                     //update pass biquads
                     if (type == BIQUAD_HIGHPASS) {
-                        HighpassFilter hp = new HighpassFilter(filters);
+                        HighpassFilter hp = new HighpassFilter(filter);
                         hp.sendToPeripheral(true);
 
                     } else if (type == BIQUAD_LOWPASS) {
-                        LowpassFilter lp = new LowpassFilter(filters);
+                        LowpassFilter lp = new LowpassFilter(filter);
                         lp.sendToPeripheral(true);
                     }
 
@@ -113,9 +113,9 @@ public class BiquadConfigFragment extends Fragment implements ViewUpdater.IFilte
                     if (type != BIQUAD_USER) return;
 
                     b = new ParamBiquad(b);
-                    b.setEnabled(filters.isBiquadEnabled(BIQUAD_PARAMETRIC));
+                    b.setEnabled(filter.isBiquadEnabled(BIQUAD_PARAMETRIC));
 
-                    short freq = filters.getBetterNewFreqForBiquad(b);
+                    short freq = filter.getBetterNewFreqForBiquad(b);
                     ((ParamBiquad)b).setFreq((freq != -1) ? freq : 100);
 
                     ((ParamBiquad)b).setQ(1.41f);
@@ -162,11 +162,17 @@ public class BiquadConfigFragment extends Fragment implements ViewUpdater.IFilte
 
     }
 
+    public void setFilter(Filter f) {
+        filter = f;
+        guiFragment.setFilter(f);
+        textFragment.setFilter(f);
+    }
+
     @Override
     public void updateView() {
-        biquadLabel.setText("BIQUAD #" + Integer.toString(filters.getActiveBiquadIndex() + 1));
+        biquadLabel.setText("BIQUAD #" + Integer.toString(filter.getActiveBiquadIndex() + 1));
 
-        byte type = Type.getType(filters.getActiveBiquad());
+        byte type = Type.getType(filter.getActiveBiquad());
         int index = (type == BIQUAD_USER) ? 1 : 0;
         biquadInputTypeWidget.check(index);
 

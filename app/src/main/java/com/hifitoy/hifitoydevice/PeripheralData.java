@@ -66,7 +66,7 @@ public class PeripheralData {
         advertiseMode = device.getAdvertiseMode().getMode();
         reserved = 0;
         energyConfig = device.getEnergyConfig();
-        setBiquadTypes(device.getActivePreset().getFilters().getBiquadTypes());
+        setBiquadTypes(device.getActivePreset().getActiveFilter().getBiquadTypes());
         reserved1 = 0;
 
         setDataBufs(device.getActivePreset().getDataBufs());

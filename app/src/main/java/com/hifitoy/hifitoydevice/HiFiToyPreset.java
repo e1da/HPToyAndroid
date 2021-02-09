@@ -164,12 +164,17 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     public short getChecksum() {
         return checkSum;
     }
-    public Filter getFilters() {
-        return dFilter.getFilterCh0();
+
+    public DFilter getDFilter() {
+        return dFilter;
+    }
+
+    public Filter getActiveFilter() {
+        return dFilter.getActiveFilter();
     }
     public void setFilters(Filter f) {
         dFilter.setFilterCh0(f);
-    }
+    } // TODO:update for stereo filter
 
     public Volume getVolume() {
         return masterVolume;
@@ -195,7 +200,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
 
     public void storeToPeripheral() {
         PeripheralData peripheralData = new PeripheralData();
-        peripheralData.setBiquadTypes(getFilters().getBiquadTypes());
+        peripheralData.setBiquadTypes(getActiveFilter().getBiquadTypes());
         peripheralData.setDataBufs(getDataBufs());
         peripheralData.exportPresetWithDialog("Sending Preset...");
     }

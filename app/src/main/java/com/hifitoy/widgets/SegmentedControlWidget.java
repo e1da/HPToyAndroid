@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import com.hifitoy.R;
 
+
 public class SegmentedControlWidget extends LinearLayout implements View.OnClickListener {
     private SegmentedButton[] buttons;
     private int checkedIndex = 0;
@@ -47,9 +48,11 @@ public class SegmentedControlWidget extends LinearLayout implements View.OnClick
 
     private void init(Context context, CharSequence[] entries) {
         setOrientation(HORIZONTAL);
+        setBackgroundResource(R.drawable.segmented_widget);
 
         if (entries != null) {
             buttons = new SegmentedButton[entries.length];
+
             for (int i = 0; i < entries.length; i++) {
                 buttons[i] = new SegmentedButton(context, entries[i]);
                 if (i == checkedIndex) buttons[i].setChecked(true);
@@ -107,6 +110,7 @@ public class SegmentedControlWidget extends LinearLayout implements View.OnClick
 
             setTextAlignment(TEXT_ALIGNMENT_CENTER);
             setButtonDrawable(null);
+            setBackgroundResource(R.drawable.check_button);
             setChecked(false);
 
             LayoutParams lp = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1f);
@@ -119,17 +123,6 @@ public class SegmentedControlWidget extends LinearLayout implements View.OnClick
         public SegmentedButton(Context context, CharSequence text) {
             this(context);
             setText(text);
-        }
-
-        @Override
-        public void setChecked(boolean checked) {
-            super.setChecked(checked);
-
-            if (checked) {
-                setBackgroundResource(R.drawable.segmented_checked);
-            } else {
-                setBackgroundResource(R.drawable.segmented_unchecked);
-            }
         }
 
     }

@@ -7,7 +7,7 @@
 package com.hifitoy.activities.filters.import_fragment;
 
 import android.animation.ValueAnimator;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
@@ -58,7 +58,7 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
             presetCollectionView.requestLayout();
 
             try {
-                tempFilters = preset.getFilters().clone();
+                tempFilters = preset.getActiveFilter().clone();
             } catch (CloneNotSupportedException e) {
                 Log.d(TAG, e.toString());
             }
@@ -81,7 +81,7 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
 
             //update active preset
             presetCollectionView.setActiveIndex(index);
-            Filter f = HiFiToyPresetManager.getInstance().getPreset(index).getFilters();
+            Filter f = HiFiToyPresetManager.getInstance().getPreset(index).getActiveFilter();
             updateFilters(f);
 
             //smooth animation

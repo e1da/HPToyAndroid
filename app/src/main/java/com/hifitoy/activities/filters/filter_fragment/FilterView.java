@@ -21,7 +21,6 @@ import android.view.View;
 
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.biquad.IFreq;
-import com.hifitoy.hifitoyobjects.biquad.LowpassBiquad;
 import com.hifitoy.hifitoyobjects.biquad.Type;
 import com.hifitoy.hifitoyobjects.filter.Filter;
 import com.hifitoy.hifitoyobjects.biquad.Biquad;
@@ -39,7 +38,7 @@ import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_PARAMETRIC;
 public class FilterView extends View {
     private static String TAG = "HiFiToy";
 
-    private Filter filters;
+    private Filter filter;
     private int[] drawFreqUnitArray = new int[]{20, 100, 1000, 10000};
 
     private final int MIN_VIEW_DB = -30;
@@ -65,18 +64,16 @@ public class FilterView extends View {
     public boolean controlLineVisible = true;
     public boolean allFilterActive = false;
 
-
+    public FilterView(Context context, Filter f) {
+        super(context);
+        setFilter(f);
+    }
     public FilterView(Context context) {
-        super(context);
-        filters = null;
-    }
-    public FilterView(Context context, Filter filters) {
-        super(context);
-        this.filters = filters;
+        this(context, null);
     }
 
-    public void setFilters(Filter f) {
-        this.filters = f;
+    public void setFilter(Filter f) {
+        this.filter = f;
     }
 
     public Size getSize() {
@@ -109,11 +106,11 @@ public class FilterView extends View {
 
     public int getLPBorderPixel() {
         int startPixel = getWidth() - border_right;
-        double prev_y = filters.getAFR(pixelToFreq(startPixel));
+        double prev_y = filter.getAFR(pixelToFreq(startPixel));
         int extremumPixel = startPixel - 1;
 
         while (extremumPixel > border_left){
-            double y = filters.getAFR(pixelToFreq(extremumPixel));
+            double y = filter.getAFR(pixelToFreq(extremumPixel));
             if (y < prev_y){
                 break;
             }
@@ -125,11 +122,11 @@ public class FilterView extends View {
 
     public int getHPBorderPixel() {
         int startPixel = border_left;
-        double prev_y = filters.getAFR(pixelToFreq(startPixel));
+        double prev_y = filter.getAFR(pixelToFreq(startPixel));
         int extremumPixel = startPixel + 1;
 
         while (extremumPixel < (getWidth() - border_right)){
-            double y = filters.getAFR(pixelToFreq(extremumPixel));
+            double y = filter.getAFR(pixelToFreq(extremumPixel));
             if ( y < prev_y ){
                 break;
             }
@@ -296,7 +293,7 @@ public class FilterView extends View {
         int highpass_freq_pix = 0;
         int lowpass_freq_pix = 0;
 
-        byte type = Type.getType(filters.getActiveBiquad());
+        byte type = Type.getType(filter.getActiveBiquad());
         if (type == BIQUAD_HIGHPASS) highpass_freq_pix = getHPBorderPixel();
         if (type == BIQUAD_LOWPASS) lowpass_freq_pix = getLPBorderPixel();
 
@@ -305,7 +302,7 @@ public class FilterView extends View {
 
         //prepare vertices
         for (int i = border_left; i <= getWidth() - border_right; i += DELTA_X){
-            float ampl = filters.getAFR(pixelToFreq(i));
+            float ampl = filter.getAFR(pixelToFreq(i));
             float db = amplToDb(ampl);
             if ( (db < MIN_VIEW_DB) || (db > MAX_VIEW_DB) ) continue;
 
@@ -379,12 +376,12 @@ public class FilterView extends View {
     }
 
     private void drawFreqLineForParametric(Canvas c) {
-        List<Biquad> params = filters.getBiquads(BIQUAD_PARAMETRIC);
+        List<Biquad> params = filter.getBiquads(BIQUAD_PARAMETRIC);
         drawFreqForBiquads(c, params, 0xFF996633, 0xFFFF8000);
     }
 
     private void drawFreqLineForAllpass(Canvas c) {
-        List<Biquad> allpass = filters.getBiquads(BIQUAD_ALLPASS);
+        List<Biquad> allpass = filter.getBiquads(BIQUAD_ALLPASS);
         drawFreqForBiquads(c, allpass, 0x803380FF, 0xFF3380FF);
     }
 
@@ -404,7 +401,7 @@ public class FilterView extends View {
             p.setStyle(Paint.Style.STROKE);
             p.setPathEffect(new DashPathEffect(new float[]{30, 30, 30, 30}, 0));
 
-            if ((b == filters.getActiveBiquad()) && (!filters.isActiveNullLP()) && (!filters.isActiveNullHP())){
+            if ((b == filter.getActiveBiquad()) && (!filter.isActiveNullLP()) && (!filter.isActiveNullHP())){
                 p.setStrokeWidth(6);
                 p.setColor(selColor);
             } else {
@@ -427,16 +424,16 @@ public class FilterView extends View {
         Paint p = new Paint();
         p.setStyle(Paint.Style.FILL);
 
-        LowpassFilter lpf = new LowpassFilter(filters);
+        LowpassFilter lpf = new LowpassFilter(filter);
         if (lpf.isEmpty()) {
 
-            if (filters.isActiveNullLP()) {
+            if (filter.isActiveNullLP()) {
                 p.setColor(0xFFFF8000); // orange
             } else {
                 p.setColor(0xFF996633); // brown
             }
 
-            float ampl = filters.getAFR(pixelToFreq(getWidth() - border_right));
+            float ampl = filter.getAFR(pixelToFreq(getWidth() - border_right));
             float db = amplToDb(ampl);
             if ((db >= MIN_VIEW_DB) && (db <= MAX_VIEW_DB)) {
                 //c.drawCircle(width - border_right, dbToPixel(db), TAP_RADIUS, p);
@@ -449,16 +446,16 @@ public class FilterView extends View {
             }
         }
 
-        HighpassFilter hpf = new HighpassFilter(filters);
+        HighpassFilter hpf = new HighpassFilter(filter);
         if (hpf.isEmpty()) {
 
-            if (filters.isActiveNullHP()) {
+            if (filter.isActiveNullHP()) {
                 p.setColor(0xFFFF8000); // orange
             } else {
                 p.setColor(0xFF996633); // brown
             }
 
-            float ampl = filters.getAFR(pixelToFreq(border_left));
+            float ampl = filter.getAFR(pixelToFreq(border_left));
             float db = amplToDb(ampl);
             if ((db >= MIN_VIEW_DB) && (db <= MAX_VIEW_DB)) {
                 //c.drawCircle(border_left, dbToPixel(db), TAP_RADIUS, p);

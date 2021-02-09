@@ -6,7 +6,7 @@
  */
 package com.hifitoy.activities.filters.config_fragment;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,6 +27,8 @@ import com.hifitoy.hifitoyobjects.biquad.Biquad;
 import com.hifitoy.widgets.ValueWidget;
 import com.hifitoy.R;
 
+import java.util.Locale;
+
 public class TextConfigFragment extends Fragment implements View.OnClickListener,
                                                         KeyboardDialog.OnResultListener {
     private final String TAG = "HiFiToy";
@@ -38,7 +40,7 @@ public class TextConfigFragment extends Fragment implements View.OnClickListener
     private ValueWidget a2Widget;
     private Button      syncCoefButton;
 
-    private Filter filters = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters();
+    private Filter filter = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getActiveFilter();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,7 +69,7 @@ public class TextConfigFragment extends Fragment implements View.OnClickListener
             public void onClick(View v) {
                 DialogSystem.OnClickDialog dialogListener = new DialogSystem.OnClickDialog() {
                     public void onPositiveClick(){
-                        Biquad b = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getFilters().getActiveBiquad();
+                        Biquad b = HiFiToyControl.getInstance().getActiveDevice().getActivePreset().getActiveFilter().getActiveBiquad();
                         b.sendToPeripheral(true);
                         Toast.makeText(ApplicationContext.getInstance().getContext(),
                                 "Sync was successful!", Toast.LENGTH_SHORT).show();
@@ -96,19 +98,23 @@ public class TextConfigFragment extends Fragment implements View.OnClickListener
         updateView();
     }
 
+    public void setFilter(Filter f) {
+        filter = f;
+    }
+
     public void updateView() {
-        /*TextBiquad b = (TextBiquad) filters.getActiveBiquad();
+        Biquad b = filter.getActiveBiquad();
 
         b0Widget.setText("B0:", String.format(Locale.getDefault(), "%.6f", b.getB0()), "");
         b1Widget.setText("B1:", String.format(Locale.getDefault(), "%.6f", b.getB1()), "");
         b2Widget.setText("B2:", String.format(Locale.getDefault(), "%.6f", b.getB2()), "");
         a1Widget.setText("A1:", String.format(Locale.getDefault(), "%.6f", b.getA1()), "");
-        a2Widget.setText("A2:", String.format(Locale.getDefault(), "%.6f", b.getA2()), "");*/
+        a2Widget.setText("A2:", String.format(Locale.getDefault(), "%.6f", b.getA2()), "");
     }
 
     @Override
     public void onClick(View v) {
-        TextBiquad b = (TextBiquad) filters.getActiveBiquad();
+        TextBiquad b = (TextBiquad) filter.getActiveBiquad();
         KeyboardNumber n;
         String tag;
 
@@ -142,7 +148,7 @@ public class TextConfigFragment extends Fragment implements View.OnClickListener
     @Override
     public void onKeyboardResult(String tag, KeyboardNumber result) {
         try {
-            TextBiquad b = (TextBiquad) filters.getActiveBiquad();
+            TextBiquad b = (TextBiquad) filter.getActiveBiquad();
             float rs = Float.parseFloat(result.getValue());
 
             if (tag.equals("b0")) {
