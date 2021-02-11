@@ -31,7 +31,6 @@ import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 
-import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
@@ -42,6 +41,8 @@ import java.util.Queue;
 import java.util.UUID;
 
 import static com.hifitoy.hifitoycontrol.CommonCommand.GET_ADVERTISE_MODE;
+import static com.hifitoy.hifitoycontrol.CommonCommand.GET_OUTPUT_MODE;
+import static com.hifitoy.hifitoycontrol.CommonCommand.GET_TAS5558_CH3_MIXER;
 
 public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     private static final String TAG = "HiFiToy";
@@ -479,6 +480,21 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                     case GET_ADVERTISE_MODE:
                         Log.d(TAG, "GET_ADVERTISE_MODE " + status);
                         activeDevice.getAdvertiseMode().setMode(status);
+
+                        ApplicationContext.getInstance().setupOutlets();
+                        break;
+
+                    case GET_OUTPUT_MODE:
+                        Log.d(TAG, "GET_OUTPUT_MODE " + status);
+                        activeDevice.getOutputMode().setValue(status);
+
+                        ApplicationContext.getInstance().setupOutlets();
+                        break;
+
+                    case GET_TAS5558_CH3_MIXER:
+                        short val = (short)(data[1] + (data[2] << 8));
+                        Log.d(TAG, "GET_TAS5558_CH3_MIXER " + val);
+                        activeDevice.getOutputMode().setBoost(val);
 
                         ApplicationContext.getInstance().setupOutlets();
                         break;

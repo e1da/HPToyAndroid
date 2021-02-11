@@ -39,9 +39,10 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
     private transient HiFiToyPreset activePreset = null;
     private int                     pairingCode;
 
-    private AudioSource       audioSource;
-    private AdvertiseMode     advertiseMode;
-    private EnergyConfig      energyConfig;
+    private AudioSource     audioSource;
+    private AdvertiseMode   advertiseMode;
+    private EnergyConfig    energyConfig;
+    private OutputMode      outputMode;
 
     private transient boolean clipFlag = false;
 
@@ -58,6 +59,7 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
         audioSource = new AudioSource();
         advertiseMode = new AdvertiseMode();
         energyConfig = new EnergyConfig();
+        outputMode = new OutputMode();
 
         clipFlag = false;
     }
@@ -81,7 +83,7 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
     public void     setPairingCode(int pairingCode){
         this.pairingCode = pairingCode;
     }
-    public short getVersion() {
+    public short    getVersion() {
         return PeripheralData.VERSION;
     }
     public String   getActiveKeyPreset(){
@@ -129,6 +131,9 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
     public void             setAdvertiseMode(AdvertiseMode advertiseMode) {
         this.advertiseMode = advertiseMode;
     }
+    public OutputMode       getOutputMode() {
+        return outputMode;
+    }
 
     public boolean getClipFlag() {
         return clipFlag;
@@ -142,6 +147,7 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
         audioSource = new AudioSource();
         advertiseMode = new AdvertiseMode();
         energyConfig = new EnergyConfig();
+        outputMode = new OutputMode();
         setActiveKeyPreset("No processing");
 
         PeripheralData peripheralData = new PeripheralData(this);

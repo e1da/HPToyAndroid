@@ -77,6 +77,10 @@
             android:label="Advertise mode"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".activities.options.OutputModeActivity"
+            android:label="Output mode"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".activities.options.presetmanager.PresetManagerActivity"
             android:label="Preset manger"
             android:screenOrientation="portrait" />

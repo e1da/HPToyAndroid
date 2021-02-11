@@ -15,15 +15,12 @@ import android.util.Log;
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoynumbers.Checksummer;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import static com.hifitoy.ApplicationContext.EXTRA_DATA;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC;
@@ -43,10 +40,10 @@ public class PeripheralData {
     private int                     pairingCode;        // 0x04
     private byte                    audioSource;        // 0x08
     private byte                    advertiseMode;      // 0x09 0x01
-    private short                   reserved;           // 0x0A
+    private short                   gainChannel3;       // 0x0A number format 1.15 unsign
     private EnergyConfig            energyConfig;       // 0x0C
     private byte[]                  biquadTypes;        // 0x18 0x07
-    private byte                    reserved1;          // 0x1F
+    private byte                    outputMode;         // 0x1F balance/unbalance
 
     private short                   dataBufLength;      // 0x20
     private short                   dataBytesLength;    // 0x22
@@ -67,10 +64,10 @@ public class PeripheralData {
         pairingCode = device.getPairingCode();
         audioSource = device.getAudioSource().getSource();
         advertiseMode = device.getAdvertiseMode().getMode();
-        reserved = 0;
+        gainChannel3 = 16384; // 0x4000
         energyConfig = device.getEnergyConfig();
         setBiquadTypes(device.getActivePreset().getFilters().getBiquadTypes());
-        reserved1 = 0;
+        outputMode = device.getOutputMode().getValue();
 
         setDataBufs(device.getActivePreset().getDataBufs());
     }
@@ -89,11 +86,11 @@ public class PeripheralData {
         pairingCode = 0;
         audioSource = AudioSource.USB_SOURCE;
         advertiseMode = AdvertiseMode.ALWAYS_ENABLED;
-        reserved = 0;
+        gainChannel3 = 16384; // 0x4000
         energyConfig = new EnergyConfig();
         setBiquadTypes(new byte[]{BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC,
                 BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC});
-        reserved1 = 0;
+        outputMode = OutputMode.UNBALANCE_OUT_MODE;
 
         dataBufLength = 0;
         dataBytesLength = 0;
@@ -140,10 +137,10 @@ public class PeripheralData {
         data.putInt(pairingCode);
         data.put(audioSource);
         data.put(advertiseMode);
-        data.putShort(reserved);
+        data.putShort(gainChannel3);
         data.put(energyConfig.getBinary());
         data.put(biquadTypes);
-        data.put(reserved1);
+        data.put(outputMode);
         data.putShort(dataBufLength);
         data.putShort(dataBytesLength);
 
@@ -238,13 +235,13 @@ public class PeripheralData {
             pairingCode = b.getInt();
             audioSource = b.get();
             advertiseMode = b.get();
-            reserved = b.getShort();
+            gainChannel3 = b.getShort();
             energyConfig.parseBinary(b);
 
             biquadTypes = new byte[7];
             b.get(biquadTypes, 0, 7);
 
-            reserved1 = b.get();
+            outputMode = b.get();
             dataBufLength = b.getShort();
             dataBytesLength = b.getShort();
 

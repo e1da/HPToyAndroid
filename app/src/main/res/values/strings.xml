@@ -49,4 +49,8 @@
 
     <string name="fileprovider_authority">com.hifitoy.fileprovider</string>
     <string name="export_extra_subject">Preset from HiFiToy</string>
+
+    <string name="balance_warning">Please be careful.
+        Using unbalance headphone with PDV2 in balance mode is dangerous.
+        Are you sure want to set balance output mode?</string>
 </resources>

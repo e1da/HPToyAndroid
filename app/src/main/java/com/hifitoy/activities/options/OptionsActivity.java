@@ -46,6 +46,7 @@ public class OptionsActivity extends BaseActivity implements View.OnClickListene
     TextView changePairingCode_outl;
     LinearLayout autoOff_outl;
     LinearLayout advertiseMode_outl;
+    LinearLayout outputMode_outl;
 
     HiFiToyDevice hifiToyDevice;
 
@@ -79,13 +80,14 @@ public class OptionsActivity extends BaseActivity implements View.OnClickListene
         changePairingCode_outl      = findViewById(R.id.changePairingCode_outl);
         autoOff_outl                = findViewById(R.id.autoOff_outl);
         advertiseMode_outl          = findViewById(R.id.advertiseMode_outl);
-
+        outputMode_outl             = findViewById(R.id.outputMode_outl);
 
         deviceNameLayout_outl.setOnClickListener(this);
         restoreFactorySettings_outl.setOnClickListener(this);
         changePairingCode_outl.setOnClickListener(this);
         autoOff_outl.setOnClickListener(this);
         advertiseMode_outl.setOnClickListener(this);
+        outputMode_outl.setOnClickListener(this);
     }
 
     @Override
@@ -116,6 +118,10 @@ public class OptionsActivity extends BaseActivity implements View.OnClickListene
                 break;
             case R.id.advertiseMode_outl:
                 intent = new Intent(OptionsActivity.this, AdvertiseActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.outputMode_outl:
+                intent = new Intent(OptionsActivity.this, OutputModeActivity.class);
                 startActivity(intent);
                 break;
         }
