@@ -18,12 +18,15 @@ public class OutputMode implements Serializable {
 
     private byte value;
 
+    private boolean hwSupported;
+
     public OutputMode() {
         setDefault();
     }
 
     public void setDefault() {
         setValue(UNBALANCE_BOOST_OUT_MODE);
+        setHwSupported(true);
     }
     public void setValue(byte value) {
         if (value < BALANCE_OUT_MODE) value = BALANCE_OUT_MODE;
@@ -44,6 +47,13 @@ public class OutputMode implements Serializable {
         } else {
             value = UNBALANCE_BOOST_OUT_MODE;
         }
+    }
+
+    public void setHwSupported(boolean hwSupported) {
+        this.hwSupported = hwSupported;
+    }
+    public boolean isHwSupported() {
+        return hwSupported;
     }
 
     public void sendToDsp() {

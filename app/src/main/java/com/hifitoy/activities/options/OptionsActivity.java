@@ -35,6 +35,7 @@ import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
+import com.hifitoy.hifitoydevice.OutputMode;
 
 public class OptionsActivity extends BaseActivity implements View.OnClickListener {
     final static String TAG = "HiFiToy";
@@ -61,6 +62,10 @@ public class OptionsActivity extends BaseActivity implements View.OnClickListene
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         initOutlets();
+
+        //check output mode hw support
+        OutputMode outputMode = HiFiToyControl.getInstance().getActiveDevice().getOutputMode();
+        outputMode.readFromDsp();
     }
 
     @Override
@@ -80,7 +85,7 @@ public class OptionsActivity extends BaseActivity implements View.OnClickListene
         changePairingCode_outl      = findViewById(R.id.changePairingCode_outl);
         autoOff_outl                = findViewById(R.id.autoOff_outl);
         advertiseMode_outl          = findViewById(R.id.advertiseMode_outl);
-        outputMode_outl             = findViewById(R.id.outputMode_outl);
+        outputMode_outl             = findViewById(R.id.outputModeMenu_outl);
 
         deviceNameLayout_outl.setOnClickListener(this);
         restoreFactorySettings_outl.setOnClickListener(this);
@@ -94,6 +99,12 @@ public class OptionsActivity extends BaseActivity implements View.OnClickListene
     public void setupOutlets() {
         deviceNameLabel_outl.setText(hifiToyDevice.getName());
         deviceMacLabel_outl.setText(hifiToyDevice.getMac());
+
+        if (hifiToyDevice.getOutputMode().isHwSupported()) {
+            outputMode_outl.setVisibility(View.VISIBLE);
+        } else {
+            outputMode_outl.setVisibility(View.GONE);
+        }
     }
 
     public void onClick(View v) {
@@ -120,7 +131,7 @@ public class OptionsActivity extends BaseActivity implements View.OnClickListene
                 intent = new Intent(OptionsActivity.this, AdvertiseActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.outputMode_outl:
+            case R.id.outputModeMenu_outl:
                 intent = new Intent(OptionsActivity.this, OutputModeActivity.class);
                 startActivity(intent);
                 break;

@@ -330,7 +330,23 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
         @Override
         public void onCharacteristicWrite (BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status){
-            Log.d(TAG, "onCharacteristicWrite");
+            Log.d(TAG, "onCharacteristicWrite " + status);
+
+            // check output mode hw support
+            BlePacket sentPacket = packets.element();
+            byte cmd = sentPacket.getData()[0];
+            if ( (cmd >= CommonCommand.SET_TAS5558_CH3_MIXER) &&
+                    (cmd <= CommonCommand.GET_OUTPUT_MODE) ) {
+
+                if (status != 0) {
+                    Log.d(TAG, "Output Mode is unsupported. ");
+                    activeDevice.getOutputMode().setHwSupported(false);
+                } else {
+                    activeDevice.getOutputMode().setHwSupported(true);
+                }
+                ApplicationContext.getInstance().setupOutlets();
+
+            }
 
             if (characteristic.getUuid().equals(FFF1_UUID)){
                 packets.remove();
