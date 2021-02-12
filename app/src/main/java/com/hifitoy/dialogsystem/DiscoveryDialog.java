@@ -160,7 +160,7 @@ public class DiscoveryDialog extends BaseDialog implements HiFiToyControl.Discov
             HiFiToyDevice device = devices.get(i);
             HiFiToyDevice activeDevice = (HiFiToyControl.getInstance().getActiveDevice());
             boolean equals = device.getMac().equals(activeDevice.getMac());
-            boolean connected = HiFiToyControl.getInstance().isConnected();
+            boolean connected = HiFiToyControl.getInstance().isConnectionReady();
 
             deviceName.setText(device.getName());
 

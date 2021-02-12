@@ -226,7 +226,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
 
     @Override
     public void sendToPeripheral(boolean response) {
-        if (!HiFiToyControl.getInstance().isConnected()) return;
+        //if (!HiFiToyControl.getInstance().isConnected()) return;
 
         //init progress dialog
         //DialogSystem.getInstance().showProgressDialog("Send Dsp Parameters...", 1);

@@ -272,7 +272,7 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
     @Override
     public void setupOutlets() {
         Drawable drawable;
-        if (HiFiToyControl.getInstance().isConnected()) {
+        if (HiFiToyControl.getInstance().isConnectionReady()) {
             drawable = getResources().getDrawable(R.drawable.active_discovery_btn, getTheme());
         } else {
             drawable = getResources().getDrawable(R.drawable.discovery_btn, getTheme());

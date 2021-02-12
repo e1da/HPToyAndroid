@@ -65,12 +65,19 @@ public class ApplicationContext {
     }
 
     public void setupOutlets() {
-        Activity a = (Activity) context;
-        Class superclass = a.getClass().getSuperclass();
+        Handler mainHandler = new Handler(Looper.getMainLooper());
+        Runnable myRunnable = new Runnable() {
+            @Override
+            public void run() {
+                Activity a = (Activity) context;
+                Class superclass = a.getClass().getSuperclass();
 
-        if ((superclass != null) && (superclass.equals(BaseActivity.class))) {
-            ((BaseActivity)a).setupOutlets();
-        }
+                if ((superclass != null) && (superclass.equals(BaseActivity.class))) {
+                    ((BaseActivity)a).setupOutlets();
+                }
+            }
+        };
+        mainHandler.post(myRunnable);
     }
 
     public void updateActionBar() {

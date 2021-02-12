@@ -197,6 +197,9 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     }
 
     public boolean isConnected() {
+        return ( (activeDevice != null) && (state.getState() >= ConnectionState.CONNECTED) );
+    }
+    public boolean isConnectionReady() {
         return ( (activeDevice != null) && (state.getState() == ConnectionState.CONNECTION_READY) );
     }
 
@@ -334,18 +337,21 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
             // check output mode hw support
             BlePacket sentPacket = packets.element();
-            byte cmd = sentPacket.getData()[0];
-            if ( (cmd >= CommonCommand.SET_TAS5558_CH3_MIXER) &&
-                    (cmd <= CommonCommand.GET_OUTPUT_MODE) ) {
+            if (sentPacket.getData().length == CommonCommand.LENGTH) {
 
-                if (status != 0) {
-                    Log.d(TAG, "Output Mode is unsupported. ");
-                    activeDevice.getOutputMode().setHwSupported(false);
-                } else {
-                    activeDevice.getOutputMode().setHwSupported(true);
+                byte cmd = sentPacket.getData()[0];
+
+                if ((cmd >= CommonCommand.SET_TAS5558_CH3_MIXER) &&
+                        (cmd <= CommonCommand.GET_OUTPUT_MODE)) {
+
+                    if (status != 0) {
+                        Log.d(TAG, "Output Mode is unsupported. ");
+                        activeDevice.getOutputMode().setHwSupported(false);
+                    } else {
+                        activeDevice.getOutputMode().setHwSupported(true);
+                    }
+                    ApplicationContext.getInstance().setupOutlets();
                 }
-                ApplicationContext.getInstance().setupOutlets();
-
             }
 
             if (characteristic.getUuid().equals(FFF1_UUID)){
@@ -433,7 +439,16 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
                         } else {
                             Log.d(TAG, "CHECK_FIRMWARE_FAIL");
-                            activeDevice.restoreFactorySettings();
+
+                            Handler mainHandler = new Handler(Looper.getMainLooper());
+                            Runnable myRunnable = new Runnable() {
+                                @Override
+                                public void run() {
+                                    activeDevice.restoreFactorySettings();
+                                }
+                            };
+                            mainHandler.post(myRunnable);
+
                         }
                         break;
 
@@ -445,7 +460,14 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                             activeDevice.getAudioSource().readFromDsp();
                         } else {
                             Log.d(TAG, "GET_VERSION_FAIL=" + version + "CURRENT=" + activeDevice.getVersion());
-                            activeDevice.restoreFactorySettings();
+                            Handler mainHandler = new Handler(Looper.getMainLooper());
+                            Runnable myRunnable = new Runnable() {
+                                @Override
+                                public void run() {
+                                    activeDevice.restoreFactorySettings();
+                                }
+                            };
+                            mainHandler.post(myRunnable);
                         }
                         break;
 

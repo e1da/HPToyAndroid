@@ -8,7 +8,9 @@
 package com.hifitoy.hifitoycontrol;
 
 public class CommonCommand {
+    public static final byte LENGTH                 = 5;
 
+    //cmd
     public static final byte ESTABLISH_PAIR         = 0x00;
     public static final byte SET_PAIR_CODE          = 0x01;
     public static final byte SET_WRITE_FLAG         = 0x02;

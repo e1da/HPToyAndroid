@@ -90,7 +90,7 @@ public class PeripheralData {
         energyConfig = new EnergyConfig();
         setBiquadTypes(new byte[]{BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC,
                 BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC});
-        outputMode = OutputMode.UNBALANCE_OUT_MODE;
+        outputMode = OutputMode.UNBALANCE_BOOST_OUT_MODE;
 
         dataBufLength = 0;
         dataBytesLength = 0;
@@ -159,7 +159,7 @@ public class PeripheralData {
         return BinaryOperation.copyOfRange(data, PRESET_DATA_OFFSET, data.capacity());
     }
 
-    public void export() {
+    private void export() {
         if (!HiFiToyControl.getInstance().isConnected()) return;
 
         HiFiToyControl.getInstance().sendBufToDsp((short)0, getBinary());
@@ -177,7 +177,7 @@ public class PeripheralData {
         export();
     }
 
-    public void exportPreset() {
+    private void exportPreset() {
         if (!HiFiToyControl.getInstance().isConnected()) return;
 
         HiFiToyControl.getInstance().sendWriteFlag((byte)0);
@@ -196,7 +196,7 @@ public class PeripheralData {
         exportPreset();
     }
 
-    public void startImport(){
+    private void startImport(){
         if (!HiFiToyControl.getInstance().isConnected()) return;
 
         Context c = ApplicationContext.getInstance().getContext();
