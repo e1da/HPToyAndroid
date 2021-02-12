@@ -208,9 +208,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     }
 
     public void storeToPeripheral() {
-        PeripheralData peripheralData = new PeripheralData();
-        peripheralData.setBiquadTypes(filters.getBiquadTypes());
-        peripheralData.setDataBufs(getDataBufs());
+        PeripheralData peripheralData = new PeripheralData(filters.getBiquadTypes(), getDataBufs());
         peripheralData.exportPresetWithDialog("Sending Preset...");
     }
 

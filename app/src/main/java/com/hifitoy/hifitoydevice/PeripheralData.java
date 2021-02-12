@@ -29,7 +29,8 @@ public class PeripheralData {
     private static final String TAG = "HiFiToy";
 
     private final short PERIPHERAL_CONFIG_LENGTH    = 0x24;
-    private final short PRESET_DATA_OFFSET          = 0x18;
+    private final short BIQUAD_TYPE_OFFSET          = 0x18;
+    private final short PRESET_DATA_OFFSET          = 0x20;
 
     public static final byte I2C_ADDR = 0x34;
     public static final short VERSION = 11;
@@ -71,6 +72,12 @@ public class PeripheralData {
 
         setDataBufs(device.getActivePreset().getDataBufs());
     }
+    public PeripheralData(byte[] biquadTypes, List<HiFiToyDataBuf> dataBufs) {
+        clear();
+        setBiquadTypes(biquadTypes);
+        setDataBufs(dataBufs);
+    }
+
     public PeripheralData() {
         clear();
     }
@@ -107,7 +114,7 @@ public class PeripheralData {
         return (short)(length + PERIPHERAL_CONFIG_LENGTH);
     }
 
-    public boolean setBiquadTypes(byte[] biquadTypes) {
+    private boolean setBiquadTypes(byte[] biquadTypes) {
         if (biquadTypes.length == 7) {
             this.biquadTypes = biquadTypes;
             return true;
@@ -115,7 +122,7 @@ public class PeripheralData {
         return false;
     }
 
-    public void setDataBufs(List<HiFiToyDataBuf> dataBufs) {
+    private void setDataBufs(List<HiFiToyDataBuf> dataBufs) {
         if (dataBufs == null) {
             dataBufLength = 0;
             dataBytesLength = 0;
@@ -154,6 +161,11 @@ public class PeripheralData {
         return data;
     }
 
+    private ByteBuffer getBiquadTypeBinary() {
+        ByteBuffer data = getBinary();
+        //length  = 7
+        return BinaryOperation.copyOfRange(data, BIQUAD_TYPE_OFFSET, BIQUAD_TYPE_OFFSET + 7);
+    }
     private ByteBuffer getPresetBinary() {
         ByteBuffer data = getBinary();
         return BinaryOperation.copyOfRange(data, PRESET_DATA_OFFSET, data.capacity());
@@ -181,6 +193,8 @@ public class PeripheralData {
         if (!HiFiToyControl.getInstance().isConnected()) return;
 
         HiFiToyControl.getInstance().sendWriteFlag((byte)0);
+        //need skip outputType field
+        HiFiToyControl.getInstance().sendBufToDsp(BIQUAD_TYPE_OFFSET , getBiquadTypeBinary());
         HiFiToyControl.getInstance().sendBufToDsp(PRESET_DATA_OFFSET , getPresetBinary());
         HiFiToyControl.getInstance().sendWriteFlag((byte)1);
         HiFiToyControl.getInstance().setInitDsp();
@@ -192,7 +206,9 @@ public class PeripheralData {
         Context c = ApplicationContext.getInstance().getContext();
         c.registerReceiver(broadcastReceiver, makeExportIntentFilter());
 
-        DialogSystem.getInstance().showProgressDialog(title, getPresetBinary().capacity());
+        int cap = getBiquadTypeBinary().capacity() + getPresetBinary().capacity();
+
+        DialogSystem.getInstance().showProgressDialog(title, cap);
         exportPreset();
     }
 

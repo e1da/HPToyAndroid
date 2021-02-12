@@ -71,7 +71,7 @@ public class BinaryOperation {
 
     public static ByteBuffer copyOfRange(ByteBuffer buf, int from, int to) {
         if (from > buf.capacity())  from = buf.capacity() - 1;
-        if (to > buf.capacity())    to = buf.capacity() - 1;
+        if (to > buf.capacity())    to = buf.capacity();
 
         return ByteBuffer.wrap(Arrays.copyOfRange(buf.array(), from, to));
     }
