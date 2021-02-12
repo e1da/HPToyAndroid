@@ -95,12 +95,8 @@ public class VolumeTest {
             xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             xmlParser.setInput(data);
 
-            if (v1.importFromXml(xmlParser)) {
-                assertEquals(v0, v1);
-
-            } else {
-                fail("Import from XML fail.");
-            }
+            v1.importFromXml(xmlParser);
+            assertEquals(v0, v1);
 
         } catch (XmlPullParserException e) {
             System.out.println(e.toString());

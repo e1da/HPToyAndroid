@@ -92,12 +92,8 @@ public class BiquadTest {
             xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             xmlParser.setInput(data);
 
-            if (b1.importFromXml(xmlParser)) {
-                assertEquals(b0, b1);
-
-            } else {
-                fail("Import from XML fail.");
-            }
+            b1.importFromXml(xmlParser);
+            assertEquals(b0, b1);
 
         } catch (XmlPullParserException e) {
             System.out.println(e.toString());

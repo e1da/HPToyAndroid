@@ -86,12 +86,8 @@ public class BassTrebleTest {
             xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             xmlParser.setInput(data);
 
-            if (bt1.importFromXml(xmlParser)) {
-                assertEquals(bt0, bt1);
-
-            } else {
-                fail("Import from XML fail.");
-            }
+            bt1.importFromXml(xmlParser);
+            assertEquals(bt0, bt1);
 
         } catch (XmlPullParserException e) {
             System.out.println(e.toString());

@@ -98,12 +98,8 @@ public class DrcTimeConstTest {
             xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             xmlParser.setInput(data);
 
-            if (dt1.importFromXml(xmlParser)) {
-                assertEquals(dt0, dt1);
-
-            } else {
-                fail("Import from XML fail.");
-            }
+            dt1.importFromXml(xmlParser);
+            assertEquals(dt0, dt1);
 
         } catch (XmlPullParserException e) {
             System.out.println(e.toString());

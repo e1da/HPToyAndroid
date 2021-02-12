@@ -105,12 +105,8 @@ public class HiFiToyPresetTest {
             xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             xmlParser.setInput(data);
 
-            if (p1.importFromXml(xmlParser)) {
-                assertEquals(p0, p1);
-
-            } else {
-                fail("Import from XML fail.");
-            }
+            p1.importFromXml(xmlParser);
+            assertEquals(p0, p1);
 
         } catch (XmlPullParserException e) {
             System.out.println(e.toString());

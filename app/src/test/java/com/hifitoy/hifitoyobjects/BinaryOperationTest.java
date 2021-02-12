@@ -20,4 +20,14 @@ public class BinaryOperationTest {
         assertEquals(b1.capacity(), 4);
         for (int i= 4; i < 8; i++)  assertEquals(b1.get(i - 4), i);
     }
+
+    @Test
+    public void testRightBorder() {
+        byte[] data = new byte[]{0, 1, 2, 3};
+        ByteBuffer b = ByteBuffer.wrap(data);
+        ByteBuffer bb = BinaryOperation.copyOfRange(b, 0, 16);
+
+        assertEquals(bb.capacity(), 4);
+        for (int i= 0; i < 4; i++)  assertEquals(bb.get(i), i);
+    }
 }
