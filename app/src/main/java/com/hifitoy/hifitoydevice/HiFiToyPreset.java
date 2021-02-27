@@ -38,7 +38,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -54,9 +56,6 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     private String  name;
     private short   checkSum;
 
-    // HiFiToy CHARACTERISTICS, pointer to all characteristics
-    private List<HiFiToyObject> characteristics;
-
     public DFilter      dFilter;
     public Volume       masterVolume;
     public BassTreble   bassTreble;
@@ -64,7 +63,6 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     public Drc          drc;
 
     public HiFiToyPreset() {
-        characteristics = new ArrayList<>();
         setDefault();
     }
 
@@ -104,20 +102,19 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         preset.loudness = loudness.clone();
         preset.drc = drc.clone();
 
-        preset.characteristics = new ArrayList<>();
-        preset.updateCharacteristics();
-
         return preset;
     }
 
 
-    public void updateCharacteristics() {
-        characteristics.clear();
-        characteristics.add(dFilter);
-        characteristics.add(masterVolume);
-        characteristics.add(bassTreble);
-        characteristics.add(loudness);
-        characteristics.add(drc);
+    public List<HiFiToyObject> getToyObjects() {
+        List<HiFiToyObject> o = new ArrayList<>();
+        o.add(dFilter);
+        o.add(masterVolume);
+        o.add(bassTreble);
+        o.add(loudness);
+        o.add(drc);
+
+        return o;
     }
 
     public void setDefault() {
@@ -149,7 +146,6 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         drc.setEvaluation(POST_VOLUME_EVAL, (byte)0);
         drc.setEvaluation(POST_VOLUME_EVAL, (byte)1);
 
-        updateCharacteristics();
         updateChecksum();
     }
 
@@ -219,20 +215,20 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     public void sendToPeripheral(boolean response) {
         if (!HiFiToyControl.getInstance().isConnected()) return;
 
-        //init progress dialog
-        //DialogSystem.getInstance().showProgressDialog("Send Dsp Parameters...", 1);
+        List<HiFiToyObject> toyObjects = getToyObjects();
 
-        for (int i = 0; i < characteristics.size(); i++){
-            characteristics.get(i).sendToPeripheral(true);
+        for (int i = 0; i < toyObjects.size(); i++){
+            toyObjects.get(i).sendToPeripheral(true);
         }
     }
 
     @Override
     public List<HiFiToyDataBuf> getDataBufs() {
         List<HiFiToyDataBuf> l = new ArrayList<>();
+        List<HiFiToyObject> toyObjects = getToyObjects();
 
-        for (int i = 0; i < characteristics.size(); i++){
-            l.addAll(characteristics.get(i).getDataBufs());
+        for (int i = 0; i < toyObjects.size(); i++){
+            l.addAll(toyObjects.get(i).getDataBufs());
         }
 
         return l;
@@ -242,8 +238,10 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     public boolean importFromDataBufs(List<HiFiToyDataBuf> dataBufs) {
         if (dataBufs == null) return false;
 
-        for (int i = 0; i < characteristics.size(); i++){
-            if (!characteristics.get(i).importFromDataBufs(dataBufs)) {
+        List<HiFiToyObject> toyObjects = getToyObjects();
+
+        for (int i = 0; i < toyObjects.size(); i++){
+            if (!toyObjects.get(i).importFromDataBufs(dataBufs)) {
                 return false;
             }
         }
