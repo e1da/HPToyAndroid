@@ -15,6 +15,7 @@ import com.hifitoy.hifitoynumbers.Number523;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import com.hifitoy.hifitoyobjects.HiFiToyObject;
+import com.hifitoy.xml.XmlSerializable;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;
@@ -26,7 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-public class Biquad implements HiFiToyObject, Cloneable, Serializable {
+public class Biquad implements HiFiToyObject, Cloneable, XmlSerializable {
     private static final String TAG = "HiFiToy";
 
     private boolean enabled;

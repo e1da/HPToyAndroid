@@ -2,13 +2,14 @@
  *   XmlData.java
  *
  *   Created by Artem Khlyupin on 07/03/2019
- *   Copyright © 2019 Artem Khlyupin. All rights reserved.
+ *   Copyright © 2019-2020 Artem Khlyupin. All rights reserved.
  */
-
 package com.hifitoy.xml;
 
 import android.net.Uri;
+
 import org.xmlpull.v1.XmlSerializer;
+
 import java.io.File;
 import java.io.StringWriter;
 import java.util.LinkedList;
@@ -16,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 public class XmlData {
-
     private String xmlHeader;
     private List<String> xmlStringList;
 
@@ -54,6 +54,7 @@ public class XmlData {
         return xmlStringList.get(index);
     }
 
+    @Override
     public String toString(){
         StringBuilder strBuilder = new StringBuilder();
 
