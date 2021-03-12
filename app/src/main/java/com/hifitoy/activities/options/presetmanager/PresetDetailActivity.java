@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -21,14 +20,13 @@ import android.widget.Toast;
 
 import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.dialogsystem.DialogSystem;
-import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
-import com.hifitoy.xml.XmlData;
+import com.xmlorm.XmlCoder;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -277,66 +275,60 @@ public class PresetDetailActivity extends BaseActivity implements View.OnClickLi
     }
 
 
-    private File savePresetToFile(HiFiToyPreset preset) {
+    private File savePresetToFile(HiFiToyPreset preset) throws Exception {
         //get xml string of preset
-        XmlData xmlData = null;//preset.toXmlData(); //TODO : fixed it
-        String xmlString = xmlData.toString();
+        XmlCoder coder = new XmlCoder("preset", preset);
+        String xmlString = coder.toString();
 
         //create file to save on internal storage
         File dir = getIntStorage();
         if (dir == null) {
-            return null;
+            throw new IOException("Internal strage is not avalable.");
         }
 
         String filename = preset.getName() + ".tpr";
         File file = new File(dir, filename);
-
         Log.d(TAG, "Export directories = " + file.toString());
 
-        try {
-            //create file if he is not exists
-            if (!file.exists()) {
-                if (!file.createNewFile()) {
-                    throw new IOException(filename + " is not create successful.");
-                }
-            }
-
-            if (file.canWrite()){
-                //write to temp file
-                FileWriter fw = new FileWriter(file);
-                fw.write(xmlString);
-                fw.close();
-            } else {
-                throw new IOException(filename + " is not writable.");
-            }
-
-        } catch (IOException e){
-            Log.d(TAG, e.toString());
-
-            Toast.makeText(getApplicationContext(),
-                    e.toString(), Toast.LENGTH_SHORT).show();
-            return null;
+        if ( (!file.exists()) && (!file.createNewFile()) ) {
+            throw new IOException(filename + " is not create successful.");
         }
+
+        if (!file.canWrite()) {
+            throw new IOException(filename + " is not writable.");
+        }
+
+        //write to temp file
+        FileWriter fw = new FileWriter(file);
+        fw.write(xmlString);
+        fw.close();
 
         return file;
     }
 
     private void exportPreset(HiFiToyPreset preset){
-        //save preset to file and get pointer
-        File file = savePresetToFile(preset);
-        if (file == null) {
-            return;
-        }
-
-        //get file Uri
+        File file = null;
         Uri fileUri = null;
 
         try {
+            //save preset to file and get pointer
+            file = savePresetToFile(preset);
+
             fileUri = FileProvider.getUriForFile(this,
                     getString(R.string.fileprovider_authority), file);
 
         } catch (IllegalArgumentException e) {
-            Log.d(TAG, "The selected file can't be shared: " + file.toString());
+            String msg = "The selected file can't be shared: " + file.toString();
+            Log.d(TAG, msg);
+
+            Toast.makeText(getApplicationContext(),
+                    msg, Toast.LENGTH_SHORT).show();
+
+        } catch (Exception e) {
+            Log.d(TAG, e.toString());
+
+            Toast.makeText(getApplicationContext(),
+                    e.toString(), Toast.LENGTH_SHORT).show();
         }
 
         //send Uri to chooser window (email, gmail, bluetooth, etc)

@@ -11,24 +11,19 @@ import android.util.Log;
 import com.hifitoy.ble.BlePacket;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoynumbers.FloatUtility;
-import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import com.hifitoy.hifitoyobjects.HiFiToyObject;
 import com.hifitoy.tas5558.TAS5558;
-import com.hifitoy.xml.XmlData;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import java.io.IOException;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
+
+import static com.hifitoy.hifitoyobjects.drc.DrcChannel.DRC_CH_1_7;
 
 public class DrcTimeConst implements HiFiToyObject, Cloneable, Serializable {
     private static final String TAG = "HiFiToy";
@@ -53,6 +48,9 @@ public class DrcTimeConst implements HiFiToyObject, Cloneable, Serializable {
     }
     public DrcTimeConst(byte channel) {
         this(channel,0.1f, 10.0f, 100.0f);
+    }
+    public DrcTimeConst() {
+        this(DRC_CH_1_7);
     }
 
     @Override
@@ -79,7 +77,7 @@ public class DrcTimeConst implements HiFiToyObject, Cloneable, Serializable {
     //setters / getters
     public void setChannel(byte channel) {
         if (channel > DrcChannel.DRC_CH_8) channel = DrcChannel.DRC_CH_8;
-        if (channel < DrcChannel.DRC_CH_1_7) channel = DrcChannel.DRC_CH_1_7;
+        if (channel < DRC_CH_1_7) channel = DRC_CH_1_7;
 
         this.channel = channel;
     }

@@ -14,13 +14,11 @@ import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import com.hifitoy.hifitoyobjects.HiFiToyObject;
 import com.hifitoy.hifitoyobjects.biquad.Biquad;
 import com.hifitoy.tas5558.TAS5558;
-
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class DFilter implements HiFiToyObject, Cloneable, Serializable {
+public class DFilter implements HiFiToyObject, Cloneable {
     private static final String TAG = "HiFiToy";
 
     private boolean binded;

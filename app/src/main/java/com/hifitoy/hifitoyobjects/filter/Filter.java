@@ -22,7 +22,6 @@ import com.hifitoy.hifitoyobjects.biquad.LowpassBiquad;
 import com.hifitoy.hifitoyobjects.biquad.ParamBiquad;
 import com.hifitoy.hifitoyobjects.biquad.TextBiquad;
 import com.hifitoy.hifitoyobjects.biquad.Type;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,7 +36,7 @@ import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_PARAMETRIC;
 import static com.hifitoy.hifitoyobjects.biquad.Type.BIQUAD_USER;
 import static com.hifitoy.hifitoyobjects.filter.Order.FILTER_ORDER_0;
 
-public class Filter implements HiFiToyObject, Cloneable, Serializable {
+public class Filter implements HiFiToyObject, Cloneable {
     private static final String TAG = "HiFiToy";
     private static final int SIZE = 7;
 
@@ -72,6 +71,10 @@ public class Filter implements HiFiToyObject, Cloneable, Serializable {
 
     public Filter(byte addr) {
         this(addr, (byte)0);
+    }
+
+    public Filter() {
+        this((byte)0, (byte)0);
     }
 
     @Override

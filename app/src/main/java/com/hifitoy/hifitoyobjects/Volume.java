@@ -11,22 +11,14 @@ import android.widget.LinearLayout;
 
 import com.hifitoy.ble.BlePacket;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoynumbers.ByteUtility;
 import com.hifitoy.hifitoynumbers.FloatUtility;
-import com.hifitoy.xml.XmlData;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import java.io.IOException;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 
 public class Volume implements HiFiToyObject, Cloneable, Serializable {
@@ -57,6 +49,9 @@ public class Volume implements HiFiToyObject, Cloneable, Serializable {
     }
     public Volume(byte address) {
         this(address, 0.0f, HW_MAX_DB, HW_MIN_DB);
+    }
+    public Volume() {
+        this((byte)0, 0.0f, HW_MAX_DB, HW_MIN_DB);
     }
 
     @Override

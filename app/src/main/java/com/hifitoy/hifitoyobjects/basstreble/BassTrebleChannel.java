@@ -6,14 +6,7 @@
  */
 package com.hifitoy.hifitoyobjects.basstreble;
 
-import android.util.Log;
-import com.hifitoy.xml.XmlData;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 public class BassTrebleChannel implements Cloneable, Serializable {
@@ -59,6 +52,10 @@ public class BassTrebleChannel implements Cloneable, Serializable {
     }
     public BassTrebleChannel(byte channel) {
         this(channel, BassFreq.BASS_FREQ_NONE, (byte)0, TrebleFreq.TREBLE_FREQ_NONE, (byte)0,
+                HW_BASSTREBLE_MAX_DB, HW_BASSTREBLE_MIN_DB, HW_BASSTREBLE_MAX_DB, HW_BASSTREBLE_MIN_DB);
+    }
+    public BassTrebleChannel() {
+        this(BassTrebleCh.BASS_TREBLE_CH_127, BassFreq.BASS_FREQ_NONE, (byte)0, TrebleFreq.TREBLE_FREQ_NONE, (byte)0,
                 HW_BASSTREBLE_MAX_DB, HW_BASSTREBLE_MIN_DB, HW_BASSTREBLE_MAX_DB, HW_BASSTREBLE_MIN_DB);
     }
 
@@ -150,7 +147,7 @@ public class BassTrebleChannel implements Cloneable, Serializable {
         return (float)(trebleDb - minTrebleDb) / (maxTrebleDb - minTrebleDb);
     }
 
-    public XmlData toXmlData() {
+    /*public XmlData toXmlData() {
         XmlData xmlData = new XmlData();
 
         xmlData.addXmlElement("BassFreq", bassFreq);
@@ -233,7 +230,7 @@ public class BassTrebleChannel implements Cloneable, Serializable {
             throw new IOException(msg);
         }
         //Log.d(TAG, getInfo());
-    }
+    }*/
 
     public class BassFreq {
         //freq for FS = 96kHz

@@ -17,23 +17,17 @@ import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import com.hifitoy.hifitoyobjects.HiFiToyObject;
 import com.hifitoy.tas5558.TAS5558;
-import com.hifitoy.xml.XmlData;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import java.io.IOException;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 
 import static com.hifitoy.hifitoyobjects.drc.DrcChannel.DRC_CH_1_7;
+
 
 public class DrcCoef implements HiFiToyObject, Cloneable, Serializable {
     private static final String TAG = "HiFiToy";
@@ -56,10 +50,13 @@ public class DrcCoef implements HiFiToyObject, Cloneable, Serializable {
         setPoint3(p3);
     }
     public DrcCoef(byte channel) {
-        this(channel, new DrcCoef.DrcPoint(POINT0_INPUT_DB, -120.0f),
+        this(channel, new DrcPoint(POINT0_INPUT_DB, -120.0f),
                         new DrcCoef.DrcPoint(-72.0f, -72.0f),
                         new DrcCoef.DrcPoint(-24.0f, -24.0f),
                         new DrcCoef.DrcPoint(POINT3_INPUT_DB, -24.0f));
+    }
+    public DrcCoef() {
+        this(DRC_CH_1_7);
     }
 
     @Override
@@ -92,7 +89,7 @@ public class DrcCoef implements HiFiToyObject, Cloneable, Serializable {
     //setters / getters
     public void setChannel(byte channel) {
         if (channel > DrcChannel.DRC_CH_8) channel = DrcChannel.DRC_CH_8;
-        if (channel < DrcChannel.DRC_CH_1_7) channel = DrcChannel.DRC_CH_1_7;
+        if (channel < DRC_CH_1_7) channel = DRC_CH_1_7;
         this.channel = channel;
     }
     public byte getChannel() {
@@ -330,6 +327,9 @@ public class DrcCoef implements HiFiToyObject, Cloneable, Serializable {
         public DrcPoint(float inputDb, float outputDb) {
             this.inputDb = inputDb;
             this.outputDb = outputDb;
+        }
+        public DrcPoint() {
+            this(0, 0);
         }
 
         @Override

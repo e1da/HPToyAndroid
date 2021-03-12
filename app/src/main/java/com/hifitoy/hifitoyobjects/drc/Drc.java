@@ -10,28 +10,18 @@ import android.util.Log;
 
 import com.hifitoy.ble.BlePacket;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoynumbers.ByteUtility;
 import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoynumbers.Number523;
-import com.hifitoy.hifitoynumbers.Number88;
-import com.hifitoy.hifitoynumbers.Number923;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import com.hifitoy.hifitoyobjects.HiFiToyObject;
 import com.hifitoy.tas5558.TAS5558;
-import com.hifitoy.xml.XmlData;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import java.io.IOException;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 
 import static com.hifitoy.hifitoyobjects.drc.DrcChannel.DRC_CH_1_7;
