@@ -7,6 +7,7 @@
 
 package com.hifitoy.hifitoydevice;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.Serializable;
@@ -63,7 +64,7 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
     public void     setPairingCode(int pairingCode){
         this.pairingCode = pairingCode;
     }
-    public short getVersion() {
+    public short    getVersion() {
         return PeripheralData.VERSION;
     }
     public String   getActiveKeyPreset(){
@@ -136,10 +137,6 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
         d.importWithDialog("Import Preset...");
     }
 
-    public void description(){
-        Log.d(TAG, "mac=" + mac + "|name=" + name + "|pair=" + pairingCode);
-    }
-
     @Override
     public void didImportData(PeripheralData peripheralData) {
         HiFiToyPreset importPreset = new HiFiToyPreset();
@@ -154,6 +151,12 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
             Log.d(TAG, "Preset import unsuccess.");
         }
 
+    }
+
+    @NonNull
+    @Override
+    public String toString(){
+        return "mac=" + mac + "|name=" + name + "|pair=" + pairingCode;
     }
 }
 

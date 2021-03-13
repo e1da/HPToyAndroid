@@ -7,9 +7,10 @@
 
 package com.hifitoy.hifitoyobjects;
 
+import java.io.Serializable;
 import java.util.List;
 
-public interface HiFiToyObject {
+public interface HiFiToyObject extends Serializable {
     int FS = 96000;
 
     byte getAddress();

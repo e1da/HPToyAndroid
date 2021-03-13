@@ -31,7 +31,6 @@ import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 
-import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
@@ -685,7 +684,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
             device = new HiFiToyDevice();
             device.setMac(deviceAddress);
             device.setName(deviceAddress);
-            HiFiToyDeviceManager.getInstance().setDevice(deviceAddress, device);
+            HiFiToyDeviceManager.getInstance().add(device);
         }
 
         if (state.getState() == ConnectionState.RECONNECTING) {

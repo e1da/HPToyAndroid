@@ -195,6 +195,26 @@ public class XmlParserTest {
         }
     }
 
+    @Test
+    public void testDefaultPresetParse() {
+        DFilter df = new DFilter();
+
+
+        try {
+            XmlCoder s = new XmlCoder("df", df);
+            System.out.println(s.toString());
+
+            XmlDecoder d = new XmlDecoder(s.toString());
+            DFilter df1 = (DFilter) d.parse("df", DFilter.class);
+
+            assertEquals(df, df1);
+
+        } catch (Exception e) {
+            System.out.println( e.toString());
+            fail();
+        }
+    }
+
 
 
 }
