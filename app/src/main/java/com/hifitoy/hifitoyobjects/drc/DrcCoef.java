@@ -29,8 +29,7 @@ import java.util.Objects;
 import static com.hifitoy.hifitoyobjects.drc.DrcChannel.DRC_CH_1_7;
 
 
-public class DrcCoef implements HiFiToyObject, Cloneable, Serializable {
-    private static final String TAG = "HiFiToy";
+public class DrcCoef implements HiFiToyObject, Cloneable {
 
     public final static float POINT0_INPUT_DB = -120.0f;
     public final static float POINT3_INPUT_DB = 0.0f;
@@ -232,92 +231,6 @@ public class DrcCoef implements HiFiToyObject, Cloneable, Serializable {
 
         return false;
     }
-
-    /*@Override
-    public XmlData toXmlData() {
-        XmlData xmlData = new XmlData();
-        xmlData.addXmlElement("InputDb0", point0.inputDb);
-        xmlData.addXmlElement("OutputDb0", point0.outputDb);
-        xmlData.addXmlElement("InputDb1", point1.inputDb);
-        xmlData.addXmlElement("OutputDb1", point1.outputDb);
-        xmlData.addXmlElement("InputDb2", point2.inputDb);
-        xmlData.addXmlElement("OutputDb2", point2.outputDb);
-        xmlData.addXmlElement("InputDb3", point3.inputDb);
-        xmlData.addXmlElement("OutputDb3", point3.outputDb);
-
-        XmlData drcCoefXmlData = new XmlData();
-        Map<String, String> attrib = new HashMap<>();
-        attrib.put("Channel", Integer.toString(channel));
-
-        drcCoefXmlData.addXmlElement("DrcCoef", xmlData, attrib);
-        return drcCoefXmlData;
-    }
-
-    @Override
-    public void importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
-        String elementName = null;
-        int count = 0;
-
-        do {
-            xmlParser.next();
-
-            if (xmlParser.getEventType() == XmlPullParser.START_TAG){
-                elementName = xmlParser.getName();
-            }
-            if (xmlParser.getEventType() == XmlPullParser.END_TAG){
-                if (xmlParser.getName().equals("DrcCoef")) break;
-
-                elementName = null;
-            }
-
-            if ((xmlParser.getEventType() == XmlPullParser.TEXT) && (elementName != null)){
-                String elementValue = xmlParser.getText();
-                if (elementValue == null) continue;
-
-                if (elementName.equals("InputDb0")){
-                    point0.inputDb = Float.parseFloat(elementValue);
-                    count++;
-                }
-                if (elementName.equals("OutputDb0")){
-                    point0.outputDb = Float.parseFloat(elementValue);
-                    count++;
-                }
-                if (elementName.equals("InputDb1")){
-                    point1.inputDb = Float.parseFloat(elementValue);
-                    count++;
-                }
-                if (elementName.equals("OutputDb1")){
-                    point1.outputDb = Float.parseFloat(elementValue);
-                    count++;
-                }
-                if (elementName.equals("InputDb2")){
-                    point2.inputDb = Float.parseFloat(elementValue);
-                    count++;
-                }
-                if (elementName.equals("OutputDb2")){
-                    point2.outputDb = Float.parseFloat(elementValue);
-                    count++;
-                }
-                if (elementName.equals("InputDb3")){
-                    point3.inputDb = Float.parseFloat(elementValue);
-                    count++;
-                }
-                if (elementName.equals("OutputDb3")){
-                    point3.outputDb = Float.parseFloat(elementValue);
-                    count++;
-                }
-            }
-        } while (xmlParser.getEventType() != XmlPullParser.END_DOCUMENT);
-
-        //check import result
-        if (count != 8){
-            String msg = "DrcCoef=" + Integer.toString(channel) +
-                    ". Import from xml is not success.";
-            Log.d(TAG, msg);
-            throw new IOException(msg);
-        }
-        Log.d(TAG, toString());
-    }*/
 
 
     public static class DrcPoint implements Cloneable, Serializable{

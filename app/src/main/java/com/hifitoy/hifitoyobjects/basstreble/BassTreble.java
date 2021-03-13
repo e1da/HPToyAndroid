@@ -14,7 +14,6 @@ import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import com.hifitoy.hifitoyobjects.HiFiToyObject;
 import com.hifitoy.tas5558.TAS5558;
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -29,8 +28,7 @@ import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.TrebleFreq
 import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.TrebleFreq.TREBLE_FREQ_9000;
 import static com.hifitoy.tas5558.TAS5558.BASS_TREBLE_REG;
 
-public class BassTreble implements HiFiToyObject, Cloneable, Serializable {
-    private static final String TAG = "HiFiToy";
+public class BassTreble implements HiFiToyObject, Cloneable {
 
     private float[] enabledCh = new float[8]; // 0.0 .. 1.0, 8 channels
 
@@ -253,89 +251,5 @@ public class BassTreble implements HiFiToyObject, Cloneable, Serializable {
 
         return false;
     }
-
-    /*@Override
-    public XmlData toXmlData() {
-        XmlData xmlData = new XmlData();
-
-        for (int i = 0; i < 8; i++){
-            xmlData.addXmlElement(String.format(Locale.getDefault(), "enabledCh%d", i), enabledCh[i]);
-        }
-
-        xmlData.addXmlData(bassTreble127.toXmlData());
-        xmlData.addXmlData(bassTreble34.toXmlData());
-        xmlData.addXmlData(bassTreble56.toXmlData());
-        xmlData.addXmlData(bassTreble8.toXmlData());
-
-        XmlData bassTrebleXmlData = new XmlData();
-        Map<String, String> attrib = new HashMap<>();
-        attrib.put("Address", ByteUtility.toString(getAddress()));
-
-        bassTrebleXmlData.addXmlElement("BassTreble", xmlData, attrib);
-        return bassTrebleXmlData;
-    }
-
-    @Override
-    public void importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
-        String elementName = null;
-        int count = 0;
-
-        do {
-            xmlParser.next();
-
-            if (xmlParser.getEventType() == XmlPullParser.START_TAG){
-                elementName = xmlParser.getName();
-
-                if (elementName.equals("BassTrebleChannel")){
-                    String channelStr = xmlParser.getAttributeValue(null, "Channel");
-                    if (channelStr == null) continue;
-                    byte channel = Byte.parseByte(channelStr);
-
-                    if (bassTreble127.getChannel() == channel) {
-                        bassTreble127.importFromXml(xmlParser);
-                        count++;
-                    }
-                    if (bassTreble34.getChannel() == channel) {
-                        bassTreble34.importFromXml(xmlParser);
-                        count++;
-                    }
-                    if (bassTreble56.getChannel() == channel) {
-                        bassTreble56.importFromXml(xmlParser);
-                        count++;
-                    }
-                    if (bassTreble8.getChannel() == channel) {
-                        bassTreble8.importFromXml(xmlParser);
-                        count++;
-                    }
-                }
-            }
-            if (xmlParser.getEventType() == XmlPullParser.END_TAG){
-                if (xmlParser.getName().equals("BassTreble")) break;
-
-                elementName = null;
-            }
-
-            if ((xmlParser.getEventType() == XmlPullParser.TEXT) && (elementName != null)){
-                String elementValue = xmlParser.getText();
-                if (elementValue == null) continue;
-
-                for (int i = 0; i < 8; i++){
-                    String keyStr = String.format(Locale.getDefault(), "enabledCh%d", i);
-                    if (elementName.equals(keyStr)){
-                        enabledCh[i] = Float.parseFloat(elementValue);
-                        count++;
-                    }
-                }
-            }
-        } while (xmlParser.getEventType() != XmlPullParser.END_DOCUMENT);
-
-        //check import result
-        if (count != 12){
-            String msg = "BassTreble. Import from xml is not success.";
-            Log.d(TAG, msg);
-            throw new IOException(msg);
-        }
-        Log.d(TAG, toString());
-    }*/
 
 }

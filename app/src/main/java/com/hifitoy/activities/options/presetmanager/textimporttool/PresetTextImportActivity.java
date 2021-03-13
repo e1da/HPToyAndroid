@@ -18,10 +18,7 @@ import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
-
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
+import com.xmlorm.XmlDecoder;
 
 public class PresetTextImportActivity extends BaseActivity {
     final static String TAG = "HiFiToy";
@@ -89,15 +86,15 @@ public class PresetTextImportActivity extends BaseActivity {
             public void onPositiveClick(String name){
                 if (name.length() > 0) {
                     try {
-                        HiFiToyPreset importPreset = new HiFiToyPreset();
-                        importPreset.importFromXml(presetTextData_outl.getText().toString(), name);
+                        XmlDecoder d = new XmlDecoder(presetTextData_outl.getText().toString());
+                        HiFiToyPreset importPreset = (HiFiToyPreset) d.parse("preset", HiFiToyPreset.class);
 
                         HiFiToyPresetManager.getInstance().setPreset(importPreset);
 
                         DialogSystem.getInstance().showDialog("Info",
                                     "Add " + importPreset.getName() + " preset", "Ok");
 
-                    } catch (IOException | XmlPullParserException e) {
+                    } catch (Exception e) {
                         DialogSystem.getInstance().showDialog("Error", e.getMessage(), "Ok");
 
                     } finally {

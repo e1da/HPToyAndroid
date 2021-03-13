@@ -16,7 +16,6 @@ import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import com.hifitoy.hifitoyobjects.HiFiToyObject;
 import com.hifitoy.tas5558.TAS5558;
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -28,8 +27,7 @@ import static com.hifitoy.hifitoyobjects.drc.DrcChannel.DRC_CH_1_7;
 import static com.hifitoy.hifitoyobjects.drc.DrcChannel.DRC_CH_8;
 import static com.hifitoy.tas5558.TAS5558.DRC_BYPASS1_REG;
 
-public class Drc implements HiFiToyObject, Cloneable, Serializable {
-    private static final String TAG = "HiFiToy";
+public class Drc implements HiFiToyObject, Cloneable {
 
     private float[]         enabledCh; // 0.0 .. 1.0, 8 channels
     private byte[]          evaluationCh;
@@ -270,107 +268,6 @@ public class Drc implements HiFiToyObject, Cloneable, Serializable {
 
         return false;
     }
-
-    /*@Override
-    public XmlData toXmlData() {
-        XmlData xmlData = new XmlData();
-
-        for (int i = 0; i < 8; i++){
-            String keyStr = String.format(Locale.getDefault(), "enabledCh%d", i);
-            xmlData.addXmlElement(keyStr, enabledCh[i]);
-        }
-        for (int i = 0; i < 8; i++){
-            String keyStr = String.format(Locale.getDefault(), "evaluationCh%d", i);
-            xmlData.addXmlElement(keyStr, evaluationCh[i]);
-        }
-        xmlData.addXmlData(coef17.toXmlData());
-        xmlData.addXmlData(coef8.toXmlData());
-        xmlData.addXmlData(timeConst17.toXmlData());
-        xmlData.addXmlData(timeConst8.toXmlData());
-
-        XmlData drcXmlData = new XmlData();
-        Map<String, String> attrib = new HashMap<>();
-        attrib.put("Address", ByteUtility.toString(getAddress()));
-
-        drcXmlData.addXmlElement("Drc", xmlData, attrib);
-        return drcXmlData;
-    }
-
-    @Override
-    public void importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
-        String elementName = null;
-        int count = 0;
-
-        do {
-            xmlParser.next();
-
-            if (xmlParser.getEventType() == XmlPullParser.START_TAG){
-                elementName = xmlParser.getName();
-
-                if (elementName.equals("DrcCoef")){
-                    String channelStr = xmlParser.getAttributeValue(null, "Channel");
-                    if (channelStr == null) continue;
-                    byte channel = Byte.parseByte(channelStr);
-
-                    if ((coef17 != null) && (coef17.getChannel() == channel)){
-                        coef17.importFromXml(xmlParser);
-                        count++;
-                    }
-                    if ((coef8 != null) && (coef8.getChannel() == channel)){
-                        coef8.importFromXml(xmlParser);
-                        count++;
-                    }
-                }
-                if (elementName.equals("DrcTimeConst")){
-                    String channelStr = xmlParser.getAttributeValue(null, "Channel");
-                    if (channelStr == null) continue;
-                    byte channel = Byte.parseByte(channelStr);
-
-                    if ((timeConst17 != null) && (timeConst17.getChannel() == channel)){
-                        timeConst17.importFromXml(xmlParser);
-                        count++;
-                    }
-                    if ((timeConst8 != null) && (timeConst8.getChannel() == channel)){
-                        timeConst8.importFromXml(xmlParser);
-                        count++;
-                    }
-                }
-            }
-            if (xmlParser.getEventType() == XmlPullParser.END_TAG){
-                if (xmlParser.getName().equals("Drc")) break;
-
-                elementName = null;
-            }
-
-            if ((xmlParser.getEventType() == XmlPullParser.TEXT) && (elementName != null)){
-                String elementValue = xmlParser.getText();
-                if (elementValue == null) continue;
-
-                for (int i = 0; i < 8; i++){
-                    String keyStr = String.format(Locale.getDefault(), "enabledCh%d", i);
-                    if (elementName.equals(keyStr)){
-                        enabledCh[i] = Float.parseFloat(elementValue);
-                        count++;
-                    }
-                }
-                for (int i = 0; i < 8; i++){
-                    String keyStr = String.format(Locale.getDefault(), "evaluationCh%d", i);
-                    if (elementName.equals(keyStr)){
-                        evaluationCh[i] = Byte.parseByte(elementValue);
-                        count++;
-                    }
-                }
-            }
-        } while (xmlParser.getEventType() != XmlPullParser.END_DOCUMENT);
-
-        //check import result
-        if (count != 20){
-            String msg = "Drc. Import from xml is not success.";
-            Log.d(TAG, msg);
-            throw new IOException(msg);
-        }
-        Log.d(TAG, toString());
-    }*/
 
     public class DrcEvaluation {
         public final static byte DISABLED_EVAL      = 0;

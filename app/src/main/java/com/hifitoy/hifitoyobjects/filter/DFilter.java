@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class DFilter implements HiFiToyObject, Cloneable {
-    private static final String TAG = "HiFiToy";
 
     private boolean binded;
     private byte    activeChannel;

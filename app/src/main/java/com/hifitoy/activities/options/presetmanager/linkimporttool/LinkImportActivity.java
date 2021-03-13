@@ -22,11 +22,8 @@ import com.hifitoy.R;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
-
-import org.xmlpull.v1.XmlPullParserException;
-
+import com.xmlorm.XmlDecoder;
 import java.io.BufferedInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -161,15 +158,15 @@ public class LinkImportActivity extends BaseActivity {
 
                     if (name.length() > 0) {
                         try {
-                            HiFiToyPreset importPreset = new HiFiToyPreset();
-                            importPreset.importFromXml(presetString, name);
+                            XmlDecoder d = new XmlDecoder(presetString);
+                            HiFiToyPreset importPreset = (HiFiToyPreset) d.parse("preset", HiFiToyPreset.class);
 
                             HiFiToyPresetManager.getInstance().setPreset(importPreset);
 
                             DialogSystem.getInstance().showDialog("Info",
                                         "Add " + importPreset.getName() + " preset", "Ok");
 
-                        } catch (IOException | XmlPullParserException e) {
+                        } catch (Exception e) {
                             DialogSystem.getInstance().showDialog("Error", e.getMessage(), "Ok");
 
                         } finally {

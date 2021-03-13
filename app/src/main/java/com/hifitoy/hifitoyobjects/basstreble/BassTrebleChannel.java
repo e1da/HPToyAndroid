@@ -10,7 +10,6 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class BassTrebleChannel implements Cloneable, Serializable {
-    private static final String TAG = "HiFiToy";
 
     private final static byte HW_BASSTREBLE_MAX_DB = 18;
     private final static byte HW_BASSTREBLE_MIN_DB = -18;
@@ -146,91 +145,6 @@ public class BassTrebleChannel implements Cloneable, Serializable {
     public float getTrebleDbPercent() {
         return (float)(trebleDb - minTrebleDb) / (maxTrebleDb - minTrebleDb);
     }
-
-    /*public XmlData toXmlData() {
-        XmlData xmlData = new XmlData();
-
-        xmlData.addXmlElement("BassFreq", bassFreq);
-        xmlData.addXmlElement("BassDb", bassDb);
-        xmlData.addXmlElement("TrebleFreq", trebleFreq);
-        xmlData.addXmlElement("TrebleDb", trebleDb);
-
-        xmlData.addXmlElement("maxBassDb", maxBassDb);
-        xmlData.addXmlElement("minBassDb", minBassDb);
-        xmlData.addXmlElement("maxTrebleDb", maxTrebleDb);
-        xmlData.addXmlElement("minTrebleDb", minTrebleDb);
-
-        XmlData bassTrebleXmlData = new XmlData();
-        Map<String, String> attrib = new HashMap<>();
-        attrib.put("Channel", Integer.toString(channel));
-
-        bassTrebleXmlData.addXmlElement("BassTrebleChannel", xmlData, attrib);
-        return bassTrebleXmlData;
-    }
-    public void importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
-        String elementName = null;
-        int count = 0;
-
-        do {
-            xmlParser.next();
-
-            if (xmlParser.getEventType() == XmlPullParser.START_TAG){
-                elementName = xmlParser.getName();
-            }
-            if (xmlParser.getEventType() == XmlPullParser.END_TAG){
-                if (xmlParser.getName().equals("BassTrebleChannel")) break;
-
-                elementName = null;
-            }
-
-            if ((xmlParser.getEventType() == XmlPullParser.TEXT) && (elementName != null)){
-                String elementValue = xmlParser.getText();
-                if (elementValue == null) continue;
-
-                if (elementName.equals("BassFreq")){
-                    bassFreq = Byte.parseByte(elementValue);
-                    count++;
-                }
-                if (elementName.equals("BassDb")){
-                    bassDb = Byte.parseByte(elementValue);
-                    count++;
-                }
-                if (elementName.equals("TrebleFreq")){
-                    trebleFreq = Byte.parseByte(elementValue);
-                    count++;
-                }
-                if (elementName.equals("TrebleDb")){
-                    trebleDb = Byte.parseByte(elementValue);
-                    count++;
-                }
-                if (elementName.equals("maxBassDb")){
-                    maxBassDb = Byte.parseByte(elementValue);
-                    count++;
-                }
-                if (elementName.equals("minBassDb")){
-                    minBassDb = Byte.parseByte(elementValue);
-                    count++;
-                }
-                if (elementName.equals("maxTrebleDb")){
-                    maxTrebleDb = Byte.parseByte(elementValue);
-                    count++;
-                }
-                if (elementName.equals("minTrebleDb")){
-                    minTrebleDb = Byte.parseByte(elementValue);
-                    count++;
-                }
-            }
-        } while (xmlParser.getEventType() != XmlPullParser.END_DOCUMENT);
-
-        //check import result
-        if (count != 8){
-            String msg = "BassTrebleChannel=" + Integer.toString(channel) +
-                    ". Import from xml is not success.";
-            Log.d(TAG, msg);
-            throw new IOException(msg);
-        }
-        //Log.d(TAG, getInfo());
-    }*/
 
     public class BassFreq {
         //freq for FS = 96kHz

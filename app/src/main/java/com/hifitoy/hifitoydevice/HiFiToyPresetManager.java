@@ -7,6 +7,7 @@
 
 package com.hifitoy.hifitoydevice;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.net.Uri;
@@ -17,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -24,6 +26,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.hifitoy.dialogsystem.DialogSystem;
+import com.hifitoy.hifitoyobjects.filter.DFilter;
+import com.xmlorm.XmlDecoder;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -245,6 +249,18 @@ public class HiFiToyPresetManager {
         return null;
     }
 
+    private InputStream getInputStream(Uri uri) throws IOException{
+        if (uri == null) throw new IOException("Uri is null.");
+
+        //get scheme
+        String scheme = uri.getScheme();
+        if (scheme == null) throw new IOException("Uri scheme is not correct.");
+
+        //get file input stream
+        ContentResolver resolver = ApplicationContext.getInstance().getContext().getContentResolver();
+        return resolver.openInputStream(uri);
+    }
+
     public void importPreset(Uri uri) {
         if (uri == null) {
             DialogSystem.getInstance().showDialog("Error", "Uri is null.", "Ok");
@@ -252,7 +268,8 @@ public class HiFiToyPresetManager {
         }
 
         try {
-            HiFiToyPreset importPreset = new HiFiToyPreset(uri);
+            XmlDecoder d = new XmlDecoder(getInputStream(uri));
+            HiFiToyPreset importPreset = (HiFiToyPreset) d.parse("preset", HiFiToyPreset.class);
 
             //add new preset to list and store
             HiFiToyPresetManager.getInstance().setPreset(importPreset);
@@ -260,7 +277,7 @@ public class HiFiToyPresetManager {
             DialogSystem.getInstance().showDialog("Completed",
                     "Preset '" + importPreset.getName() + "' imported successfully.", "Ok");
 
-        } catch (IOException | XmlPullParserException e) {
+        } catch (Exception e) {
             DialogSystem.getInstance().showDialog("Error", e.getMessage(), "Ok");
         }
     }

@@ -10,7 +10,6 @@ import android.util.Log;
 
 import com.hifitoy.ble.BlePacket;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoynumbers.ByteUtility;
 import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoynumbers.Number523;
 import com.hifitoy.hifitoyobjects.biquad.BandpassBiquad;
@@ -155,82 +154,4 @@ public class Loudness implements HiFiToyObject, Cloneable, Serializable {
         return false;
     }
 
-    /*@Override
-    public XmlData toXmlData() {
-        XmlData xmlData = new XmlData();
-
-        xmlData.addXmlElement("LG", LG);
-        xmlData.addXmlElement("LO", LO);
-        xmlData.addXmlElement("Gain", gain);
-        xmlData.addXmlElement("Offset", offset);
-        xmlData.addXmlData(biquad.toXmlData());
-
-        XmlData loudnessXmlData = new XmlData();
-        Map<String, String> attrib = new HashMap<>();
-        attrib.put("Address", ByteUtility.toString(getAddress()));
-
-        loudnessXmlData.addXmlElement("Loudness", xmlData, attrib);
-        return loudnessXmlData;
-    }
-
-    @Override
-    public void importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
-        String elementName = null;
-        int count = 0;
-
-        do {
-            xmlParser.next();
-
-            if (xmlParser.getEventType() == XmlPullParser.START_TAG){
-                elementName = xmlParser.getName();
-
-                if (elementName.equals("Biquad")){
-                    String addrStr = xmlParser.getAttributeValue(null, "Address");
-                    if (addrStr == null) continue;
-                    byte address = ByteUtility.parse(addrStr);
-
-                    if (biquad.getAddress() == address){
-                        biquad.importFromXml(xmlParser);
-                        count++;
-                    }
-                }
-            }
-            if (xmlParser.getEventType() == XmlPullParser.END_TAG){
-                if (xmlParser.getName().equals("Loudness")) break;
-
-                elementName = null;
-            }
-
-            if ((xmlParser.getEventType() == XmlPullParser.TEXT) && (elementName != null)){
-                String elementValue = xmlParser.getText();
-                if (elementValue == null) continue;
-
-                if (elementName.equals("LG")){
-                    LG = Float.parseFloat(elementValue);
-                    count++;
-                }
-                if (elementName.equals("LO")){
-                    LO = Float.parseFloat(elementValue);
-                    count++;
-                }
-                if (elementName.equals("Gain")){
-                    gain = Float.parseFloat(elementValue);
-                    count++;
-                }
-                if (elementName.equals("Offset")){
-                    offset = Float.parseFloat(elementValue);
-                    count++;
-                }
-            }
-        } while (xmlParser.getEventType() != XmlPullParser.END_DOCUMENT);
-
-
-        //check import result
-        if (count != 5){
-            String msg = "Loudness. Import from xml is not success.";
-            Log.d(TAG, msg);
-            throw new IOException(msg);
-        }
-        Log.d(TAG, toString());
-    }*/
 }

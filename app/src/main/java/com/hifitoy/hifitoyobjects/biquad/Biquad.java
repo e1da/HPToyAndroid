@@ -26,7 +26,6 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class Biquad implements HiFiToyObject, Cloneable {
-    private static final String TAG = "HiFiToy";
 
     private boolean enabled;
 
@@ -248,92 +247,6 @@ public class Biquad implements HiFiToyObject, Cloneable {
         }
         return "Biquad disabled.";
     }
-
-    /*@Override
-    public XmlData toXmlData() {
-        XmlData xmlData = new XmlData();
-
-        xmlData.addXmlElement("addr0", addr0);
-        xmlData.addXmlElement("addr1", addr1);
-
-        xmlData.addXmlElement("b0", b0);
-        xmlData.addXmlElement("b1", b1);
-        xmlData.addXmlElement("b2", b2);
-        xmlData.addXmlElement("a1", a1);
-        xmlData.addXmlElement("a2", a2);
-
-        XmlData biquadXmlData = new XmlData();
-        biquadXmlData.addXmlElement("Biquad", xmlData);
-
-        return biquadXmlData;
-    }
-
-    @Override
-    public void importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
-        String elementName = null;
-        int count = 0;
-
-        float b0 = 1.0f, b1 = 0, b2 = 0, a1 = 0, a2 = 0;
-
-        do {
-            xmlParser.next();
-
-            if (xmlParser.getEventType() == XmlPullParser.START_TAG){
-                elementName = xmlParser.getName();
-            }
-            if (xmlParser.getEventType() == XmlPullParser.END_TAG){
-                if (xmlParser.getName().equals("Biquad")) break;
-
-                elementName = null;
-            }
-
-            if ((xmlParser.getEventType() == XmlPullParser.TEXT) && (elementName != null)){
-                String elementValue = xmlParser.getText();
-                if (elementValue == null) continue;
-
-                if (elementName.equals("addr0")){
-                    addr0 = Byte.parseByte(elementValue);
-                    count++;
-                }
-                if (elementName.equals("addr1")){
-                    addr1 = Byte.parseByte(elementValue);
-                    count++;
-                }
-
-                if (elementName.equals("b0")){
-                    b0 = Float.parseFloat(elementValue);
-                    count++;
-                }
-                if (elementName.equals("b1")){
-                    b1 = Float.parseFloat(elementValue);
-                    count++;
-                }
-                if (elementName.equals("b2")){
-                    b2 = Float.parseFloat(elementValue);
-                    count++;
-                }
-                if (elementName.equals("a1")){
-                    a1 = Float.parseFloat(elementValue);
-                    count++;
-                }
-                if (elementName.equals("a2")){
-                    a2 = Float.parseFloat(elementValue);
-                    count++;
-                }
-            }
-        } while (xmlParser.getEventType() != XmlPullParser.END_DOCUMENT);
-
-        //check import result
-        if (count != 7){
-            String msg = "Biquad=" + Integer.toString(addr0) + ". Import from xml is not success.";
-            Log.d(TAG, msg);
-            throw new IOException(msg);
-        }
-        setCoefs(b0, b1, b2 ,a1, a2);
-        Log.d(TAG, toString());
-
-    }*/
-
 
 }
 

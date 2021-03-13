@@ -14,7 +14,6 @@ import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import com.hifitoy.hifitoyobjects.HiFiToyObject;
 import com.hifitoy.tas5558.TAS5558;
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -25,8 +24,7 @@ import java.util.Objects;
 
 import static com.hifitoy.hifitoyobjects.drc.DrcChannel.DRC_CH_1_7;
 
-public class DrcTimeConst implements HiFiToyObject, Cloneable, Serializable {
-    private static final String TAG = "HiFiToy";
+public class DrcTimeConst implements HiFiToyObject, Cloneable {
 
     private byte    channel;
     private float   energyMS;
@@ -271,64 +269,4 @@ public class DrcTimeConst implements HiFiToyObject, Cloneable, Serializable {
         return false;
     }
 
-    /*@Override
-    public XmlData toXmlData() {
-        XmlData xmlData = new XmlData();
-        xmlData.addXmlElement("Energy", energyMS);
-        xmlData.addXmlElement("Attack", attackMS);
-        xmlData.addXmlElement("Decay", decayMS);
-
-        XmlData drcTimeConstXmlData = new XmlData();
-        Map<String, String> attrib = new HashMap<>();
-        attrib.put("Channel", Integer.toString(channel));
-
-        drcTimeConstXmlData.addXmlElement("DrcTimeConst", xmlData, attrib);
-        return drcTimeConstXmlData;
-    }
-
-    @Override
-    public void importFromXml(XmlPullParser xmlParser) throws XmlPullParserException, IOException {
-        String elementName = null;
-        int count = 0;
-
-        do {
-            xmlParser.next();
-
-            if (xmlParser.getEventType() == XmlPullParser.START_TAG){
-                elementName = xmlParser.getName();
-            }
-            if (xmlParser.getEventType() == XmlPullParser.END_TAG){
-                if (xmlParser.getName().equals("DrcTimeConst")) break;
-
-                elementName = null;
-            }
-
-            if ((xmlParser.getEventType() == XmlPullParser.TEXT) && (elementName != null)){
-                String elementValue = xmlParser.getText();
-                if (elementValue == null) continue;
-
-                if (elementName.equals("Energy")){
-                    energyMS = Float.parseFloat(elementValue);
-                    count++;
-                }
-                if (elementName.equals("Attack")){
-                    attackMS = Float.parseFloat(elementValue);
-                    count++;
-                }
-                if (elementName.equals("Decay")){
-                    decayMS = Float.parseFloat(elementValue);
-                    count++;
-                }
-            }
-        } while (xmlParser.getEventType() != XmlPullParser.END_DOCUMENT);
-
-        //check import result
-        if (count != 3){
-            String msg = "DrcTimeConst=" + Integer.toString(channel) +
-                    ". Import from xml is not success.";
-            Log.d(TAG, msg);
-            throw new IOException(msg);
-        }
-        Log.d(TAG, toString());
-    }*/
 }
