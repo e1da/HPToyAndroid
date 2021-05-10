@@ -8,20 +8,11 @@
 package com.hifitoy.activities.options;
 
 import android.app.ActionBar;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -30,7 +21,6 @@ import android.widget.Toast;
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
 import com.hifitoy.activities.BaseActivity;
-import com.hifitoy.activities.options.presetmanager.PresetManagerActivity;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
@@ -65,7 +55,7 @@ public class OptionsActivity extends BaseActivity implements View.OnClickListene
 
         //check output mode hw support
         OutputMode outputMode = HiFiToyControl.getInstance().getActiveDevice().getOutputMode();
-        outputMode.readFromDsp();
+        outputMode.isSettingsAvailable();
     }
 
     @Override

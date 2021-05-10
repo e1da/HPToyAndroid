@@ -522,19 +522,13 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                         ApplicationContext.getInstance().setupOutlets();
                         break;
 
-                    case GET_OUTPUT_MODE:
+                    case GET_OUTPUT_MODE: //cmd not uses. bug on hw side
                         Log.d(TAG, "GET_OUTPUT_MODE " + status);
-                        activeDevice.getOutputMode().setValue(status);
-
-                        ApplicationContext.getInstance().setupOutlets();
                         break;
 
-                    case GET_TAS5558_CH3_MIXER:
+                    case GET_TAS5558_CH3_MIXER: //not uses. bug on hw side in GET_OUTPUT_MODE cmd
                         short val = (short)(data[1] + (data[2] << 8));
                         Log.d(TAG, "GET_TAS5558_CH3_MIXER " + val);
-                        activeDevice.getOutputMode().setBoost(val);
-
-                        ApplicationContext.getInstance().setupOutlets();
                         break;
 
                     case CommonCommand.CLIP_DETECTION:
