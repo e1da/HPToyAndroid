@@ -28,8 +28,8 @@ android {
             applicationId "com.hifitoy"
         }
         hptoy {
-            versionCode 20
-            versionName "1.5.1"
+            versionCode 21
+            versionName "1.5.2"
             dimension "version"
             applicationId "com.hptoy"
         }
