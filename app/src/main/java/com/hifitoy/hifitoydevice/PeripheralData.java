@@ -17,6 +17,7 @@ import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
+import com.hifitoy.tas5558.TAS5558;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -122,14 +123,22 @@ public class PeripheralData {
         return false;
     }
 
+    private HiFiToyDataBuf getAmModeRegisterBuf() {
+        //set this reg is fixed whistles bug in PDV2.1
+        byte[] data = new byte[]{0x00, 0x1a, 0x09, (byte)0xd0};
+        return new HiFiToyDataBuf(TAS5558.AM_MODE_REG, ByteBuffer.wrap(data));
+    }
+
     private void setDataBufs(List<HiFiToyDataBuf> dataBufs) {
         if (dataBufs == null) {
-            dataBufLength = 0;
-            dataBytesLength = 0;
-        } else {
-            dataBufLength = (short)dataBufs.size();
-            dataBytesLength = getDataBytesLength(dataBufs);
+            dataBufs = new ArrayList<>();
         }
+        //set this reg is fixed whistles bug in PDV2.1
+        dataBufs.add(0, getAmModeRegisterBuf());
+
+        dataBufLength = (short)dataBufs.size();
+        dataBytesLength = getDataBytesLength(dataBufs);
+
         this.dataBufs = dataBufs;
     }
     public List<HiFiToyDataBuf> getDataBufs() {
