@@ -36,6 +36,7 @@ public class OutputMode implements Serializable {
 
     private boolean hwSupported;
 
+
     public OutputMode() {
         setDefault();
     }
@@ -132,7 +133,7 @@ public class OutputMode implements Serializable {
         HiFiToyControl.getInstance().sendDataToDsp(d, true);
     }
 
-    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+    private transient final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
