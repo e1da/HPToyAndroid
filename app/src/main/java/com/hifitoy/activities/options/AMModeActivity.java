@@ -37,7 +37,7 @@ public class AMModeActivity extends BaseActivity implements View.OnClickListener
 
     private TextView amModeSendButton;
 
-    private AMMode amMode = new AMMode();
+    private AMMode amMode;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,6 +48,9 @@ public class AMModeActivity extends BaseActivity implements View.OnClickListener
         //show back button
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+        amMode = HiFiToyControl.getInstance().getActiveDevice().getAmMode();
+        amMode.readFromDsp();
 
         initOutlets();
     }

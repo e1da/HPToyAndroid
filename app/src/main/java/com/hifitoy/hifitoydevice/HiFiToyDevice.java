@@ -15,6 +15,7 @@ import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.CommonCommand;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoynumbers.Checksummer;
+import com.hifitoy.hifitoyobjects.AMMode;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.Biquad;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
@@ -43,6 +44,7 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
     private AdvertiseMode   advertiseMode;
     private EnergyConfig    energyConfig;
     private OutputMode      outputMode;
+    private AMMode          amMode;
 
     private transient boolean clipFlag = false;
 
@@ -60,6 +62,7 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
         advertiseMode = new AdvertiseMode();
         energyConfig = new EnergyConfig();
         outputMode = new OutputMode();
+        amMode = new AMMode();
 
         clipFlag = false;
     }
@@ -134,6 +137,8 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
     public OutputMode       getOutputMode() {
         return outputMode;
     }
+    public AMMode           getAmMode() { return amMode; }
+
 
     public boolean getClipFlag() {
         return clipFlag;
@@ -148,6 +153,7 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
         advertiseMode = new AdvertiseMode();
         energyConfig = new EnergyConfig();
         outputMode = new OutputMode();
+        amMode = new AMMode();
         setActiveKeyPreset("No processing");
 
         PeripheralData peripheralData = new PeripheralData(this);

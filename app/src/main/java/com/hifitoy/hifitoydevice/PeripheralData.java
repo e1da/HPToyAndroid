@@ -15,6 +15,7 @@ import android.util.Log;
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoyobjects.AMMode;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import com.hifitoy.tas5558.TAS5558;
@@ -51,6 +52,8 @@ public class PeripheralData {
     private short                   dataBytesLength;    // 0x22
     private List<HiFiToyDataBuf>    dataBufs;           // 0x24
 
+    private AMMode amMode;
+
     private PeripheralDataDelegate delegate;
 
     private byte[] importData;
@@ -71,10 +74,15 @@ public class PeripheralData {
         setBiquadTypes(device.getActivePreset().getFilters().getBiquadTypes());
         outputMode = device.getOutputMode().getValue();
 
+        amMode = device.getAmMode();
+
         setDataBufs(device.getActivePreset().getDataBufs());
     }
     public PeripheralData(byte[] biquadTypes, List<HiFiToyDataBuf> dataBufs) {
         clear();
+
+        amMode = HiFiToyControl.getInstance().getActiveDevice().getAmMode();
+
         setBiquadTypes(biquadTypes);
         setDataBufs(dataBufs);
     }
@@ -99,6 +107,7 @@ public class PeripheralData {
         setBiquadTypes(new byte[]{BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC,
                 BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC});
         outputMode = OutputMode.UNBALANCE_BOOST_OUT_MODE;
+        amMode = new AMMode();
 
         dataBufLength = 0;
         dataBytesLength = 0;
@@ -123,18 +132,12 @@ public class PeripheralData {
         return false;
     }
 
-    private HiFiToyDataBuf getAmModeRegisterBuf() {
-        //set this reg is fixed whistles bug in PDV2.1
-        byte[] data = new byte[]{0x00, 0x1a, 0x09, (byte)0xd0};
-        return new HiFiToyDataBuf(TAS5558.AM_MODE_REG, ByteBuffer.wrap(data));
-    }
-
     private void setDataBufs(List<HiFiToyDataBuf> dataBufs) {
         if (dataBufs == null) {
             dataBufs = new ArrayList<>();
         }
         //set this reg is fixed whistles bug in PDV2.1
-        dataBufs.add(0, getAmModeRegisterBuf());
+        dataBufs.add(0, amMode.getDataBufs().get(0));
 
         dataBufLength = (short)dataBufs.size();
         dataBytesLength = getDataBytesLength(dataBufs);
