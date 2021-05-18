@@ -36,7 +36,7 @@ public class AMMode implements HiFiToyObject, Cloneable, Serializable {
 
     private static final short FIRST_DATA_BUF_OFFSET = 0x24;
 
-    private byte[] data             = new byte[]{0x00, 0x1a, 0x09, (byte)0xd0};
+    private byte[] data = new byte[4];
     private boolean successImport   = false;
 
     public AMMode() {
@@ -45,9 +45,9 @@ public class AMMode implements HiFiToyObject, Cloneable, Serializable {
 
     public void reset() {
         data[0] = 0x00;
-        data[1] = 0x1a;
-        data[2] = 0x09;
-        data[3] = (byte)0xd0;
+        data[1] = 0x19;
+        data[2] = 0x03;
+        data[3] = (byte)0xF2;
 
         successImport = false;
     }
