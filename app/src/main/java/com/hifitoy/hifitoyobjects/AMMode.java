@@ -64,6 +64,18 @@ public class AMMode implements HiFiToyObject, Cloneable, Serializable {
         data[index] = d;
     }
 
+    public boolean isEnabled() {
+        return ((data[1] & 0x10) != 0);
+    }
+
+    public void setEnabled(boolean enabled) {
+        if (enabled) {
+            data[1] |= 0x10; // set
+        } else {
+            data[1] &= ~0x10; // clear
+        }
+    }
+
     @Override
     public byte getAddress() {
         return TAS5558.AM_MODE_REG;

@@ -10,7 +10,9 @@ import android.app.ActionBar;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.hifitoy.ApplicationContext;
@@ -35,6 +37,8 @@ public class AMModeActivity extends BaseActivity implements View.OnClickListener
 
     private TextView amModeSendButton;
     private TextView amModeStoreButton;
+
+    private Switch amModeEnableSwitch;
 
     private AMMode amMode;
 
@@ -87,6 +91,7 @@ public class AMModeActivity extends BaseActivity implements View.OnClickListener
 
         amModeSendButton = findViewById(R.id.amModeSendButton_outl);
         amModeStoreButton = findViewById(R.id.amModeStoreButton_outl);
+        amModeEnableSwitch = findViewById(R.id.amModeEnableSwitch_outl);
 
         amModeDataInput[0].setOnClickListener(this);
         amModeDataInput[1].setOnClickListener(this);
@@ -107,10 +112,20 @@ public class AMModeActivity extends BaseActivity implements View.OnClickListener
                 ApplicationContext.getInstance().showToast("Data store to hardware!");
             }
         });
+
+        amModeEnableSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                amMode.setEnabled(isChecked);
+                setupOutlets();
+            }
+        });
     }
 
     @Override
     public void setupOutlets() {
+        amModeEnableSwitch.setChecked(amMode.isEnabled());
+
         byte d0 = amMode.getData(0);
         byte d1 = amMode.getData(1);
         byte d2 = amMode.getData(2);

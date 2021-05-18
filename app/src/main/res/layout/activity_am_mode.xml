@@ -6,13 +6,45 @@
     android:layout_height="wrap_content">
 
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="PDv2.1 44.1 beat-tones"
+            android:textSize="16sp" />
+
+        <Switch
+            android:id="@+id/amModeEnableSwitch_outl"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:checked="true"
+            />
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:layout_weight="1"
+        android:background="#444444"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp" />
+
+    <LinearLayout
         android:id="@+id/amModeD0Input_outl"
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:orientation="horizontal"
         android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        >
+        android:layout_marginEnd="20dp">
 
         <TextView
             android:layout_width="match_parent"
@@ -273,7 +305,7 @@
         android:layout_marginEnd="20dp"
         android:gravity="center_vertical"
         android:textAlignment="center"
-        android:text="Store to non-volatile"
+        android:text="Store to non-volatile memory"
         android:textSize="20sp"
         android:textColor="@color/colorRed"/>
 
