@@ -18,6 +18,7 @@ import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoyobjects.AMMode;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
+import com.hifitoy.hifitoyobjects.PostProcess;
 import com.hifitoy.tas5558.TAS5558;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -224,11 +225,86 @@ public class PeripheralData {
         exportPreset();
     }
 
+    private boolean parseHeader(byte[] data) {
+        if (data.length < PERIPHERAL_CONFIG_LENGTH) {
+            return false;
+        }
+
+        ByteBuffer b = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
+
+        //parse peripheral config
+        i2cAddr = b.get();
+        successWriteFlag = b.get();
+        version = b.getShort();
+        pairingCode = b.getInt();
+        audioSource = b.get();
+        advertiseMode = b.get();
+        gainChannel3 = b.getShort();
+        energyConfig.parseBinary(b);
+
+        biquadTypes = new byte[7];
+        b.get(biquadTypes, 0, 7);
+
+        outputMode = b.get();
+        dataBufLength = b.getShort();
+        dataBytesLength = b.getShort();
+
+        return true;
+    }
+
+    public void importHeader(final PostProcess postProcess) {
+        if (!HiFiToyControl.getInstance().isConnected()) return;
+
+        final Context c = ApplicationContext.getInstance().getContext();
+        c.registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                if (HiFiToyControl.DID_GET_PARAM_DATA.equals(intent.getAction())) {
+                    byte[] data = intent.getByteArrayExtra(EXTRA_DATA);
+
+                    importData = BinaryOperation.concatData(importData, data);
+
+                    if (importData.length == 40) {
+                        c.unregisterReceiver(this);
+                        boolean res = parseHeader(importData);
+                        if (!res) { // error
+                            dataBytesLength = -1;
+                        }
+
+                        if (postProcess != null) {
+                            postProcess.onPostProcess();
+                        }
+
+                    } else {
+                        HiFiToyControl.getInstance().getDspDataWithOffset((short)20);
+                    }
+
+                }
+            }
+        }, new IntentFilter(HiFiToyControl.DID_GET_PARAM_DATA));
+
+        importData = new byte[0];
+        //start read first 20 bytes
+        HiFiToyControl.getInstance().getDspDataWithOffset((short)0);
+
+    }
+
     private void startImport(){
         if (!HiFiToyControl.getInstance().isConnected()) return;
 
         Context c = ApplicationContext.getInstance().getContext();
-        c.registerReceiver(broadcastReceiver, makeImportIntentFilter());
+        c.registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (HiFiToyControl.DID_GET_PARAM_DATA.equals(intent.getAction())) {
+                    byte[] data = intent.getByteArrayExtra(EXTRA_DATA);
+                    DialogSystem.getInstance().updateProgressDialog(data.length);
+
+                    didGet20Bytes(this, data);
+                }
+            }
+        }, new IntentFilter(HiFiToyControl.DID_GET_PARAM_DATA));
 
         dataBytesLength = -1;
         importData = new byte[0];
@@ -244,7 +320,7 @@ public class PeripheralData {
         startImport();
     }
 
-    public void didGet20Bytes(byte[] data20) {
+    public void didGet20Bytes(BroadcastReceiver receiver, byte[] data20) {
         if (data20.length != 20) {
             DialogSystem.getInstance().showDialog("Warning", "Import preset is not success.", "Ok");
             return;
@@ -254,24 +330,7 @@ public class PeripheralData {
         importData = BinaryOperation.concatData(importData, data20);
 
         if (importData.length == 40) {
-            ByteBuffer b = ByteBuffer.wrap(importData).order(ByteOrder.LITTLE_ENDIAN);
-
-            //parse peripheral config
-            i2cAddr = b.get();
-            successWriteFlag = b.get();
-            version = b.getShort();
-            pairingCode = b.getInt();
-            audioSource = b.get();
-            advertiseMode = b.get();
-            gainChannel3 = b.getShort();
-            energyConfig.parseBinary(b);
-
-            biquadTypes = new byte[7];
-            b.get(biquadTypes, 0, 7);
-
-            outputMode = b.get();
-            dataBufLength = b.getShort();
-            dataBytesLength = b.getShort();
+            parseHeader(importData);
 
             DialogSystem.getInstance().getProgressDialog().setMax(dataBytesLength - 40);
 
@@ -292,7 +351,7 @@ public class PeripheralData {
                 DialogSystem.getInstance().closeProgressDialog();
 
                 Context c = ApplicationContext.getInstance().getContext();
-                c.unregisterReceiver(broadcastReceiver);
+                c.unregisterReceiver(receiver);
 
                 if (delegate != null) delegate.didImportData(this);
 
@@ -301,19 +360,13 @@ public class PeripheralData {
         }
 
         //update progress dialog
-        Log.d(TAG, "import " + Integer.toString(importData.length));
+        Log.d(TAG, "import " + importData.length);
 
         //read next 20bytes
         HiFiToyControl.getInstance().getDspDataWithOffset((short)importData.length);
 
     }
 
-    private static IntentFilter makeImportIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(HiFiToyControl.DID_GET_PARAM_DATA);
-
-        return intentFilter;
-    }
     private static IntentFilter makeExportIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(HiFiToyControl.DID_WRITE_DATA);
@@ -327,12 +380,6 @@ public class PeripheralData {
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
 
-            if (HiFiToyControl.DID_GET_PARAM_DATA.equals(action)) {
-                byte[] data = intent.getByteArrayExtra(EXTRA_DATA);
-                DialogSystem.getInstance().updateProgressDialog(data.length);
-
-                didGet20Bytes(data);
-            }
             if (HiFiToyControl.DID_WRITE_DATA.equals(action)) {
                 int v = intent.getIntExtra(EXTRA_DATA, -1);
                 DialogSystem.getInstance().updateProgressDialog(16);
