@@ -33,7 +33,7 @@ public class ByteUtility {
         return String.format("%c%c", HEX_ARRAY[(b >>> 4) & 0x0F], HEX_ARRAY[b & 0xF]);
     }
 
-    public static String toBinaryString(byte b) {
+    public static String toBinString(byte b) {
         StringBuilder sb = new StringBuilder();
         int num = byteToInt(b);
 
