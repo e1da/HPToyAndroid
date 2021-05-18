@@ -16,6 +16,7 @@ import com.hifitoy.ApplicationContext;
 import com.hifitoy.ble.BlePacket;
 import com.hifitoy.hifitoycontrol.CommonCommand;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoynumbers.ByteUtility;
 import com.hifitoy.tas5558.TAS5558;
 import com.hifitoy.xml.XmlData;
 
@@ -76,6 +77,10 @@ public class AMMode implements HiFiToyObject, Cloneable, Serializable {
         }
     }
 
+    public boolean isSuccessImport() {
+        return successImport;
+    }
+
     @Override
     public byte getAddress() {
         return TAS5558.AM_MODE_REG;
@@ -83,10 +88,10 @@ public class AMMode implements HiFiToyObject, Cloneable, Serializable {
 
     @Override
     public String getInfo() {
-        return String.format("D31-24: " + Integer.toHexString(data[0]) +
-                " D23-16: " + Integer.toHexString(data[1]) +
-                " D15-8: " + Integer.toHexString(data[2]) +
-                " D7-0: " + Integer.toHexString(data[3]) );
+        return String.format("D31-24: 0x" + ByteUtility.toHexString(data[0]) +
+                " D23-16: 0x" + ByteUtility.toHexString(data[1]) +
+                " D15-8: 0x" + ByteUtility.toHexString(data[2]) +
+                " D7-0: 0x" + ByteUtility.toHexString(data[3]) );
     }
 
     @Override
@@ -130,39 +135,40 @@ public class AMMode implements HiFiToyObject, Cloneable, Serializable {
 
     }
 
-    public void readFromDsp() {
+    private PostProcess afterReadFromDspProcess = null;
+
+    public void readFromDsp(PostProcess postProcess) {
         if (!HiFiToyControl.getInstance().isConnected()) return;
 
-        Context c = ApplicationContext.getInstance().getContext();
-        c.registerReceiver(broadcastReceiver,
-                new IntentFilter(HiFiToyControl.DID_GET_PARAM_DATA));
+        afterReadFromDspProcess = postProcess;
+
+        final Context c = ApplicationContext.getInstance().getContext();
+
+        c.registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String action = intent.getAction();
+
+                if (HiFiToyControl.DID_GET_PARAM_DATA.equals(action)) {
+                    c.unregisterReceiver(this);
+
+                    byte[] data = intent.getByteArrayExtra(EXTRA_DATA);
+                    parseFirstDataBuf(data);
+                }
+            }
+        }, new IntentFilter(HiFiToyControl.DID_GET_PARAM_DATA));
 
         //send ble command
         HiFiToyControl.getInstance().getDspDataWithOffset(FIRST_DATA_BUF_OFFSET);
     }
 
-    private transient final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-
-            if (HiFiToyControl.DID_GET_PARAM_DATA.equals(action)) {
-                Context c = ApplicationContext.getInstance().getContext();
-                c.unregisterReceiver(broadcastReceiver);
-
-                byte[] data = intent.getByteArrayExtra(EXTRA_DATA);
-                parseFirstDataBuf(data);
-            }
-        }
-    };
-
     private void parseFirstDataBuf(byte[] data) {
         HiFiToyDataBuf buf = new HiFiToyDataBuf(ByteBuffer.wrap(data));
-        boolean res = importFromDataBufs(new ArrayList<>(Collections.singletonList(buf)));
+        importFromDataBufs(new ArrayList<>(Collections.singletonList(buf)));
         ApplicationContext.getInstance().setupOutlets();
 
-        if (!res) {
-            ApplicationContext.getInstance().showToast("Settings not found on the hardware.");
+        if (afterReadFromDspProcess != null) {
+            afterReadFromDspProcess.onPostProcess();
         }
 
     }

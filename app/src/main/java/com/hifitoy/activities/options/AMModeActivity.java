@@ -24,6 +24,7 @@ import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.AdvertiseMode;
 import com.hifitoy.hifitoynumbers.ByteUtility;
 import com.hifitoy.hifitoyobjects.AMMode;
+import com.hifitoy.hifitoyobjects.PostProcess;
 
 public class AMModeActivity extends BaseActivity implements View.OnClickListener,
                                                     KeyboardDialog.OnResultListener {
@@ -53,7 +54,14 @@ public class AMModeActivity extends BaseActivity implements View.OnClickListener
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         amMode = HiFiToyControl.getInstance().getActiveDevice().getAmMode();
-        amMode.readFromDsp();
+        amMode.readFromDsp(new PostProcess() {
+            @Override
+            public void onPostProcess() {
+                if (amMode.isSuccessImport()) {
+                    ApplicationContext.getInstance().showToast("Settings not found on the hardware.");
+                }
+            }
+        });
 
         initOutlets();
     }

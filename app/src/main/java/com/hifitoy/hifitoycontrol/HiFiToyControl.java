@@ -29,7 +29,10 @@ import com.hifitoy.ble.BleFinder;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
+import com.hifitoy.hifitoyobjects.AMMode;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
+import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
+import com.hifitoy.hifitoyobjects.PostProcess;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -474,6 +477,15 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                     case CommonCommand.GET_CHECKSUM:
                         short checksum = (short)( (data[1] & 0xFF) | ((data[2] << 8) & 0xFF00) );
 
+                        //
+                        AMMode am = activeDevice.getAmMode();
+                        if (am.isSuccessImport()) {
+                            HiFiToyDataBuf b = am.getDataBufs().get(0);
+
+                        }
+
+
+
                         String info = String.format(Locale.getDefault(),
                                             "GET_CHECKSUM=0x%x APP_CHECKSUM=0x%x",
                                                     checksum, activeDevice.getActivePreset().getChecksum());
@@ -512,7 +524,15 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                         activeDevice.getAudioSource().setSource(data[1]);
                         ApplicationContext.getInstance().setupOutlets();
 
-                        getChecksumParamData();
+                        activeDevice.getAmMode().readFromDsp(new PostProcess() {
+                            @Override
+                            public void onPostProcess() {
+                                AMMode am = activeDevice.getAmMode();
+                                Log.d(TAG, "GET_AM_MODE " + am.isSuccessImport() + " " + activeDevice.getAmMode().getInfo());
+                                getChecksumParamData();
+                            }
+                        });
+
                         break;
 
                     case GET_ADVERTISE_MODE:

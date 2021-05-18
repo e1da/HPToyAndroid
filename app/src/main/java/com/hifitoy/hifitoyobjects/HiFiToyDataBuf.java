@@ -54,13 +54,22 @@ public class HiFiToyDataBuf {
         return null;
     }
 
-    public void parseBinary(ByteBuffer b) {
+    public boolean parseBinary(ByteBuffer b) {
+        boolean full = true;
+
         addr = b.get();
 
         byte length = b.get();
+        if (b.capacity() < length + 2) {
+            full = false;
+            length = (byte)(b.capacity() - 2);
+        }
+
         byte[] d = new byte[length];
 
         b.get(d, 0, length);
         data = ByteBuffer.wrap(d);
+
+        return full;
     }
 }
