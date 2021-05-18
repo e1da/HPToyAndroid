@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
@@ -75,6 +76,17 @@ public class ApplicationContext {
                 if ((superclass != null) && (superclass.equals(BaseActivity.class))) {
                     ((BaseActivity)a).setupOutlets();
                 }
+            }
+        };
+        mainHandler.post(myRunnable);
+    }
+
+    public void showToast(final CharSequence msg) {
+        Handler mainHandler = new Handler(Looper.getMainLooper());
+        Runnable myRunnable = new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
             }
         };
         mainHandler.post(myRunnable);

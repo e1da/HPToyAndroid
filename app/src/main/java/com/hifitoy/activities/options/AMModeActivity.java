@@ -6,14 +6,12 @@
  */
 package com.hifitoy.activities.options;
 
-import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
@@ -36,6 +34,7 @@ public class AMModeActivity extends BaseActivity implements View.OnClickListener
     private LinearLayout[] amModeDataInput = new LinearLayout[4];
 
     private TextView amModeSendButton;
+    private TextView amModeStoreButton;
 
     private AMMode amMode;
 
@@ -87,6 +86,7 @@ public class AMModeActivity extends BaseActivity implements View.OnClickListener
         amModeDataInput[3] = findViewById(R.id.amModeD3Input_outl);
 
         amModeSendButton = findViewById(R.id.amModeSendButton_outl);
+        amModeStoreButton = findViewById(R.id.amModeStoreButton_outl);
 
         amModeDataInput[0].setOnClickListener(this);
         amModeDataInput[1].setOnClickListener(this);
@@ -97,8 +97,14 @@ public class AMModeActivity extends BaseActivity implements View.OnClickListener
             @Override
             public void onClick(View v) {
                 amMode.sendToPeripheral(true);
-                Toast.makeText(ApplicationContext.getInstance().getContext(),
-                        "Data sent to RAM!", Toast.LENGTH_SHORT).show();
+                ApplicationContext.getInstance().showToast("Data sent to RAM!");
+            }
+        });
+        amModeStoreButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                amMode.storeToPeripheral();
+                ApplicationContext.getInstance().showToast("Data store to hardware!");
             }
         });
     }
@@ -148,6 +154,8 @@ public class AMModeActivity extends BaseActivity implements View.OnClickListener
                 val= amMode.getData(3);
                 tag = "d3";
                 break;
+            default:
+                return;
         }
 
         KeyboardNumber n = new KeyboardNumber(KeyboardNumber.NumberType.POSITIVE_INTEGER, ByteUtility.toString(val));
@@ -173,7 +181,7 @@ public class AMModeActivity extends BaseActivity implements View.OnClickListener
             setupOutlets();
 
         } catch (NumberFormatException e) {
-            Log.d(TAG, e.getMessage());
+            Log.d(TAG, e.toString());
         }
     }
 }

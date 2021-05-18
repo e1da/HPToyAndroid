@@ -146,11 +146,16 @@ public class AMMode implements HiFiToyObject, Cloneable, Serializable {
 
     private void parseFirstDataBuf(byte[] data) {
         HiFiToyDataBuf buf = new HiFiToyDataBuf(ByteBuffer.wrap(data));
-        importFromDataBufs(new ArrayList<>(Collections.singletonList(buf)));
+        boolean res = importFromDataBufs(new ArrayList<>(Collections.singletonList(buf)));
         ApplicationContext.getInstance().setupOutlets();
+
+        if (!res) {
+            ApplicationContext.getInstance().showToast("Settings not found on the hardware.");
+        }
+
     }
 
-    public void storeToDsp() {
+    public void storeToPeripheral() {
         HiFiToyControl.getInstance().getActiveDevice().getActivePreset().storeToPeripheral();
     }
 }
