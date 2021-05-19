@@ -115,7 +115,14 @@ public class PeripheralData {
         dataBufs = null;
     }
 
-    private short getDataBytesLength(List<HiFiToyDataBuf> dataBufs) {
+    public short getDataBytesLength() {
+        return dataBytesLength;
+    }
+    public short getDataBufLength() {
+        return (short)(dataBytesLength - PERIPHERAL_CONFIG_LENGTH);
+    }
+
+    private short calcDataBytesLength(List<HiFiToyDataBuf> dataBufs) {
         short length = 0;
 
         for (int i = 0; i < dataBufs.size(); i++) {
@@ -141,7 +148,7 @@ public class PeripheralData {
         dataBufs.add(0, amMode.getDataBufs().get(0));
 
         dataBufLength = (short)dataBufs.size();
-        dataBytesLength = getDataBytesLength(dataBufs);
+        dataBytesLength = calcDataBytesLength(dataBufs);
 
         this.dataBufs = dataBufs;
     }

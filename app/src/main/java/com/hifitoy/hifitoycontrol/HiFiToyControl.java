@@ -29,6 +29,8 @@ import com.hifitoy.ble.BleFinder;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
+import com.hifitoy.hifitoydevice.PeripheralData;
+import com.hifitoy.hifitoynumbers.Checksummer;
 import com.hifitoy.hifitoyobjects.AMMode;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
@@ -387,6 +389,8 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
             }
         }
 
+        final PeripheralData pd = new PeripheralData();
+
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
@@ -481,7 +485,9 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                         AMMode am = activeDevice.getAmMode();
                         if (am.isSuccessImport()) {
                             HiFiToyDataBuf b = am.getDataBufs().get(0);
+                            byte[] d0 = b.getBinary().array();
 
+                            checksum = Checksummer.subtractData(checksum, pd.getDataBufLength(), d0);
                         }
 
 
@@ -529,7 +535,15 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                             public void onPostProcess() {
                                 AMMode am = activeDevice.getAmMode();
                                 Log.d(TAG, "GET_AM_MODE " + am.isSuccessImport() + " " + activeDevice.getAmMode().getInfo());
-                                getChecksumParamData();
+
+
+                                pd.importHeader(new PostProcess() {
+                                    @Override
+                                    public void onPostProcess() {
+                                        Log.d(TAG, "Data buf length = " + pd.getDataBufLength());
+                                        getChecksumParamData();
+                                    }
+                                });
                             }
                         });
 
