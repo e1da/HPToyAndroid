@@ -137,7 +137,7 @@ public class AMMode implements HiFiToyObject, Cloneable, Serializable {
 
     }
 
-    private PostProcess afterReadFromDspProcess = null;
+    private transient PostProcess afterReadFromDspProcess = null;
 
     public void readFromDsp(PostProcess postProcess) {
         if (!HiFiToyControl.getInstance().isConnected()) return;
