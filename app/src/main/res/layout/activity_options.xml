@@ -272,7 +272,7 @@
                 android:layout_marginStart="20dp"
                 android:gravity="center_vertical"
                 android:layout_weight="1"
-                android:text="AM Mode"
+                android:text="44.1 beat-tones elimination"
                 android:textSize="20sp" />
 
         </LinearLayout>

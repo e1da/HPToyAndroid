@@ -16,6 +16,8 @@ import com.hifitoy.ApplicationContext;
 import com.hifitoy.ble.BlePacket;
 import com.hifitoy.hifitoycontrol.CommonCommand;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoydevice.HiFiToyPreset;
+import com.hifitoy.hifitoydevice.PeripheralData;
 import com.hifitoy.hifitoynumbers.ByteUtility;
 import com.hifitoy.tas5558.TAS5558;
 import com.hifitoy.xml.XmlData;
@@ -46,7 +48,7 @@ public class AMMode implements HiFiToyObject, Cloneable, Serializable {
 
     public void reset() {
         data[0] = 0x00;
-        data[1] = 0x19;
+        data[1] = 0x09;
         data[2] = 0x03;
         data[3] = (byte)0xF2;
 
@@ -174,6 +176,10 @@ public class AMMode implements HiFiToyObject, Cloneable, Serializable {
     }
 
     public void storeToPeripheral() {
-        HiFiToyControl.getInstance().getActiveDevice().getActivePreset().storeToPeripheral();
+        HiFiToyPreset p = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
+
+        PeripheralData peripheralData = new PeripheralData(p.getFilters().getBiquadTypes(),
+                p.getFilters().getDataBufs());
+        peripheralData.exportPresetWithDialog("Beat-tones update...");
     }
 }

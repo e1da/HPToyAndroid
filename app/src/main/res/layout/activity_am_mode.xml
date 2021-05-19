@@ -18,7 +18,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center_vertical"
-            android:text="PDv2.1 44.1 beat-tones"
+            android:text=""
             android:textSize="16sp" />
 
         <Switch
@@ -290,6 +290,7 @@
         android:layout_weight="1"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
+        android:visibility="gone"
         android:gravity="center_vertical"
         android:textAlignment="center"
         android:text="Send to RAM"
@@ -305,7 +306,7 @@
         android:layout_marginEnd="20dp"
         android:gravity="center_vertical"
         android:textAlignment="center"
-        android:text="Store to non-volatile memory"
+        android:text="Send"
         android:textSize="20sp"
         android:textColor="@color/colorRed"/>
 

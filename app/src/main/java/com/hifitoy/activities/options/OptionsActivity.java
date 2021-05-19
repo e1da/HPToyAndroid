@@ -93,10 +93,12 @@ public class OptionsActivity extends BaseActivity implements View.OnClickListene
         deviceNameLabel_outl.setText(hifiToyDevice.getName());
         deviceMacLabel_outl.setText(hifiToyDevice.getMac());
 
-        if (hifiToyDevice.getOutputMode().isHwSupported()) {
+        if (hifiToyDevice.getOutputMode().isHwSupported()) { //PDV2.1
             outputMode_outl.setVisibility(View.VISIBLE);
+            amMode_outl.setVisibility(View.VISIBLE);
         } else {
-            outputMode_outl.setVisibility(View.GONE);
+            outputMode_outl.setVisibility(View.GONE); //PDV2
+            amMode_outl.setVisibility(View.GONE);
         }
     }
 
