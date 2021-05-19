@@ -46,7 +46,7 @@ public class AMModeActivity extends BaseActivity implements View.OnClickListener
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle("Am mode");
+        setTitle("44.1 beat-tones elimination");
         setContentView(R.layout.activity_am_mode);
 
         //show back button
