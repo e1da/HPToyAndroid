@@ -40,18 +40,18 @@ public class HiFiToyDataBuf {
 
     public ByteBuffer getBinary() {
         byte length = getLength();
-        if (length != 0) {
-            ByteBuffer b = ByteBuffer.allocate(2 + length);
-            b.put(addr);
-            b.put(length);
 
+        ByteBuffer b = ByteBuffer.allocate(2 + length);
+        b.put(addr);
+        b.put(length);
+
+        if (length > 0) {
             data.position(0);
             b.put(data);
-
-            b.position(0);
-            return b;
         }
-        return null;
+
+        b.position(0);
+        return b;
     }
 
     public boolean parseBinary(ByteBuffer b) {
