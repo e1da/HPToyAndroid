@@ -54,14 +54,7 @@ public class AMModeActivity extends BaseActivity implements View.OnClickListener
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         amMode = HiFiToyControl.getInstance().getActiveDevice().getAmMode();
-        amMode.readFromDsp(new PostProcess() {
-            @Override
-            public void onPostProcess() {
-                if (!amMode.isSuccessImport()) {
-                    ApplicationContext.getInstance().showToast("Settings not found on the hardware.");
-                }
-            }
-        });
+        amMode.readFromDsp(null);
 
         initOutlets();
     }

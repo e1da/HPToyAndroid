@@ -483,7 +483,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
                         //
                         AMMode am = activeDevice.getAmMode();
-                        if (am.isSuccessImport()) {
+                        if (am.isEnabled()) {
                             HiFiToyDataBuf b = am.getDataBufs().get(0);
                             byte[] d0 = b.getBinary().array();
 
@@ -534,7 +534,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                             @Override
                             public void onPostProcess() {
                                 AMMode am = activeDevice.getAmMode();
-                                Log.d(TAG, "GET_AM_MODE " + am.isSuccessImport() + " " + activeDevice.getAmMode().getInfo());
+                                Log.d(TAG, "GET_AM_MODE " + am.isEnabled() + " " + activeDevice.getAmMode().getInfo());
 
 
                                 pd.importHeader(new PostProcess() {

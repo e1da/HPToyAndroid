@@ -144,8 +144,11 @@ public class PeripheralData {
         if (dataBufs == null) {
             dataBufs = new ArrayList<>();
         }
-        //set this reg is fixed whistles bug in PDV2.1
-        dataBufs.add(0, amMode.getDataBufs().get(0));
+
+        //set AMMode reg for fix whistles bug in PDV2.1 rev1
+        if (amMode.isEnabled()) {
+            dataBufs.add(0, amMode.getDataBufs().get(0));
+        }
 
         dataBufLength = (short)dataBufs.size();
         dataBytesLength = calcDataBytesLength(dataBufs);

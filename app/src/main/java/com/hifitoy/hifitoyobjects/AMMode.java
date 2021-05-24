@@ -79,7 +79,7 @@ public class AMMode implements HiFiToyObject, Cloneable, Serializable {
         }
     }
 
-    public boolean isSuccessImport() {
+    private boolean isSuccessImport() {
         return successImport;
     }
 
