@@ -179,7 +179,7 @@ public class AMMode implements HiFiToyObject, Cloneable, Serializable {
         HiFiToyPreset p = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
 
         PeripheralData peripheralData = new PeripheralData(p.getFilters().getBiquadTypes(),
-                p.getFilters().getDataBufs());
+                p.getDataBufs());
         peripheralData.exportPresetWithDialog("Beat-tones update...");
     }
 }
