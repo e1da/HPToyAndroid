@@ -140,14 +140,37 @@ public class PeripheralData {
         return false;
     }
 
+    private HiFiToyDataBuf findDataBufWithAddr(byte addr, List<HiFiToyDataBuf> dataBufs) {
+        for (HiFiToyDataBuf db : dataBufs) {
+            if (db.getAddr() == addr) {
+                return db;
+            }
+        }
+        return null;
+    }
     private void setDataBufs(List<HiFiToyDataBuf> dataBufs) {
         if (dataBufs == null) {
             dataBufs = new ArrayList<>();
         }
 
         //set AMMode reg for fix whistles bug in PDV2.1 rev1
+        //and delete bass filter buf for fix bug incorrect launch hw
         if (amMode.isEnabled()) {
             dataBufs.add(0, amMode.getDataBufs().get(0));
+
+            HiFiToyDataBuf bassFilterBuf = findDataBufWithAddr(TAS5558.BASS_FILTER_SET_REG, dataBufs);
+            if (bassFilterBuf != null) {
+
+                byte[] bb = bassFilterBuf.getData().array();
+                byte bassFilterGain = bb[7];
+
+                // 0x12 - 0db, if < 0x12 -> gain > 0db
+                if (bassFilterGain < 0x12) {
+                    bb[7] = 0x12;
+                    bassFilterBuf.setData(ByteBuffer.wrap(bb));
+                }
+
+            }
         }
 
         dataBufLength = (short)dataBufs.size();
