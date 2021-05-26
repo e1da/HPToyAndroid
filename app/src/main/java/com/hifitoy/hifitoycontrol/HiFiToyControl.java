@@ -789,6 +789,8 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
             device.setName(deviceAddress);
             HiFiToyDeviceManager.getInstance().setDevice(deviceAddress, device);
         }
+        //set flag, need for check old or new hardware
+        device.setNewPDV21Hw(isNewPDV2Peripheral(peripheralName));
 
         if (state.getState() == ConnectionState.RECONNECTING) {
             if (activeDevice.getMac().equals(deviceAddress)) {

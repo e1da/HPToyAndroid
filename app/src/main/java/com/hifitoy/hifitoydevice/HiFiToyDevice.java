@@ -46,7 +46,9 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
     private OutputMode      outputMode;
     private AMMode          amMode;
 
+    private transient boolean newPDV21Hw = false;
     private transient boolean clipFlag = false;
+
 
     public HiFiToyDevice() {
         setDefault();
@@ -139,6 +141,12 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
     }
     public AMMode           getAmMode() { return amMode; }
 
+    public boolean getNewPDV21Hw() {
+        return newPDV21Hw;
+    }
+    public void setNewPDV21Hw(boolean newPDV21Hw) {
+        this.newPDV21Hw = newPDV21Hw;
+    }
 
     public boolean getClipFlag() {
         return clipFlag;
