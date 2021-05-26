@@ -10,6 +10,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.hifitoy.ApplicationContext;
@@ -51,9 +52,8 @@ public class PeripheralData {
 
     private short                   dataBufLength;      // 0x20
     private short                   dataBytesLength;    // 0x22
+    @NonNull
     private List<HiFiToyDataBuf>    dataBufs;           // 0x24
-
-    private AMMode amMode;
 
     private PeripheralDataDelegate delegate;
 
@@ -74,17 +74,23 @@ public class PeripheralData {
         energyConfig = device.getEnergyConfig();
         setBiquadTypes(device.getActivePreset().getFilters().getBiquadTypes());
         outputMode = device.getOutputMode().getValue();
+        dataBufs = new ArrayList<>();
 
-        amMode = device.getAmMode();
+        List<HiFiToyDataBuf> dataBufs = device.getActivePreset().getDataBufs();
+        appendAmModeDataBuf(dataBufs, device.getAmMode(), device.getNewPDV21Hw());
 
-        setDataBufs(device.getActivePreset().getDataBufs());
+        setDataBufs(dataBufs);
     }
     public PeripheralData(byte[] biquadTypes, List<HiFiToyDataBuf> dataBufs) {
         clear();
 
-        amMode = HiFiToyControl.getInstance().getActiveDevice().getAmMode();
+        HiFiToyDevice dev = HiFiToyControl.getInstance().getActiveDevice();
 
         setBiquadTypes(biquadTypes);
+        outputMode = dev.getOutputMode().getValue();
+
+        appendAmModeDataBuf(dataBufs, dev.getAmMode(), dev.getNewPDV21Hw());
+
         setDataBufs(dataBufs);
     }
 
@@ -108,11 +114,10 @@ public class PeripheralData {
         setBiquadTypes(new byte[]{BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC,
                 BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC});
         outputMode = OutputMode.UNBALANCE_BOOST_OUT_MODE;
-        amMode = new AMMode();
 
         dataBufLength = 0;
         dataBytesLength = 0;
-        dataBufs = null;
+        dataBufs = new ArrayList<>();
     }
 
     public short getDataBytesLength() {
@@ -148,36 +153,41 @@ public class PeripheralData {
         }
         return null;
     }
-    private void setDataBufs(List<HiFiToyDataBuf> dataBufs) {
-        if (dataBufs == null) {
-            dataBufs = new ArrayList<>();
-        }
 
-        //set AMMode reg for fix whistles bug in PDV2.1 rev1
-        //and delete bass filter buf for fix bug incorrect launch hw
+    private void restrictBassFilterGain(List<HiFiToyDataBuf> dataBufs) {
+        HiFiToyDataBuf bassFilterBuf = findDataBufWithAddr(TAS5558.BASS_FILTER_SET_REG, dataBufs);
+        if (bassFilterBuf != null) {
+
+            byte[] bb = bassFilterBuf.getData().array();
+            byte bassFilterGain = bb[7];
+
+            // 0x12 - 0db, if < 0x12 -> gain > 0db
+            if (bassFilterGain < 0x12) {
+                bb[7] = 0x12;
+                bassFilterBuf.setData(ByteBuffer.wrap(bb));
+            }
+        }
+    }
+
+    private void appendAmModeDataBuf(List<HiFiToyDataBuf> dataBufs, AMMode amMode, boolean newHW) {
+        //set AMMode reg for fix whistles bug in PDV2.1
         if (amMode.isEnabled()) {
             dataBufs.add(0, amMode.getDataBufs().get(0));
 
-            HiFiToyDataBuf bassFilterBuf = findDataBufWithAddr(TAS5558.BASS_FILTER_SET_REG, dataBufs);
-            if (bassFilterBuf != null) {
-
-                byte[] bb = bassFilterBuf.getData().array();
-                byte bassFilterGain = bb[7];
-
-                // 0x12 - 0db, if < 0x12 -> gain > 0db
-                if (bassFilterGain < 0x12) {
-                    bb[7] = 0x12;
-                    bassFilterBuf.setData(ByteBuffer.wrap(bb));
-                }
-
+            //and delete bass filter buf for fix bug incorrect launch hw for old hw
+            if (!newHW) {
+                restrictBassFilterGain(dataBufs);
             }
         }
+    }
 
+    private void setDataBufs(List<HiFiToyDataBuf> dataBufs) {
         dataBufLength = (short)dataBufs.size();
         dataBytesLength = calcDataBytesLength(dataBufs);
 
         this.dataBufs = dataBufs;
     }
+    @NonNull
     public List<HiFiToyDataBuf> getDataBufs() {
         return dataBufs;
     }
@@ -197,10 +207,8 @@ public class PeripheralData {
         data.putShort(dataBufLength);
         data.putShort(dataBytesLength);
 
-        if (dataBufs != null) {
-            for (int i = 0; i < dataBufs.size(); i++) {
-                data = BinaryOperation.concatData(data, dataBufs.get(i).getBinary());
-            }
+        for (HiFiToyDataBuf db : dataBufs) {
+            data = BinaryOperation.concatData(data, db.getBinary());
         }
         data.position(0);
 
