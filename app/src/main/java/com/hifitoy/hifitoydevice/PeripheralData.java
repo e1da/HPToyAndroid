@@ -36,14 +36,15 @@ public class PeripheralData {
     private final short BIQUAD_TYPE_OFFSET          = 0x18;
     private final short PRESET_DATA_OFFSET          = 0x20;
 
-    public static final byte I2C_ADDR = 0x34;
-    public static final short VERSION = 11;
+    public static final byte    I2C_ADDR            = 0x34;
+    public static final short   VERSION             = 12;
+    public static final byte    INIT_DSP_DELAY      = (byte)32; // 32 << 3 = 256ms
 
     private byte                    i2cAddr;            // 0x00
     private byte                    successWriteFlag;   // 0x01
     private short                   version;            // 0x02
     private int                     pairingCode;        // 0x04
-    private byte                    audioSource;        // 0x08
+    private byte                    initDspDelay;       // 0x08
     private byte                    advertiseMode;      // 0x09 0x01
     private short                   gainChannel3;       // 0x0A number format 1.15 unsign
     private EnergyConfig            energyConfig;       // 0x0C
@@ -68,7 +69,7 @@ public class PeripheralData {
         successWriteFlag = 0;
         version = VERSION;
         pairingCode = device.getPairingCode();
-        audioSource = device.getAudioSource().getSource();
+        initDspDelay = INIT_DSP_DELAY;
         advertiseMode = device.getAdvertiseMode().getMode();
         gainChannel3 = 16384; // 0x4000
         energyConfig = device.getEnergyConfig();
@@ -107,7 +108,7 @@ public class PeripheralData {
         successWriteFlag = 0;
         version = VERSION;
         pairingCode = 0;
-        audioSource = AudioSource.USB_SOURCE;
+        initDspDelay = INIT_DSP_DELAY;
         advertiseMode = AdvertiseMode.ALWAYS_ENABLED;
         gainChannel3 = 16384; // 0x4000
         energyConfig = new EnergyConfig();
@@ -198,7 +199,7 @@ public class PeripheralData {
         data.put(successWriteFlag);
         data.putShort(version);
         data.putInt(pairingCode);
-        data.put(audioSource);
+        data.put(initDspDelay);
         data.put(advertiseMode);
         data.putShort(gainChannel3);
         data.put(energyConfig.getBinary());
@@ -278,7 +279,7 @@ public class PeripheralData {
         successWriteFlag = b.get();
         version = b.getShort();
         pairingCode = b.getInt();
-        audioSource = b.get();
+        initDspDelay = b.get();
         advertiseMode = b.get();
         gainChannel3 = b.getShort();
         energyConfig.parseBinary(b);
