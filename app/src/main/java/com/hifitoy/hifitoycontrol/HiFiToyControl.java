@@ -759,8 +759,28 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         sendDataToDsp(d, true);
     }
 
+    private boolean isPeripheralSupported(String peripheralName) {
+        Context c = ApplicationContext.getInstance().getContext();
+        String name0 = c.getResources().getString(R.string.ble_device_name);
+        String name1 = c.getResources().getString(R.string.ble_device_name_1);
+
+        return ( peripheralName.equals(name0) || peripheralName.equals(name1) );
+
+    }
+
+    private boolean isNewPDV2Peripheral(String peripheralName) {
+        Context c = ApplicationContext.getInstance().getContext();
+        String n = c.getResources().getString(R.string.ble_device_name_1);
+
+        return peripheralName.equals(n);
+
+    }
     /* ------------------------- IBleFinderDelegate ----------------------------*/
-    public void didFindNewPeripheral(String deviceAddress) {
+    @Override
+    public void didFindNewPeripheral(String deviceAddress, String peripheralName) {
+        if (!isPeripheralSupported(peripheralName)) {
+            return;
+        }
 
         HiFiToyDevice device = HiFiToyDeviceManager.getInstance().getDevice(deviceAddress);
         if (device == null) {

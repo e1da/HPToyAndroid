@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">HPToy</string>
     <string name="ble_device_name">HPToyPeripheral</string>
+    <string name="ble_device_name_1">PDV21Peripheral</string>
 
     <string name="discovery_info">
         Сlicking on the icon opens the discovery menu window.

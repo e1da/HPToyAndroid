@@ -29,7 +29,7 @@ public class BleFinder {
 
 
     public interface IBleFinderDelegate {
-        void didFindNewPeripheral(String macAddress);
+        void didFindNewPeripheral(String macAddress, String peripheralName);
     }
 
     public BleFinder() {
@@ -83,18 +83,15 @@ public class BleFinder {
     }
 
     private void addDeviceToList(BluetoothDevice bd) {
-        Context c = ApplicationContext.getInstance().getContext();
+        String peripheralName = bd.getName();
 
-        if (    (bd.getName() != null) &&
-                (bd.getName().equals(c.getResources().getString(R.string.ble_device_name))) &&
-                (!deviceAddressList.contains(bd.getAddress()))) {
-
+        if ( (peripheralName != null) && (!deviceAddressList.contains(bd.getAddress())) ) {
             deviceAddressList.add(bd.getAddress());
 
-            Log.d(TAG, "Find ble device: " + bd.getName() + " " + bd.getAddress());
+            Log.d(TAG, "Find ble device: " + peripheralName + " " + bd.getAddress());
 
             if (delegate != null) {
-                delegate.didFindNewPeripheral(bd.getAddress());
+                delegate.didFindNewPeripheral(bd.getAddress(), peripheralName);
             }
         }
     }
