@@ -515,7 +515,12 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
                                     DialogSystem.OnClickDialog dialogListener = new DialogSystem.OnClickDialog() {
                                         public void onPositiveClick(){
-                                            activeDevice.importPreset();
+                                            activeDevice.importPreset(new PostProcess() {
+                                                @Override
+                                                public void onPostProcess() {
+                                                    ApplicationContext.getInstance().setupOutlets();
+                                                }
+                                            });
                                         }
                                         public void onNegativeClick(){
                                             activeDevice.getActivePreset().storeToPeripheral();

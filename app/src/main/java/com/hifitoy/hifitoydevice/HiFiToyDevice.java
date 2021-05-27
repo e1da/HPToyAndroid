@@ -151,7 +151,7 @@ public class HiFiToyDevice implements Serializable {
         peripheralData.exportWithDialog("Restore factory...");
     }
 
-    public void importPreset() {
+    public void importPreset(final PostProcess postProcess) {
         final PeripheralData pd = new PeripheralData();
 
         pd.importWithDialog("Import Preset...", new PostProcess() {
@@ -168,6 +168,10 @@ public class HiFiToyDevice implements Serializable {
                     Log.d(TAG, "Preset import success.");
                 } else {
                     Log.d(TAG, "Preset import unsuccess.");
+                }
+
+                if (postProcess != null) {
+                    postProcess.onPostProcess();
                 }
             }
         });
