@@ -14,7 +14,10 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -35,6 +38,9 @@ import com.hifitoy.hifitoyobjects.AMMode;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import com.hifitoy.hifitoyobjects.PostProcess;
+import com.hifitoy.tas5558.IRegResponse;
+import com.hifitoy.tas5558.RegRequest;
+import com.hifitoy.tas5558.RegResponse;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -45,6 +51,7 @@ import java.util.Locale;
 import java.util.Queue;
 import java.util.UUID;
 
+import static com.hifitoy.ApplicationContext.EXTRA_DATA;
 import static com.hifitoy.hifitoycontrol.CommonCommand.GET_ADVERTISE_MODE;
 import static com.hifitoy.hifitoycontrol.CommonCommand.GET_OUTPUT_MODE;
 import static com.hifitoy.hifitoycontrol.CommonCommand.GET_TAS5558_CH3_MIXER;
@@ -65,6 +72,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     private final static short ATTACH_PAGE_OFFSET = (3 * CC2540_PAGE_SIZE); // 3 page
 
     public final static String DID_GET_PARAM_DATA       = "com.hifitoy.DID_GET_PARAM_DATA";
+    public final static String DID_GET_DSP_REG          = "com.hifitoy.DID_GET_DSP_REG";
     public final static String DID_WRITE_DATA           = "com.hifitoy.DID_WRITE_DATA";
     public final static String DID_WRITE_ALL_DATA       = "com.hifitoy.DID_WRITE_ALL_DATA";
 
@@ -522,6 +530,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                             };
                             mainHandler.post(myRunnable);
                         }
+
                         break;
 
                     case CommonCommand.GET_AUDIO_SOURCE:
@@ -585,7 +594,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                 }
             }
 
-            if (data.length == 20){ // Get data from storage
+            if (data.length == 20){ // Get data from storage and register value from dsp
                 ApplicationContext.getInstance().broadcastUpdate(DID_GET_PARAM_DATA, data);
             }
         }
@@ -715,6 +724,47 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         ByteBuffer b = ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN);
         b.putShort(offset);
         sendDataToDsp(b, true);
+    }
+
+    /*  get TAS5558 register value
+        usage example:
+        RegRequest req = new RegRequest((byte)0x51, (byte)0, (byte)16);
+        getDspReg(req, new IRegResponse() {
+            @Override
+            public void onRegResponse(RegResponse resp) {
+                Log.d(TAG, resp.toString());
+            }
+        });
+     */
+    public void getDspReg(RegRequest req, final IRegResponse onRegResponse) {
+        final Context c = ApplicationContext.getInstance().getContext();
+        c.registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                if (HiFiToyControl.DID_GET_PARAM_DATA.equals(intent.getAction())) {
+                    byte[] data = intent.getByteArrayExtra(EXTRA_DATA);
+
+                    if ((data != null) && (data.length == 20)) {
+                        c.unregisterReceiver(this);
+                        try {
+                            RegResponse resp = new RegResponse(data);
+
+                            if (onRegResponse != null) {
+                                onRegResponse.onRegResponse(resp);
+                            }
+
+                        } catch (Exception e) {
+                            Log.d(TAG, e.getMessage());
+                        }
+
+                    }
+                }
+            }
+        }, new IntentFilter(HiFiToyControl.DID_GET_PARAM_DATA));
+
+
+        sendDataToDsp(req.getBinary(), true);
     }
 
     //sys command
