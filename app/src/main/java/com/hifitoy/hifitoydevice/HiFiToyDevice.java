@@ -7,31 +7,14 @@
 
 package com.hifitoy.hifitoydevice;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
-import com.hifitoy.ApplicationContext;
-import com.hifitoy.dialogsystem.DialogSystem;
-import com.hifitoy.hifitoycontrol.CommonCommand;
-import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoynumbers.Checksummer;
 import com.hifitoy.hifitoyobjects.AMMode;
-import com.hifitoy.hifitoyobjects.BinaryOperation;
-import com.hifitoy.hifitoyobjects.Biquad;
-import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
+import com.hifitoy.hifitoyobjects.PostProcess;
 
-import java.io.Externalizable;
 import java.io.Serializable;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
 
-import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC;
-
-public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Serializable {
+public class HiFiToyDevice implements Serializable {
     private static final String TAG = "HiFiToy";
 
     private String                  mac;
@@ -169,29 +152,29 @@ public class HiFiToyDevice implements PeripheralData.PeripheralDataDelegate, Ser
     }
 
     public void importPreset() {
-        PeripheralData d = new PeripheralData();
-        d.setDelegate(this);
-        d.importWithDialog("Import Preset...");
+        final PeripheralData pd = new PeripheralData();
+
+        pd.importWithDialog("Import Preset...", new PostProcess() {
+
+            @Override
+            public void onPostProcess() {
+                HiFiToyPreset importPreset = new HiFiToyPreset();
+                importPreset.setName(Calendar.getInstance().getTime().toString());
+
+                if (importPreset.importFromDataBufs(pd.getDataBufs())) {
+                    HiFiToyPresetManager.getInstance().setPreset(importPreset);
+                    setActiveKeyPreset(importPreset.getName());
+
+                    Log.d(TAG, "Preset import success.");
+                } else {
+                    Log.d(TAG, "Preset import unsuccess.");
+                }
+            }
+        });
     }
 
     public void description(){
         Log.d(TAG, "mac=" + mac + "|name=" + name + "|pair=" + pairingCode);
-    }
-
-    @Override
-    public void didImportData(PeripheralData peripheralData) {
-        HiFiToyPreset importPreset = new HiFiToyPreset();
-        importPreset.setName(Calendar.getInstance().getTime().toString());
-
-        if (importPreset.importFromDataBufs(peripheralData.getDataBufs())) {
-            HiFiToyPresetManager.getInstance().setPreset(importPreset);
-            setActiveKeyPreset(importPreset.getName());
-
-            Log.d(TAG, "Preset import success.");
-        } else {
-            Log.d(TAG, "Preset import unsuccess.");
-        }
-
     }
 }
 
