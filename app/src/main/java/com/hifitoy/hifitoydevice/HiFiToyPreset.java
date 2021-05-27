@@ -50,6 +50,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -255,6 +256,27 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
             }
         }
 
+        //get only preset buf from dataBufs
+        //need for correct calc checksum
+        List<HiFiToyDataBuf> presetDataBufs = getDataBufs();
+        ListIterator<HiFiToyDataBuf> it =  dataBufs.listIterator();
+
+        while (it.hasNext()) {
+            byte addr = it.next().getAddr();
+            boolean isContain = false;
+
+            for (HiFiToyDataBuf pdb : presetDataBufs) {
+                if (pdb.getAddr() == addr) {
+                    isContain = true;
+                    break;
+                }
+            }
+            
+            if (!isContain) {
+                it.remove();
+            }
+        }
+        //update checksum
         updateChecksum(dataBufs);
         return true;
     }
