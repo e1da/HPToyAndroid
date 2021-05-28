@@ -124,7 +124,7 @@ public class HiFiToyDevice implements Serializable {
     }
     public AMMode           getAmMode() { return amMode; }
 
-    public boolean getNewPDV21Hw() {
+    public boolean isNewPDV21Hw() {
         return newPDV21Hw;
     }
     public void setNewPDV21Hw(boolean newPDV21Hw) {

@@ -20,7 +20,6 @@ import com.hifitoy.hifitoyobjects.AMMode;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import com.hifitoy.hifitoyobjects.PostProcess;
-import com.hifitoy.hifitoyobjects.ToyDelayDataBuf;
 import com.hifitoy.tas5558.TAS5558;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -74,7 +73,7 @@ public class PeripheralData {
         dataBufs = new ArrayList<>();
 
         List<HiFiToyDataBuf> dataBufs = device.getActivePreset().getDataBufs();
-        appendAmModeDataBuf(dataBufs, device.getAmMode(), device.getNewPDV21Hw());
+        appendAmModeDataBuf(dataBufs, device.getAmMode(), device.isNewPDV21Hw());
 
         setDataBufs(dataBufs);
     }
@@ -86,7 +85,7 @@ public class PeripheralData {
         setBiquadTypes(biquadTypes);
         outputMode = dev.getOutputMode().isUnbalance() ? (byte)1 : 0;
 
-        appendAmModeDataBuf(dataBufs, dev.getAmMode(), dev.getNewPDV21Hw());
+        appendAmModeDataBuf(dataBufs, dev.getAmMode(), dev.isNewPDV21Hw());
 
         setDataBufs(dataBufs);
     }

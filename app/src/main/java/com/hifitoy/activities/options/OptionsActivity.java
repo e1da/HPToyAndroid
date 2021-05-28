@@ -93,6 +93,14 @@ public class OptionsActivity extends BaseActivity implements View.OnClickListene
         deviceNameLabel_outl.setText(hifiToyDevice.getName());
         deviceMacLabel_outl.setText(hifiToyDevice.getMac());
 
+        int color;
+        if (hifiToyDevice.isNewPDV21Hw()) {
+            color = getResources().getColor(R.color.colorOrange);
+        } else {
+            color = getResources().getColor(R.color.colorWhite);
+        }
+        deviceNameLabel_outl.setTextColor(color);
+
         if (hifiToyDevice.getOutputMode().isHwSupported()) { //PDV2.1
             outputMode_outl.setVisibility(View.VISIBLE);
             amMode_outl.setVisibility(View.VISIBLE);
