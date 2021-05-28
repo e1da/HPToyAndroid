@@ -67,10 +67,10 @@ public class PeripheralData {
         pairingCode = device.getPairingCode();
         initDspDelay = INIT_DSP_DELAY;
         advertiseMode = device.getAdvertiseMode().getMode();
-        gainChannel3 = 16384; // 0x4000
+        gainChannel3 = device.getOutputMode().getGainCh3(); // 0x4000
         energyConfig = device.getEnergyConfig();
         setBiquadTypes(device.getActivePreset().getFilters().getBiquadTypes());
-        outputMode = device.getOutputMode().getValue();
+        outputMode = device.getOutputMode().isUnbalance() ? (byte)1 : 0;
         dataBufs = new ArrayList<>();
 
         List<HiFiToyDataBuf> dataBufs = device.getActivePreset().getDataBufs();
@@ -84,7 +84,7 @@ public class PeripheralData {
         HiFiToyDevice dev = HiFiToyControl.getInstance().getActiveDevice();
 
         setBiquadTypes(biquadTypes);
-        outputMode = dev.getOutputMode().getValue();
+        outputMode = dev.getOutputMode().isUnbalance() ? (byte)1 : 0;
 
         appendAmModeDataBuf(dataBufs, dev.getAmMode(), dev.getNewPDV21Hw());
 
@@ -102,11 +102,14 @@ public class PeripheralData {
         pairingCode = 0;
         initDspDelay = INIT_DSP_DELAY;
         advertiseMode = AdvertiseMode.ALWAYS_ENABLED;
-        gainChannel3 = 16384; // 0x4000
+
+        OutputMode om = new OutputMode();
+
+        gainChannel3 = om.getGainCh3(); // 0x4000
         energyConfig = new EnergyConfig();
         setBiquadTypes(new byte[]{BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC,
                 BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC, BIQUAD_PARAMETRIC});
-        outputMode = OutputMode.UNBALANCE_BOOST_OUT_MODE;
+        outputMode = om.isUnbalance() ? (byte)1 : 0;
 
         dataBufLength = 0;
         dataBytesLength = 0;

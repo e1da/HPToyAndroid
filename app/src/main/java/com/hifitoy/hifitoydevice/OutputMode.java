@@ -17,6 +17,7 @@ import com.hifitoy.ApplicationContext;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.CommonCommand;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoyobjects.BinaryOperation;
 
 import java.io.Serializable;
 
@@ -56,6 +57,14 @@ public class OutputMode implements Serializable {
         return value;
     }
 
+    public boolean isUnbalance() {
+        return (value > 0);
+    }
+
+    public short getGainCh3() {
+        return (value == UNBALANCE_BOOST_OUT_MODE) ? (short)16384 : 0;
+    }
+
     public void setHwSupported(boolean hwSupported) {
         this.hwSupported = hwSupported;
     }
@@ -64,66 +73,59 @@ public class OutputMode implements Serializable {
     }
 
     public void sendToDsp() {
-        if (value == BALANCE_OUT_MODE) {
-            byte[] d = {CommonCommand.SET_OUTPUT_MODE, BALANCE_OUT_MODE, 0, 0, 0};
-            HiFiToyControl.getInstance().sendDataToDsp(d, true);
+        byte[] d = {CommonCommand.SET_OUTPUT_MODE, isUnbalance() ? (byte)1 : 0, 0, 0, 0};
+        HiFiToyControl.getInstance().sendDataToDsp(d, true);
 
-        } else {
-            byte[] d = {CommonCommand.SET_OUTPUT_MODE, UNBALANCE_OUT_MODE, 0, 0, 0};
-            HiFiToyControl.getInstance().sendDataToDsp(d, true);
+        short gain = getGainCh3();
+        byte[] d1 = {CommonCommand.SET_TAS5558_CH3_MIXER,
+                    (byte)(gain & 0xFF), (byte)((gain >> 8) & 0xFF), 0, 0};
+        HiFiToyControl.getInstance().sendDataToDsp(d1, true);
 
-        }
-
-
-        if (value == UNBALANCE_BOOST_OUT_MODE) {
-            byte[] d1 = {CommonCommand.SET_TAS5558_CH3_MIXER, 0, 0x40, 0, 0};
-            HiFiToyControl.getInstance().sendDataToDsp(d1, true);
-
-        } else {
-            byte[] d1 = {CommonCommand.SET_TAS5558_CH3_MIXER, 0, 0, 0, 0};
-            HiFiToyControl.getInstance().sendDataToDsp(d1, true);
-
-        }
     }
 
-    private short offset;
-    private short boost;
+    private byte[] importData;
 
     public void readFromDsp() {
         if (!HiFiToyControl.getInstance().isConnected()) return;
 
-        Context c = ApplicationContext.getInstance().getContext();
-        c.registerReceiver(broadcastReceiver,
-                new IntentFilter(HiFiToyControl.DID_GET_PARAM_DATA));
+        final Context c = ApplicationContext.getInstance().getContext();
+        c.registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String action = intent.getAction();
 
-        offset = GAIN_CH3_OFFSET;
-        //send ble command
-        HiFiToyControl.getInstance().getDspDataWithOffset(offset);
-    }
+                if (HiFiToyControl.DID_GET_PARAM_DATA.equals(action)) {
+                    //add new 20bytes to importData
+                    byte[] data = intent.getByteArrayExtra(EXTRA_DATA);
+                    importData = BinaryOperation.concatData(importData, data);
 
-    private void didGet20Bytes(byte data[]) {
-        if (offset == GAIN_CH3_OFFSET) {
-            boost = (short)(data[0] + (data[1] << 8));
+                    if (importData.length == 40) { // finish data read
+                        c.unregisterReceiver(this);
 
-            offset += 20;
-            HiFiToyControl.getInstance().getDspDataWithOffset(offset);
+                        short boost = (short)(importData[0] + (importData[1] << 8));
+                        byte bal = importData[OUTPUT_TYPE_OFFSET - GAIN_CH3_OFFSET];
+                        Log.d(TAG, "Boost=" + boost + " Unbalance=" + bal);
 
-        } else {
-            Context c = ApplicationContext.getInstance().getContext();
-            c.unregisterReceiver(broadcastReceiver);
+                        //update value
+                        value = bal;
+                        if ((boost != 0) && (value > BALANCE_OUT_MODE)) {
+                            value = UNBALANCE_BOOST_OUT_MODE;
+                        }
+                        Log.d(TAG, toString());
 
-            byte bal = data[OUTPUT_TYPE_OFFSET - GAIN_CH3_OFFSET - 20];
-            Log.d(TAG, "Boost=" + boost + " Unbalance=" + bal);
+                        ApplicationContext.getInstance().setupOutlets();
 
-            //update value
-            value = bal;
-            if ((boost != 0) && (value > BALANCE_OUT_MODE)) {
-                value = UNBALANCE_BOOST_OUT_MODE;
+                    } else {
+                        HiFiToyControl.getInstance().getDspDataWithOffset((byte)(GAIN_CH3_OFFSET + 20));
+                    }
+
+                }
             }
-            Log.d(TAG, toString());
+        }, new IntentFilter(HiFiToyControl.DID_GET_PARAM_DATA));
 
-            ApplicationContext.getInstance().setupOutlets();
-        }
+        importData = new byte[0];
+        //send ble command
+        HiFiToyControl.getInstance().getDspDataWithOffset(GAIN_CH3_OFFSET);
     }
 
     //GET_OUTPUT_MODE cmd uses only for check PDV2.1 or PDV2 classic
@@ -132,18 +134,6 @@ public class OutputMode implements Serializable {
         byte[] d = {CommonCommand.GET_OUTPUT_MODE, 0, 0, 0, 0};
         HiFiToyControl.getInstance().sendDataToDsp(d, true);
     }
-
-    private transient final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-
-            if (HiFiToyControl.DID_GET_PARAM_DATA.equals(action)) {
-                byte[] data = intent.getByteArrayExtra(EXTRA_DATA);
-                didGet20Bytes(data);
-            }
-        }
-    };
 
     @NonNull
     @Override
