@@ -461,7 +461,12 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                             Runnable myRunnable = new Runnable() {
                                 @Override
                                 public void run() {
-                                    activeDevice.restoreFactorySettings();
+                                    activeDevice.restoreFactorySettings(new PostProcess() {
+                                        @Override
+                                        public void onPostProcess() {
+                                            checkWriteFlag();
+                                        }
+                                    });
                                 }
                             };
                             mainHandler.post(myRunnable);
@@ -481,7 +486,12 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                             Runnable myRunnable = new Runnable() {
                                 @Override
                                 public void run() {
-                                    activeDevice.restoreFactorySettings();
+                                    activeDevice.restoreFactorySettings(new PostProcess() {
+                                        @Override
+                                        public void onPostProcess() {
+                                            getVersion();
+                                        }
+                                    });
                                 }
                             };
                             mainHandler.post(myRunnable);

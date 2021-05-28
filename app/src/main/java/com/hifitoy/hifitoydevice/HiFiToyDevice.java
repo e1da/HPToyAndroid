@@ -138,7 +138,7 @@ public class HiFiToyDevice implements Serializable {
         this.clipFlag = clipFlag;
     }
 
-    public void restoreFactorySettings() {
+    public void restoreFactorySettings(final PostProcess postProcess) {
         pairingCode = 0;
         audioSource = new AudioSource();
         advertiseMode = new AdvertiseMode();
@@ -148,7 +148,7 @@ public class HiFiToyDevice implements Serializable {
         setActiveKeyPreset("No processing");
 
         PeripheralData peripheralData = new PeripheralData(this);
-        peripheralData.exportWithDialog("Restore factory...");
+        peripheralData.exportWithDialog("Restore factory...", postProcess);
     }
 
     public void importPreset(final PostProcess postProcess) {

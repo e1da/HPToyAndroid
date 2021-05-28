@@ -141,7 +141,7 @@ public class OptionsActivity extends BaseActivity implements View.OnClickListene
     public void showRestoreFactoryDialog(){
         DialogSystem.OnClickDialog dialogListener = new DialogSystem.OnClickDialog() {
             public void onPositiveClick(){
-                HiFiToyControl.getInstance().getActiveDevice().restoreFactorySettings();
+                HiFiToyControl.getInstance().getActiveDevice().restoreFactorySettings(null);
             }
             public void onNegativeClick(){
             }

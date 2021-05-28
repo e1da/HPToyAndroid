@@ -229,11 +229,30 @@ public class PeripheralData {
         HiFiToyControl.getInstance().setInitDsp();
     }
 
-    public void exportWithDialog(String title) {
+    public void exportWithDialog(String title, final PostProcess postProcess) {
         if (!HiFiToyControl.getInstance().isConnected()) return;
 
-        Context c = ApplicationContext.getInstance().getContext();
-        c.registerReceiver(broadcastReceiver, makeExportIntentFilter());
+        final Context c = ApplicationContext.getInstance().getContext();
+        c.registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String action = intent.getAction();
+
+                if (HiFiToyControl.DID_WRITE_DATA.equals(action)) {
+                    DialogSystem.getInstance().updateProgressDialog(16);
+                }
+                if (HiFiToyControl.DID_WRITE_ALL_DATA.equals(action)) {
+                    c.unregisterReceiver(this);
+                    DialogSystem.getInstance().closeProgressDialog();
+
+                    ApplicationContext.getInstance().setupOutlets();
+
+                    if (postProcess != null) {
+                        postProcess.onPostProcess();
+                    }
+                }
+            }
+        }, makeExportIntentFilter());
 
         DialogSystem.getInstance().showProgressDialog(title, getBinary().capacity());
         export();
@@ -253,8 +272,22 @@ public class PeripheralData {
     public void exportPresetWithDialog(String title) {
         if (!HiFiToyControl.getInstance().isConnected()) return;
 
-        Context c = ApplicationContext.getInstance().getContext();
-        c.registerReceiver(broadcastReceiver, makeExportIntentFilter());
+        final Context c = ApplicationContext.getInstance().getContext();
+        c.registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String action = intent.getAction();
+
+                if (HiFiToyControl.DID_WRITE_DATA.equals(action)) {
+                    DialogSystem.getInstance().updateProgressDialog(16);
+                }
+                if (HiFiToyControl.DID_WRITE_ALL_DATA.equals(action)) {
+                    c.unregisterReceiver(this);
+                    DialogSystem.getInstance().closeProgressDialog();
+
+                }
+            }
+        }, makeExportIntentFilter());
 
         int cap = getBiquadTypeBinary().capacity() + getPresetBinary().capacity();
 
@@ -405,23 +438,5 @@ public class PeripheralData {
 
         return intentFilter;
     }
-
-    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-
-            if (HiFiToyControl.DID_WRITE_DATA.equals(action)) {
-                int v = intent.getIntExtra(EXTRA_DATA, -1);
-                DialogSystem.getInstance().updateProgressDialog(16);
-            }
-            if (HiFiToyControl.DID_WRITE_ALL_DATA.equals(action)) {
-                DialogSystem.getInstance().closeProgressDialog();
-
-                Context c = ApplicationContext.getInstance().getContext();
-                c.unregisterReceiver(broadcastReceiver);
-            }
-        }
-    };
 
 }
