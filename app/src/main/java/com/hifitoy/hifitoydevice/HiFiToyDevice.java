@@ -161,7 +161,7 @@ public class HiFiToyDevice implements Serializable {
                 HiFiToyPreset importPreset = new HiFiToyPreset();
                 importPreset.setName(Calendar.getInstance().getTime().toString());
 
-                if (importPreset.importFromDataBufs(pd.getDataBufs())) {
+                if (importPreset.importFromDataBufs(pd.getDataBufs(), pd.getBiquadTypes())) {
                     HiFiToyPresetManager.getInstance().setPreset(importPreset);
                     setActiveKeyPreset(importPreset.getName());
 

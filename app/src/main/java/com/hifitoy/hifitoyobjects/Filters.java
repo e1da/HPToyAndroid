@@ -160,6 +160,15 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
         return types;
     }
 
+    public boolean setBiquadTypes(byte[] types) {
+        if (types.length != 7) return false;
+
+        for (byte i = 0; i < biquads.length; i++) {
+            biquads[i].getParams().setTypeValue(types[i]);
+        }
+        return true;
+    }
+
     //logic
     public void incActiveBiquadIndex() {
         if (++activeBiquadIndex > 6) activeBiquadIndex = 0;

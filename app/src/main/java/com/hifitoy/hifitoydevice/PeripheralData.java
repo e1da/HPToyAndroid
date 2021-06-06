@@ -139,6 +139,9 @@ public class PeripheralData {
         }
         return false;
     }
+    public byte[] getBiquadTypes() {
+        return biquadTypes;
+    }
 
     private HiFiToyDataBuf findDataBufWithAddr(byte addr, List<HiFiToyDataBuf> dataBufs) {
         for (HiFiToyDataBuf db : dataBufs) {

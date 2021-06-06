@@ -281,6 +281,14 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         return true;
     }
 
+
+    public boolean importFromDataBufs(List<HiFiToyDataBuf> dataBufs, byte[] biquadTypes) {
+        if (filters.setBiquadTypes(biquadTypes)) {
+            return importFromDataBufs(dataBufs);
+        }
+        return false;
+    }
+
     @Override
     public XmlData toXmlData() {
         XmlData xmlData = new XmlData();
