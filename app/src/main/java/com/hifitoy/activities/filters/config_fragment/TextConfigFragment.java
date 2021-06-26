@@ -164,7 +164,7 @@ public class TextConfigFragment extends Fragment implements View.OnClickListener
                 bp.setA2(rs);
 
             }
-            
+
             ViewUpdater.getInstance().update();
 
         } catch (NumberFormatException e) {
