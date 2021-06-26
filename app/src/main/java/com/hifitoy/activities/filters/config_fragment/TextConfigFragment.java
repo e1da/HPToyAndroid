@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.hifitoy.ApplicationContext;
+import com.hifitoy.activities.filters.ViewUpdater;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.dialogsystem.KeyboardDialog;
 import com.hifitoy.dialogsystem.KeyboardNumber;
@@ -163,7 +164,8 @@ public class TextConfigFragment extends Fragment implements View.OnClickListener
                 bp.setA2(rs);
 
             }
-            updateView();
+            
+            ViewUpdater.getInstance().update();
 
         } catch (NumberFormatException e) {
                 Log.d(TAG, e.toString());

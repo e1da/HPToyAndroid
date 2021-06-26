@@ -47,6 +47,7 @@ import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_ALLPASS;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_HIGHPASS;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_LOWPASS;
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_PARAMETRIC;
+import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_USER;
 
 public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilterUpdateView, FiltersFragment.OnSetBackgroundListener {
     private static String TAG = "HiFiToy";
@@ -391,6 +392,9 @@ public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilter
         } else if (type == BIQUAD_ALLPASS) {
             setTitle(String.format(Locale.getDefault(), "APF%d: %s",
                     filters.getActiveBiquadIndex() + 1, b.getInfo()));
+
+        } else if (type == BIQUAD_USER) {
+            setTitle("Biquad #" + (filters.getActiveBiquadIndex() + 1) );
 
         } else {
             setTitle("Filters menu");

@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoynumbers.ByteUtility;
+import com.hifitoy.hifitoynumbers.Complex;
 import com.hifitoy.hifitoynumbers.FloatUtility;
 import com.hifitoy.hifitoynumbers.Number523;
 import com.hifitoy.xml.XmlData;
@@ -748,45 +749,25 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
             return false;
         }
 
-
         //math calculations
-        private float getLPF(float freqX) {
-            return (float)Math.sqrt(1.0f/(  Math.pow(1 - Math.pow(freqX / freq, 2), 2) + Math.pow(freqX / (freq * qFac), 2)    ));
-        }
-        private float getHPF(float freqX) {
-            return (float)(     Math.sqrt(
-                                    Math.pow( Math.pow(freqX / freq , 4) - Math.pow(freqX / freq, 2) , 2) +
-                                    Math.pow(freqX / freq, 6) / Math.pow(qFac, 2)) /
-                                (Math.pow(1 - Math.pow(freqX / freq, 2), 2) + Math.pow(freqX / (qFac * freq), 2)) );
-        }
-        private float getPEQ(float freqX) {
-            double Ampl = Math.pow(10, dbVolume / 40);
-            double A1 = Math.pow(1 - Math.pow(freqX / freq, 2), 2) + Math.pow(freqX / (qFac * freq), 2);
-            double A2 =     (1 - Math.pow(freqX / freq, 2)) *
-                            (freqX * Ampl / (qFac * freq) - freqX / (Ampl * qFac * freq));
-
-            double B = Math.pow(1 - Math.pow(freqX / freq, 2), 2) + Math.pow(freqX / (Ampl * qFac * freq), 2);
-
-
-            return (float)( Math.sqrt(Math.pow(A1, 2) + Math.pow(A2, 2)) / B );
-        }
         public float getAFR(float freqX) {
-            if (order.value == Order.BIQUAD_ORDER_2) {
+            //if (type.getValue() != Type.BIQUAD_USER) {
 
-                switch (type.value) {
-                    case Type.BIQUAD_LOWPASS:
-                        return getLPF(freqX);
-                    case Type.BIQUAD_HIGHPASS:
-                        return getHPF(freqX);
-                    case Type.BIQUAD_PARAMETRIC:
-                        return getPEQ(freqX);
-                    case Type.BIQUAD_OFF:
-                        return 1.0f;
-                    default:
-                        return 1.0f;
-                }
-            }
-            return 1.0f;
+                double w = 2.0 * Math.PI * freqX / 96000;
+                Complex Z1 = Complex.trigonometricForm(1, w).reciprocal();
+                Complex Z2 = Z1.mul(Z1);
+
+                /* Z(f) = e^(i * w(f))
+                 * H(f) = (b0 + b1 * Z^-1 + b2 * Z^-2) / (1 + a1 * Z^-1 + a2 * Z^-2)
+                 */
+                Complex num = new Complex(b0, 0).add(new Complex(b1, 0).mul(Z1)).add(new Complex(b2, 0).mul(Z2));
+                Complex denom = new Complex(1, 0).add(new Complex(-a1, 0).mul(Z1)).add(new Complex(-a2, 0).mul(Z2));
+                Complex H = num.div(denom);
+
+                return (float)H.mod(); //ampl
+            //}
+
+            //return 1.0f;
         }
 
         //get info
