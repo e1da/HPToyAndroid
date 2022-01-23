@@ -127,4 +127,79 @@ public class BiquadTest {
                 ib0, ib1, ib2, ia1, ia2));
 
     }
+
+    private float amplToDb(float ampl) {
+        return (float)(40 * Math.log10(ampl));
+    }
+
+
+    public void calcQf(Biquad.BiquadParam p) {
+        float f0 = p.getFreq();
+        float f1 = p.getFreq();
+
+        for (int freq = 1; freq < p.getFreq(); freq++) {
+            float ampl = p.getAFR(freq);
+            float db = amplToDb(ampl);
+
+            if (db > p.getDbVolume() - 3) {
+                f0 = freq;
+                break;
+            }
+        }
+
+        for (float freq = p.getFreq(); freq < 30000; freq += 0.1f) {
+            float ampl = p.getAFR(freq);
+            float db = amplToDb(ampl);
+
+            if (db < p.getDbVolume() - 3) {
+                f1 = freq;
+                break;
+            }
+        }
+        /*System.out.println(String.format(Locale.getDefault(), "f0=%f f1=%f d=%f q=%f",
+                f0, f1, f1 - f0, p.getFreq() / (f1 - f0)));
+        System.out.println(String.format(Locale.getDefault(), "log f0=%f f1=%f d=%f q=%f",
+                Math.log10(f0), Math.log10(f1), Math.log10(f1) - Math.log10(f0), Math.log10(p.getFreq()) / (Math.log10(f1) - Math.log10(f0))));
+*/
+        /*System.out.println(String.format(Locale.getDefault(), "param f=%d, q=1.41, q_real=%f",
+                p.getFreq(), p.getFreq() / (f1 - f0)));*/
+
+        double q = p.getFreq() / (f1 - f0);
+
+        System.out.println(String.format(Locale.getDefault(), "param f=10000, v=%f q=1.41, q_real=%f",
+                p.getDbVolume(), q));
+
+        double ampl = (float)Math.pow(10, p.getDbVolume()/ 40);
+
+        System.out.println(String.format(Locale.getDefault(), "ampl=%f qq=%f", ampl, ampl * q));
+    }
+
+    @Test
+    public void testQf() {
+        Biquad.BiquadParam p = b0.getParams();
+        p.setDbVolume(12.0f);
+
+        /*for (short i = 100; i < 12000; i += 1000) {
+            p.setFreq(i);
+            calcQf(p);
+        }*/
+
+        p.setFreq((short)10000);
+        p.setQFac(1.41f);
+        for (short i = 0; i < 13; i++) {
+            p.setDbVolume(i);
+            calcQf(p);
+        }
+
+        /*p.setDbVolume(12.0f);
+        p.setFreq((short)15000);
+        calcQf(p);
+
+        p.setDbVolume(6.0f);
+        p.setFreq((short)15000);
+        calcQf(p);*/
+
+    }
+
+
 }

@@ -753,7 +753,7 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
         public float getAFR(float freqX) {
             //if (type.getValue() != Type.BIQUAD_USER) {
 
-                double w = 2.0 * Math.PI * freqX / 96000;
+                double w = 2.0 * Math.PI * freqX / FS;
                 Complex Z1 = Complex.trigonometricForm(1, w).reciprocal();
                 Complex Z2 = Z1.mul(Z1);
 
