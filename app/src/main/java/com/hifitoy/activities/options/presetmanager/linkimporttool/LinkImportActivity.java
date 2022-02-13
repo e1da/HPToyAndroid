@@ -161,9 +161,7 @@ public class LinkImportActivity extends BaseActivity {
 
                     if (name.length() > 0) {
                         try {
-                            HiFiToyPreset importPreset = new HiFiToyPreset();
-                            importPreset.importFromXml(presetString, name);
-
+                            HiFiToyPreset importPreset = new HiFiToyPreset(name, presetString);
                             HiFiToyPresetManager.getInstance().setPreset(importPreset);
 
                             DialogSystem.getInstance().showDialog("Info",

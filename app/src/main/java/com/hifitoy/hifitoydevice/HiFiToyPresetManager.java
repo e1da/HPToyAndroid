@@ -13,6 +13,8 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.hifitoy.ApplicationContext;
+
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -96,8 +98,7 @@ public class HiFiToyPresetManager {
             if ((list != null) && (list.length > 0) ) {
 
                 for (String filename : list) {
-                    HiFiToyPreset p = new HiFiToyPreset();
-                    p.importFromXml(am.open("base_presets/" + filename), filename);
+                    HiFiToyPreset p = new HiFiToyPreset(filename, am.open("base_presets/" + filename));
 
                     presetList.add(p);
                     Log.d(TAG, "Import preset = '" + p.getInfo() + "'");

@@ -37,6 +37,7 @@ import com.hifitoy.xml.XmlData;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -47,6 +48,7 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -80,9 +82,56 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         setDefault();
     }
 
+    public HiFiToyPreset(String presetName) throws IOException {
+        setDefault();
+        this.name = checkPresetName(presetName);
+    }
+
+    public HiFiToyPreset(File file) throws XmlPullParserException, IOException {
+        if (file == null) throw new IOException("File is null.");
+        //get preset name
+        String presetName = getPresetName(file);
+        this.name = checkPresetName(presetName);
+
+        FileInputStream fis = new FileInputStream(file);
+        importFromXml(fis);
+    }
+
     public HiFiToyPreset(Uri uri) throws XmlPullParserException, IOException {
+        if (uri == null) throw new IOException("Uri is null.");
+        //get preset name
+        String presetName = getPresetName(uri);
+        this.name = checkPresetName(presetName);
+
+        //get scheme
+        String scheme = uri.getScheme();
+        if (scheme == null) throw new IOException("Uri scheme is not correct.");
+
+        //get file input stream
+        ContentResolver resolver = ApplicationContext.getInstance().getContext().getContentResolver();
+        InputStream in = resolver.openInputStream(uri);
+
+        importFromXml(in);
+    }
+
+    public HiFiToyPreset(String presetName, String xmlData) throws XmlPullParserException, IOException {
+        if (xmlData == null) throw new IOException("Xml data is not correct.");
+
+        this.name = checkPresetName(presetName);
+
+        InputStream is = new ByteArrayInputStream(xmlData.getBytes(StandardCharsets.UTF_8));
+        importFromXml(is);
+    }
+
+    public HiFiToyPreset(String filename, InputStream is) throws XmlPullParserException, IOException {
         this();
-        importFromXml(uri);
+        if (is == null) throw new IOException("InputStream is null.");
+
+        //get preset name
+        String presetName = getPresetName(filename);
+        this.name = checkPresetName(presetName);
+
+        importFromXml(is);
     }
 
     @Override
@@ -126,7 +175,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
                 Arrays.asList(filters, masterVolume, bassTreble, loudness, drc));
     }
 
-    public void setDefault() {
+    private void setDefault() {
         name = "No processing";
 
         //Filters
@@ -361,11 +410,8 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         }
     }
 
-    public void importFromXml(InputStream in, String filename) throws XmlPullParserException, IOException{
+    private void importFromXml(InputStream in) throws XmlPullParserException, IOException{
         if (in == null) throw new IOException("InputStream is null.");
-
-        String presetName = getPresetName(filename);
-        if (presetName== null) throw new IOException("Preset name is not correct.");
 
         //get xml parser
         XmlPullParser xmlParser = Xml.newPullParser();
@@ -373,7 +419,6 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         xmlParser.setInput(in, null);
 
         importFromXml(xmlParser);
-        name = presetName;
     }
 
 
@@ -386,6 +431,10 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         }
 
         return filename;
+    }
+
+    private String getPresetName(File file) {
+        return getPresetName(file.getName());
     }
 
     private String getPresetName(Uri uri) {
@@ -410,38 +459,6 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         }
 
         return null;
-    }
-
-    public void importFromXml(Uri uri) throws XmlPullParserException, IOException{
-        if (uri == null) throw new IOException("Uri is null.");
-
-        //get preset name
-        String presetName = getPresetName(uri);
-        presetName = checkPresetName(presetName);
-
-        //get scheme
-        String scheme = uri.getScheme();
-        if (scheme == null) throw new IOException("Uri scheme is not correct.");
-
-        //get file input stream
-        ContentResolver resolver = ApplicationContext.getInstance().getContext().getContentResolver();
-        InputStream in = resolver.openInputStream(uri);
-
-        importFromXml(in, presetName);
-
-    }
-
-    public void importFromXml(String xmlData, String presetName) throws XmlPullParserException, IOException {
-        if (xmlData == null) throw new IOException("Xml data is not correct.");
-
-        name = checkPresetName(presetName);
-
-        //get xml parser
-        XmlPullParser xmlParser = Xml.newPullParser();
-        xmlParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-        xmlParser.setInput(new StringReader(xmlData));
-
-        importFromXml(xmlParser);
     }
 
     private String checkPresetName(String name) throws IOException{

@@ -89,8 +89,8 @@ public class PresetTextImportActivity extends BaseActivity {
             public void onPositiveClick(String name){
                 if (name.length() > 0) {
                     try {
-                        HiFiToyPreset importPreset = new HiFiToyPreset();
-                        importPreset.importFromXml(presetTextData_outl.getText().toString(), name);
+                        HiFiToyPreset importPreset =
+                                new HiFiToyPreset(name, presetTextData_outl.getText().toString());
 
                         HiFiToyPresetManager.getInstance().setPreset(importPreset);
 
