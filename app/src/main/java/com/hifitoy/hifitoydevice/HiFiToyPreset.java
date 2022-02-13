@@ -83,11 +83,12 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     }
 
     public HiFiToyPreset(String presetName) throws IOException {
-        setDefault();
+        this();
         this.name = checkPresetName(presetName);
     }
 
     public HiFiToyPreset(File file) throws XmlPullParserException, IOException {
+        this();
         if (file == null) throw new IOException("File is null.");
         //get preset name
         String presetName = getPresetName(file);
@@ -98,6 +99,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     }
 
     public HiFiToyPreset(Uri uri) throws XmlPullParserException, IOException {
+        this();
         if (uri == null) throw new IOException("Uri is null.");
         //get preset name
         String presetName = getPresetName(uri);
@@ -115,6 +117,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     }
 
     public HiFiToyPreset(String presetName, String xmlData) throws XmlPullParserException, IOException {
+        this();
         if (xmlData == null) throw new IOException("Xml data is not correct.");
 
         this.name = checkPresetName(presetName);
