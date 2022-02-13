@@ -99,7 +99,6 @@ public class MergeToolActivity extends BaseActivity {
                 mergePreset.loudness = loudnessSource.loudness.clone();
                 mergePreset.filters = filtersSource.filters.clone();
                 mergePreset.drc = compressorSource.drc.clone();
-                mergePreset.updateCharacteristics();
                 mergePreset.updateChecksum();
 
                 Date date = Calendar.getInstance().getTime();

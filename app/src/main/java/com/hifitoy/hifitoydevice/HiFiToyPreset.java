@@ -48,6 +48,7 @@ import java.io.StringReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -69,9 +70,6 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     private String  name;
     private short   checkSum;
 
-    // HiFiToy CHARACTERISTICS, pointer to all characteristics
-    private List<HiFiToyObject> characteristics;
-
     public Filters     filters;
     public Volume      masterVolume;
     public BassTreble  bassTreble;
@@ -79,7 +77,6 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     public Drc         drc;
 
     public HiFiToyPreset() {
-        characteristics = new ArrayList<>();
         setDefault();
     }
 
@@ -119,20 +116,14 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         preset.loudness = loudness.clone();
         preset.drc = drc.clone();
 
-        preset.characteristics = new ArrayList<>();
-        preset.updateCharacteristics();
 
         return preset;
     }
 
 
-    public void updateCharacteristics() {
-        characteristics.clear();
-        characteristics.add(filters);
-        characteristics.add(masterVolume);
-        characteristics.add(bassTreble);
-        characteristics.add(loudness);
-        characteristics.add(drc);
+    private List<HiFiToyObject> getCharacteristics() {
+        return new ArrayList<HiFiToyObject>(
+                Arrays.asList(filters, masterVolume, bassTreble, loudness, drc));
     }
 
     public void setDefault() {
@@ -164,7 +155,6 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         drc.setEvaluation(POST_VOLUME_EVAL, (byte)0);
         drc.setEvaluation(POST_VOLUME_EVAL, (byte)1);
 
-        updateCharacteristics();
         updateChecksum();
     }
 
@@ -230,8 +220,8 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         //init progress dialog
         //DialogSystem.getInstance().showProgressDialog("Send Dsp Parameters...", 1);
 
-        for (int i = 0; i < characteristics.size(); i++){
-            characteristics.get(i).sendToPeripheral(true);
+        for (HiFiToyObject o : getCharacteristics()) {
+            o.sendToPeripheral(true);
         }
     }
 
@@ -239,8 +229,8 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     public List<HiFiToyDataBuf> getDataBufs() {
         List<HiFiToyDataBuf> l = new ArrayList<>();
 
-        for (int i = 0; i < characteristics.size(); i++){
-            l.addAll(characteristics.get(i).getDataBufs());
+        for (HiFiToyObject o : getCharacteristics()) {
+            l.addAll(o.getDataBufs());
         }
 
         return l;
@@ -250,8 +240,8 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     public boolean importFromDataBufs(List<HiFiToyDataBuf> dataBufs) {
         if (dataBufs == null) return false;
 
-        for (int i = 0; i < characteristics.size(); i++){
-            if (!characteristics.get(i).importFromDataBufs(dataBufs)) {
+        for (HiFiToyObject o : getCharacteristics()) {
+            if (!o.importFromDataBufs(dataBufs)) {
                 return false;
             }
         }
@@ -292,8 +282,8 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     @Override
     public XmlData toXmlData() {
         XmlData xmlData = new XmlData();
-        for (int i = 0; i < characteristics.size(); i++){
-            xmlData.addXmlData(characteristics.get(i).toXmlData());
+        for (HiFiToyObject o : getCharacteristics()) {
+            xmlData.addXmlData(o.toXmlData());
         }
 
         XmlData presetXmlData = new XmlData();
@@ -338,9 +328,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
                     Log.d(TAG, "addr = " + addrStr);
 
                     //parse hiFiToyObjects
-                    for (int i = 0; i < characteristics.size(); i++){
-                        HiFiToyObject o = characteristics.get(i);
-
+                    for (HiFiToyObject o : getCharacteristics()) {
                         if (o.getAddress() == addr) {
                             o.importFromXml(xmlParser);
                             count++;
@@ -361,7 +349,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
             }
         } while (xmlParser.getEventType() != XmlPullParser.END_DOCUMENT);
 
-        if (count == characteristics.size()){
+        if (count == getCharacteristics().size()){
             updateChecksum();
 
             Log.d(TAG, "Xml parsing is successfully.");
