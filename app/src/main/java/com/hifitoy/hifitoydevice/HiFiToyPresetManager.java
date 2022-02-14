@@ -183,11 +183,17 @@ public class HiFiToyPresetManager {
     }
 
     public HiFiToyPreset getPreset(String presetName) throws IOException, XmlPullParserException {
-        HiFiToyPreset p = getOfficialPreset(presetName);
-        if (p == null) {
-            return getUserPreset(presetName);
+        try {
+            return getOfficialPreset(presetName);
+
+        } catch (IOException e) {
+
+            if (e.getMessage().equals("Official preset not found.")) {
+                return getUserPreset(presetName);
+            }
         }
-        return p;
+
+        throw new IOException("Preset not found.");
     }
 
     public int getPresetIndex(String name) {
