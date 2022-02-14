@@ -165,18 +165,18 @@ public class HiFiToyPresetManager {
                 return new HiFiToyPreset(filename, am.open("base_presets/" + filename));
             }
         }
-        return null;
+        throw new IOException("Official preset not found.");
     }
 
     private HiFiToyPreset getUserPreset(String presetName) throws IOException, XmlPullParserException {
         File dir = getUserDir();
         if (dir == null) {
-            return null;
+            throw new IOException("User preset directory not found.");
         }
 
         File[] files = dir.listFiles();
         if (files == null) {
-            return null;
+            throw new IOException("User preset not found");
         }
 
         for (File f : files) {
@@ -185,7 +185,15 @@ public class HiFiToyPresetManager {
                 return new HiFiToyPreset(f);
             }
         }
-        return null;
+        throw new IOException("User preset not found");
+    }
+
+    public HiFiToyPreset getPreset(String presetName) throws IOException, XmlPullParserException {
+        HiFiToyPreset p = getOfficialPreset(presetName);
+        if (p == null) {
+            return getUserPreset(presetName);
+        }
+        return p;
     }
 
     public int getOfficialPresetSize() {
@@ -195,7 +203,7 @@ public class HiFiToyPresetManager {
         return getUserPresetNameList().size();
     }
     public int size() {
-        return presetList.size();
+        return getOfficialPresetSize() + getUserPresetSize();
     }
 
     public void removePreset(String name) {
@@ -285,18 +293,6 @@ public class HiFiToyPresetManager {
         return -1;
     }
 
-    public HiFiToyPreset getPreset(String name){
-        for (HiFiToyPreset p : presetList) {
-            if (p.getName().equals(name)) {
-                try {
-                    return p.clone();
-                } catch (CloneNotSupportedException e) {
-                    Log.d(TAG, e.toString());
-                }
-            }
-        }
-        return null;
-    }
 
     public HiFiToyPreset getPreset(int position){
         if (position < size()){

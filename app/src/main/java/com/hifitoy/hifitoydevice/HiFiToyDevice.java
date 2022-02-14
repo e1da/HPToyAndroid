@@ -11,6 +11,9 @@ import android.util.Log;
 import com.hifitoy.hifitoyobjects.AMMode;
 import com.hifitoy.hifitoyobjects.PostProcess;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Calendar;
 
@@ -78,12 +81,16 @@ public class HiFiToyDevice implements Serializable {
         return activeKeyPreset;
     }
     public boolean  setActiveKeyPreset(String key){
-        HiFiToyPreset p = HiFiToyPresetManager.getInstance().getPreset(key);
-        if (p != null) {
+        try {
+            HiFiToyPreset p = HiFiToyPresetManager.getInstance().getPreset(key);
+
             activeKeyPreset = key;
             activePreset = p;
             HiFiToyDeviceManager.getInstance().store();
             return true;
+
+        } catch (IOException | XmlPullParserException e) {
+            Log.d(TAG, e.toString());
         }
         return false;
     }
@@ -93,8 +100,10 @@ public class HiFiToyDevice implements Serializable {
     }
     public HiFiToyPreset getActivePreset() {
         if (activePreset == null) {
-            activePreset = HiFiToyPresetManager.getInstance().getPreset(activeKeyPreset);
-            if (activePreset == null) {
+            try {
+                activePreset = HiFiToyPresetManager.getInstance().getPreset(activeKeyPreset);
+
+            } catch (IOException | XmlPullParserException e) {
                 setActiveKeyPreset("No processing");
             }
         }
