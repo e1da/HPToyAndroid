@@ -54,7 +54,7 @@ public class HiFiToyPresetManager {
         }
     }
 
-    private File getUserDir() {
+    public File getUserDir() {
         Context context = ApplicationContext.getInstance().getContext();
 
         //get app internal directory

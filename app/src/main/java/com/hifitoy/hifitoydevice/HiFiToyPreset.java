@@ -42,6 +42,8 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -253,6 +255,33 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     public void storeToPeripheral() {
         PeripheralData peripheralData = new PeripheralData(filters.getBiquadTypes(), getDataBufs());
         peripheralData.exportPresetWithDialog("Sending Preset...");
+    }
+
+    public void save(boolean rewrite) throws IOException {
+        File dir = HiFiToyPresetManager.getInstance().getUserDir();
+        if (dir == null) throw new IOException();
+
+        File file = new File(dir, name + ".tpr");
+
+        if ((file.exists()) && (!rewrite)) {
+            Log.d(TAG, "Error. Preset with this name already exist!");
+            throw new IOException("Preset with this name already exist!");
+        }
+
+        if (file.canWrite()){
+            //get xml string of preset
+            String xmlString = toXmlData().toString();
+
+            //write to file
+            FileWriter fw = new FileWriter(file);
+            fw.write(xmlString);
+            fw.close();
+
+            Log.d(TAG, "Save preset.");
+
+        } else {
+            throw new IOException(file.getName() + " is not writable.");
+        }
     }
 
     @Override
