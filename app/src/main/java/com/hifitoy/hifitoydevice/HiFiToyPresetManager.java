@@ -118,55 +118,13 @@ public class HiFiToyPresetManager {
 
         } catch(FileNotFoundException f) {
             Log.d(TAG, "HiFiToyPresetMap.dat is not found.");
-            restorePresetsFromAsserts();//restoreFromBundle();
+            presetList = new LinkedList<>();
 
-        } catch (IOException w) {
-            w.printStackTrace();
-            restorePresetsFromAsserts();//restoreFromBundle();
-
-        } catch (ClassNotFoundException w) {
-            w.printStackTrace();
-            restorePresetsFromAsserts();//restoreFromBundle();
-
-        }
-
-    }
-
-    private String parsePresetName(String filename) {
-        int index = filename.lastIndexOf(".");
-        if (index != -1){
-            filename = filename.substring(0, index);
-        }
-        return filename;
-    }
-
-    private void restorePresetsFromAsserts() {
-        Context c = ApplicationContext.getInstance().getContext();
-        AssetManager am = c.getAssets();
-
-        String[] list;
-
-        presetList.clear();
-        presetList.add(new HiFiToyPreset()); // add No processing
-
-        try {
-            list = am.list("base_presets");
-            if ((list != null) && (list.length > 0) ) {
-
-                for (String filename : list) {
-                    HiFiToyPreset p = new HiFiToyPreset(filename, am.open("base_presets/" + filename));
-
-                    presetList.add(p);
-                    Log.d(TAG, "Import preset = '" + p.getInfo() + "'");
-                }
-            }
-        } catch (XmlPullParserException | IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
             Log.d(TAG, e.toString());
+            presetList = new LinkedList<>();
         }
 
-        store();
-
-        Log.d(TAG, "Finished restore preset from asserts.");
     }
 
     private void store(){
