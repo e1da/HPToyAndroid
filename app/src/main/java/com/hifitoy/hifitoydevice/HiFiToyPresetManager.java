@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -43,10 +44,65 @@ public class HiFiToyPresetManager {
     }
 
     private HiFiToyPresetManager(){
+        printOfficialPresets();
+
         restore();
         if (!isPresetExist("No processing")) {
             setPreset(new HiFiToyPreset());
         }
+    }
+
+    private boolean checkFormat(String filename) {
+        return filename.contains(".tpr");
+    }
+
+    private String filenameToPresetName(String name) {
+        int end = name.indexOf(".tpr");
+        if (end != -1) {
+            return name.substring(0, end);
+        }
+        return name;
+    }
+
+    private List<String> getOfficialPresetNameList() {
+        List<String> presetNameList = new ArrayList<>();
+        presetNameList.add("No processing");
+
+        Context c = ApplicationContext.getInstance().getContext();
+        AssetManager am = c.getAssets();
+
+        try {
+            String[] list = am.list("base_presets");
+            if (list == null) return presetNameList;
+
+            for (String filename : list) {
+                if (checkFormat(filename)) {
+                    presetNameList.add(filenameToPresetName(filename));
+                }
+            }
+
+        } catch (IOException e) {
+            Log.d(TAG, e.toString());
+        }
+
+        return presetNameList;
+    }
+
+    private HiFiToyPreset getOfficialPreset(String presetName) throws IOException, XmlPullParserException {
+        if (presetName.equals("No processing")) {
+            return new HiFiToyPreset();
+        }
+
+        Context c = ApplicationContext.getInstance().getContext();
+        AssetManager am = c.getAssets();
+
+        for (String n : getOfficialPresetNameList()) {
+            if (presetName.equals(n)) {
+                String filename = presetName + ".tpr";
+                return new HiFiToyPreset(filename, am.open("base_presets/" + filename));
+            }
+        }
+        return null;
     }
 
     private void restore(){
@@ -273,5 +329,18 @@ public class HiFiToyPresetManager {
             Log.d(TAG, "name=" + p.getInfo());
         }
         Log.d(TAG, "================</PresetList>======================");
+    }
+
+    private void printPresets(List<String> presetNameList) {
+        Log.d(TAG, "Files count: "+ presetNameList.size());
+
+        for (String name : presetNameList) {
+            Log.d(TAG, "Filename: " + name);
+        }
+    }
+
+    public void printOfficialPresets() {
+        Log.d(TAG, "Official presets:");
+        printPresets(getOfficialPresetNameList());
     }
 }
