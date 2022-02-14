@@ -211,6 +211,15 @@ public class HiFiToyPresetManager {
         return getPreset(presetName);
     }
 
+    public boolean isPresetExist(String name) {
+        for (String presetName : getPresetNameList()) {
+            if (presetName.equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public int getOfficialPresetSize() {
         return getOfficialPresetNameList().size();
     }
@@ -286,16 +295,6 @@ public class HiFiToyPresetManager {
                 return true;
             }
         }
-        return false;
-    }
-
-    public boolean isPresetExist(String name) {
-        for (HiFiToyPreset p : presetList) {
-            if (p.getName().equals(name)) {
-                return true;
-            }
-        }
-
         return false;
     }
 
