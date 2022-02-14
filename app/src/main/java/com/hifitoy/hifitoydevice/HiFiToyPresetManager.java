@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.hifitoy.ApplicationContext;
 
@@ -45,6 +46,7 @@ public class HiFiToyPresetManager {
 
     private HiFiToyPresetManager(){
         printOfficialPresets();
+        printUserPresets();
 
         restore();
         if (!isPresetExist("No processing")) {
@@ -52,8 +54,27 @@ public class HiFiToyPresetManager {
         }
     }
 
+    private File getUserDir() {
+        Context context = ApplicationContext.getInstance().getContext();
+
+        //get app internal directory
+        File dir = new File(context.getFilesDir() + "/PresetList");
+
+        if ((!dir.exists()) && (!dir.mkdirs())) {
+            Log.d(TAG, "Error. Internal directory is not available.");
+            Toast.makeText(context,
+                    "Error. Internal directory is not available.", Toast.LENGTH_SHORT).show();
+
+            return null;
+        }
+        return dir;
+    }
+
     private boolean checkFormat(String filename) {
         return filename.contains(".tpr");
+    }
+    private boolean checkFormat(File file) {
+        return file.getName().contains(".tpr");
     }
 
     private String filenameToPresetName(String name) {
@@ -88,6 +109,28 @@ public class HiFiToyPresetManager {
         return presetNameList;
     }
 
+    public List<String> getUserPresetNameList() {
+        List<String> presetNameList = new ArrayList<>();
+
+        File dir = getUserDir();
+        if (dir == null) {
+            return presetNameList;
+        }
+
+        File[] files = dir.listFiles();
+        if (files == null) {
+            return presetNameList;
+        }
+
+        for (File f : files) {
+            if (checkFormat(f)) {
+                presetNameList.add(filenameToPresetName(f.getName()));
+            }
+        }
+
+        return presetNameList;
+    }
+
     private HiFiToyPreset getOfficialPreset(String presetName) throws IOException, XmlPullParserException {
         if (presetName.equals("No processing")) {
             return new HiFiToyPreset();
@@ -100,6 +143,26 @@ public class HiFiToyPresetManager {
             if (presetName.equals(n)) {
                 String filename = presetName + ".tpr";
                 return new HiFiToyPreset(filename, am.open("base_presets/" + filename));
+            }
+        }
+        return null;
+    }
+
+    private HiFiToyPreset getUserPreset(String presetName) throws IOException, XmlPullParserException {
+        File dir = getUserDir();
+        if (dir == null) {
+            return null;
+        }
+
+        File[] files = dir.listFiles();
+        if (files == null) {
+            return null;
+        }
+
+        for (File f : files) {
+            String n = filenameToPresetName(f.getName());
+            if (presetName.equals(n)) {
+                return new HiFiToyPreset(f);
             }
         }
         return null;
@@ -300,5 +363,9 @@ public class HiFiToyPresetManager {
     public void printOfficialPresets() {
         Log.d(TAG, "Official presets:");
         printPresets(getOfficialPresetNameList());
+    }
+    public void printUserPresets() {
+        Log.d(TAG, "User presets:");
+        printPresets(getUserPresetNameList());
     }
 }
