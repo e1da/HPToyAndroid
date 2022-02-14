@@ -162,7 +162,7 @@ public class LinkImportActivity extends BaseActivity {
                     if (name.length() > 0) {
                         try {
                             HiFiToyPreset importPreset = new HiFiToyPreset(name, presetString);
-                            HiFiToyPresetManager.getInstance().setPreset(importPreset);
+                            importPreset.save(true);
 
                             DialogSystem.getInstance().showDialog("Info",
                                         "Add " + importPreset.getName() + " preset", "Ok");

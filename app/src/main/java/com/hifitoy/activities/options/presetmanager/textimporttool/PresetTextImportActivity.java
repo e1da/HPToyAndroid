@@ -91,8 +91,7 @@ public class PresetTextImportActivity extends BaseActivity {
                     try {
                         HiFiToyPreset importPreset =
                                 new HiFiToyPreset(name, presetTextData_outl.getText().toString());
-
-                        HiFiToyPresetManager.getInstance().setPreset(importPreset);
+                        importPreset.save(false);
 
                         DialogSystem.getInstance().showDialog("Info",
                                     "Add " + importPreset.getName() + " preset", "Ok");

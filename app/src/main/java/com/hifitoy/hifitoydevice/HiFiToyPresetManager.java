@@ -277,14 +277,6 @@ public class HiFiToyPresetManager {
         return false;
     }
 
-    public void setPreset(HiFiToyPreset preset) {
-        try {
-            setPreset(preset, true);
-        } catch (Exception e) {
-            Log.d(TAG, e.toString());
-        }
-    }
-
     public void setPreset(HiFiToyPreset preset, boolean rewrite) throws Exception {
 
         try {
@@ -324,9 +316,7 @@ public class HiFiToyPresetManager {
 
         try {
             HiFiToyPreset importPreset = new HiFiToyPreset(uri);
-
-            //add new preset to list and store
-            HiFiToyPresetManager.getInstance().setPreset(importPreset);
+            importPreset.save(false);
 
             DialogSystem.getInstance().showDialog("Completed",
                     "Preset '" + importPreset.getName() + "' imported successfully.", "Ok");

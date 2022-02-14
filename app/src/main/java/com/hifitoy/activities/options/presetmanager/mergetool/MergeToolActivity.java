@@ -179,15 +179,16 @@ public class MergeToolActivity extends BaseActivity {
             DialogSystem.OnClickTextDialog dialogListener = new DialogSystem.OnClickTextDialog() {
                 public void onPositiveClick(String name){
                     if (name.length() > 0) {
-                        mergePreset.setName(name);
-
-                        if (!HiFiToyPresetManager.getInstance().isPresetExist(name)) {
-                            HiFiToyPresetManager.getInstance().setPreset(mergePreset);
+                        try {
+                            mergePreset.setName(name);
+                            mergePreset.save(false);
                             Toast.makeText(getApplicationContext(),
                                     "Success.", Toast.LENGTH_SHORT).show();
 
                             finish();
-                        } else {
+
+                        } catch (IOException e) {
+                            Log.d(TAG, e.toString());
                             showInputNameDialog(mergePreset, true);
                         }
 

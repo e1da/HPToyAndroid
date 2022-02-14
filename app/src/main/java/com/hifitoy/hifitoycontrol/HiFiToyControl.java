@@ -44,6 +44,7 @@ import com.hifitoy.tas5558.IRegResponse;
 import com.hifitoy.tas5558.RegRequest;
 import com.hifitoy.tas5558.RegResponse;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
@@ -536,13 +537,19 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                                         }
                                         public void onNegativeClick(){
                                             HiFiToyPreset p = activeDevice.getActivePreset();
-                                            //recalc checksum and store
-                                            //[bug fixed]if we import preset, change preset,
-                                            // back to import and store to peripheral
-                                            p.updateChecksum();
-                                            HiFiToyPresetManager.getInstance().setPreset(p);
 
-                                            activeDevice.getActivePreset().storeToPeripheral();
+                                            try {
+                                                //recalc checksum and store
+                                                //[bug fixed]if we import preset, change preset,
+                                                // back to import and store to peripheral
+                                                p.updateChecksum();
+                                                p.save(true);
+
+                                            } catch(IOException e) {
+                                                Log.d(TAG, e.toString());
+                                            }
+
+                                            p.storeToPeripheral();
                                         }
                                     };
 
