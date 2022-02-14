@@ -415,8 +415,8 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
                 preset.setName(name);
                 preset.updateChecksum();
 
-                //add new preset to list and store
-                HiFiToyPresetManager.getInstance().setPreset(preset, false);
+                //save new preset
+                preset.save(false);
 
                 //set preset active in device
                 device.setActiveKeyPreset(preset.getName());
@@ -430,8 +430,8 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
                                                               @Override
                                                               public void onPositiveClick() {
                                                                   try {
-                                                                      //add new preset to list and store
-                                                                      HiFiToyPresetManager.getInstance().setPreset(preset, true);
+                                                                      //save preset with rewrite
+                                                                      preset.save(true);
 
                                                                       //set preset active in device
                                                                       device.setActiveKeyPreset(preset.getName());

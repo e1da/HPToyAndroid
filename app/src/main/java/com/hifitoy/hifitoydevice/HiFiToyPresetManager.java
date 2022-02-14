@@ -277,37 +277,6 @@ public class HiFiToyPresetManager {
         return false;
     }
 
-    public void setPreset(HiFiToyPreset preset, boolean rewrite) throws Exception {
-
-        try {
-
-            for (int i = 0; i < presetList.size(); i++) {
-                HiFiToyPreset p = presetList.get(i);
-
-                if (p.getName().equals(preset.getName())) {
-                    if (rewrite) {
-                        presetList.set(i, preset.clone());
-
-                        //store();
-                        description();
-                        return;
-
-                    } else {
-                        Log.d(TAG, "Error. Preset with this name already exist!");
-                        throw new Exception("Preset with this name already exist!");
-                    }
-                }
-            }
-
-            presetList.add(preset.clone());
-            //store();
-            description();
-
-        } catch (CloneNotSupportedException e) {
-            Log.d(TAG, e.toString());
-        }
-    }
-
     public void importPreset(Uri uri) {
         if (uri == null) {
             DialogSystem.getInstance().showDialog("Error", "Uri is null.", "Ok");
@@ -324,15 +293,6 @@ public class HiFiToyPresetManager {
         } catch (IOException | XmlPullParserException e) {
             DialogSystem.getInstance().showDialog("Error", e.getMessage(), "Ok");
         }
-    }
-
-
-    public void description() {
-        Log.d(TAG, "=============== <PresetList> ======================");
-        for (HiFiToyPreset p : presetList) {
-            Log.d(TAG, "name=" + p.getInfo());
-        }
-        Log.d(TAG, "================</PresetList>======================");
     }
 
     private void printPresets(List<String> presetNameList) {
