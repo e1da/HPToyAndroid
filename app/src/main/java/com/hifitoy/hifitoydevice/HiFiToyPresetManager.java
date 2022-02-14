@@ -35,7 +35,7 @@ public class HiFiToyPresetManager {
     private static final String TAG = "HiFiToy";
     private static HiFiToyPresetManager instance;
 
-    private List<HiFiToyPreset> presetList = new LinkedList<HiFiToyPreset>();
+    private final List<HiFiToyPreset> presetList;
 
     public static synchronized HiFiToyPresetManager getInstance(){
         if (instance == null){
@@ -48,9 +48,22 @@ public class HiFiToyPresetManager {
         printOfficialPresets();
         printUserPresets();
 
-        restore();
-        if (!isPresetExist("No processing")) {
-            setPreset(new HiFiToyPreset());
+        //restore preset list
+        presetList = new LinkedList<>();
+
+        for (String presetName : getOfficialPresetNameList()) {
+            try {
+                presetList.add(getOfficialPreset(presetName));
+            } catch (IOException | XmlPullParserException e) {
+                Log.d(TAG, e.toString());
+            }
+        }
+        for (String presetName : getUserPresetNameList()) {
+            try {
+                presetList.add(getUserPreset(presetName));
+            } catch (IOException | XmlPullParserException e) {
+                Log.d(TAG, e.toString());
+            }
         }
     }
 
@@ -175,45 +188,6 @@ public class HiFiToyPresetManager {
         return null;
     }
 
-    private void restore(){
-        Context context = ApplicationContext.getInstance().getContext();
-
-        try {
-            FileInputStream fis = context.openFileInput("HiFiToyPresetMap.dat");
-            ObjectInputStream is = new ObjectInputStream(fis);
-            presetList = (LinkedList<HiFiToyPreset>)is.readObject();
-
-            is.close();
-            Log.d(TAG, "Restore HiFiToyPresetMap.");
-
-        } catch(FileNotFoundException f) {
-            Log.d(TAG, "HiFiToyPresetMap.dat is not found.");
-            presetList = new LinkedList<>();
-
-        } catch (IOException | ClassNotFoundException e) {
-            Log.d(TAG, e.toString());
-            presetList = new LinkedList<>();
-        }
-
-    }
-
-    private void store(){
-        Context context = ApplicationContext.getInstance().getContext();
-        try {
-            FileOutputStream fos = context.openFileOutput("HiFiToyPresetMap.dat",
-                    Context.MODE_PRIVATE);
-            ObjectOutputStream os = new ObjectOutputStream(fos);
-            os.writeObject(presetList);
-            os.close();
-            Log.d(TAG, "Store HiFiToyPresetMap.");
-
-        } catch (NotSerializableException e) {
-            Log.d(TAG, e.toString());
-        } catch (IOException e) {
-            Log.d(TAG, e.toString());
-        }
-    }
-    
     public int getOfficialPresetSize() {
         return getOfficialPresetNameList().size();
     }
@@ -231,7 +205,7 @@ public class HiFiToyPresetManager {
             if (p.getName().equals(name)) {
                 presetList.remove(i);
 
-                store();
+                //store();
                 description();
                 break;
             }
@@ -257,7 +231,7 @@ public class HiFiToyPresetManager {
                     if (rewrite) {
                         presetList.set(i, preset.clone());
 
-                        store();
+                        //store();
                         description();
                         return;
 
@@ -269,7 +243,7 @@ public class HiFiToyPresetManager {
             }
 
             presetList.add(preset.clone());
-            store();
+            //store();
             description();
 
         } catch (CloneNotSupportedException e) {
@@ -284,7 +258,7 @@ public class HiFiToyPresetManager {
             if (p.getName().equals(oldName)) {
                 p.setName(newName);
 
-                store();
+                //store();
                 description();
                 return true;
             }

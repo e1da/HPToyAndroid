@@ -134,7 +134,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
 
         //get preset name
         String presetName = getPresetName(filename);
-        this.name = checkPresetName(presetName);
+        this.name = presetName;//checkPresetName(presetName);
 
         importFromXml(is);
     }
