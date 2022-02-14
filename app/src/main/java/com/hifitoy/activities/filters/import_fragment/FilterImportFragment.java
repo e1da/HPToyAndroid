@@ -21,6 +21,10 @@ import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 import com.hifitoy.hifitoyobjects.Filters;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
 public class FilterImportFragment extends Fragment implements View.OnTouchListener {
     private final String TAG = "HiFiToy";
 
@@ -80,8 +84,13 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
 
             //update active preset
             presetCollectionView.setActiveIndex(index);
-            Filters f = HiFiToyPresetManager.getInstance().getPreset(index).getFilters();
-            updateFilters(f);
+
+            try {
+                Filters f = HiFiToyPresetManager.getInstance().getPreset(index).getFilters();
+                updateFilters(f);
+            } catch (IOException | XmlPullParserException e) {
+                Log.d(TAG, e.toString());
+            }
 
             //smooth animation
             ValueAnimator animator = ValueAnimator.ofInt(trans, 0);

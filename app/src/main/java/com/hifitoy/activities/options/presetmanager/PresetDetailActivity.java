@@ -30,6 +30,8 @@ import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 import com.hifitoy.xml.XmlData;
 
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -60,11 +62,13 @@ public class PresetDetailActivity extends BaseActivity implements View.OnClickLi
 
         initOutlets();
 
-        int position = getIntent().getIntExtra("presetPosition", -1);
-        if (position == -1){
-            position = 0;
+        try {
+            int position = getIntent().getIntExtra("presetPosition", -1);
+            preset = HiFiToyPresetManager.getInstance().getPreset(position);
+
+        } catch (IOException | XmlPullParserException e) {
+            Log.d(TAG, e.toString());
         }
-        preset = HiFiToyPresetManager.getInstance().getPreset(position);
 
     }
 

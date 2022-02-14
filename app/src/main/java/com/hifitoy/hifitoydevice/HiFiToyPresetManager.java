@@ -196,6 +196,21 @@ public class HiFiToyPresetManager {
         return p;
     }
 
+    public int getPresetIndex(String name) {
+        List<String> presetNameList = getPresetNameList();
+        for (int i = 0; i < presetNameList.size(); i++) {
+            if (presetNameList.get(i).equals(name)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public HiFiToyPreset getPreset(int position) throws IOException, XmlPullParserException {
+        String presetName = getPresetNameList().get(position);
+        return getPreset(presetName);
+    }
+
     public int getOfficialPresetSize() {
         return getOfficialPresetNameList().size();
     }
@@ -284,26 +299,6 @@ public class HiFiToyPresetManager {
         return false;
     }
 
-    public int getPresetIndex(String name) {
-        for (int i = 0; i < size(); i++) {
-            if (presetList.get(i).getName().equals(name)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-
-    public HiFiToyPreset getPreset(int position){
-        if (position < size()){
-            try {
-                return presetList.get(position).clone();
-            } catch (CloneNotSupportedException e) {
-                Log.d(TAG, e.toString());
-            }
-        }
-        return null;
-    }
 
     public void importPreset(Uri uri) {
         if (uri == null) {

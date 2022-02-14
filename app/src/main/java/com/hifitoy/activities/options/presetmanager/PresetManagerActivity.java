@@ -131,9 +131,9 @@ public class PresetManagerActivity extends ListActivity {
         }
 
         @Override
-        public Object getItem(int i) {
+        public String getItem(int i) {
             if (i < HiFiToyPresetManager.getInstance().size()) {
-                return HiFiToyPresetManager.getInstance().getPreset(i);
+                return HiFiToyPresetManager.getInstance().getPresetNameList().get(i);
             }
             return null;
         }
@@ -152,7 +152,7 @@ public class PresetManagerActivity extends ListActivity {
             }
             presetName_outl = view.findViewById(R.id.preset_name);
 
-            String presetName = HiFiToyPresetManager.getInstance().getPreset(i).getName();
+            String presetName = getItem(i);
             String activeName = HiFiToyControl.getInstance().getActiveDevice().getActiveKeyPreset();
 
             //set color

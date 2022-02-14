@@ -8,11 +8,16 @@ package com.hifitoy.activities.filters.import_fragment;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.util.Log;
 import android.widget.FrameLayout;
 
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
+
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 public class PresetIconCollectionView extends FrameLayout {
     private final String TAG = "HiFiToy";
@@ -38,12 +43,14 @@ public class PresetIconCollectionView extends FrameLayout {
 
         presetViews = new PresetIconView[presetManager.size()];
         for (int i = 0; i < presetManager.size(); i++) {
+            try {
+                HiFiToyPreset p = presetManager.getPreset(i);
+                presetViews[i] = new PresetIconView(context, p);
 
-            HiFiToyPreset p = presetManager.getPreset(i);
-            presetViews[i] = new PresetIconView(context, p);
-
-
-            addView(presetViews[i]);
+                addView(presetViews[i]);
+            } catch (IOException | XmlPullParserException e) {
+                Log.d(TAG, e.toString());
+            }
         }
 
 

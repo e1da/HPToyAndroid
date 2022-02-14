@@ -19,6 +19,9 @@ import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -318,13 +321,17 @@ public class MergeToolActivity extends BaseActivity {
 
     private void fillPresetRadioGroup() {
         for (int i = 0 ; i < HiFiToyPresetManager.getInstance().size(); i++) {
-            HiFiToyPreset preset = HiFiToyPresetManager.getInstance().getPreset(i);
+            try {
+                HiFiToyPreset preset = HiFiToyPresetManager.getInstance().getPreset(i);
 
-            RadioButton btn = new RadioButton(this);
-            btn.setText(preset.getName());
+                RadioButton btn = new RadioButton(this);
+                btn.setText(preset.getName());
 
-            btn.setTag(preset);
-            presets.addView(btn);
+                btn.setTag(preset);
+                presets.addView(btn);
+            } catch (IOException | XmlPullParserException e) {
+                Log.d(TAG, e.toString());
+            }
         }
     }
 
