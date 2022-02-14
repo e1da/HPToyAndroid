@@ -35,8 +35,6 @@ public class HiFiToyPresetManager {
     private static final String TAG = "HiFiToy";
     private static HiFiToyPresetManager instance;
 
-    private final List<HiFiToyPreset> presetList;
-
     public static synchronized HiFiToyPresetManager getInstance(){
         if (instance == null){
             instance = new HiFiToyPresetManager();
@@ -47,24 +45,6 @@ public class HiFiToyPresetManager {
     private HiFiToyPresetManager(){
         printOfficialPresets();
         printUserPresets();
-
-        //restore preset list
-        presetList = new LinkedList<>();
-
-        for (String presetName : getOfficialPresetNameList()) {
-            try {
-                presetList.add(getOfficialPreset(presetName));
-            } catch (IOException | XmlPullParserException e) {
-                Log.d(TAG, e.toString());
-            }
-        }
-        for (String presetName : getUserPresetNameList()) {
-            try {
-                presetList.add(getUserPreset(presetName));
-            } catch (IOException | XmlPullParserException e) {
-                Log.d(TAG, e.toString());
-            }
-        }
     }
 
     public File getUserDir() {
