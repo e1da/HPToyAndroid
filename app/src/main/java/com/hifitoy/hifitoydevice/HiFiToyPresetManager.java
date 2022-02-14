@@ -131,6 +131,13 @@ public class HiFiToyPresetManager {
         return presetNameList;
     }
 
+    public List<String> getPresetNameList() {
+        List<String> presetNameList = new ArrayList<>();
+        presetNameList.addAll(getOfficialPresetNameList());
+        presetNameList.addAll(getUserPresetNameList());
+        return presetNameList;
+    }
+
     private HiFiToyPreset getOfficialPreset(String presetName) throws IOException, XmlPullParserException {
         if (presetName.equals("No processing")) {
             return new HiFiToyPreset();
@@ -206,8 +213,13 @@ public class HiFiToyPresetManager {
             Log.d(TAG, e.toString());
         }
     }
-
-    //map methods: count/remove/get/set
+    
+    public int getOfficialPresetSize() {
+        return getOfficialPresetNameList().size();
+    }
+    public int getUserPresetSize() {
+        return getUserPresetNameList().size();
+    }
     public int size() {
         return presetList.size();
     }
