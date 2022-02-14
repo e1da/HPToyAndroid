@@ -83,6 +83,20 @@ public class HiFiToyPresetManager {
         return dir;
     }
 
+    public File getUserPresetFile(String presetName) {
+        File dir = getUserDir();
+        if ((dir == null) || (presetName == null)) {
+            return null;
+        }
+
+        File f = new File(dir, presetName + ".tpr");
+        if (f.exists()) {
+            return f;
+        }
+
+        return null;
+    }
+
     private boolean checkFormat(String filename) {
         return filename.contains(".tpr");
     }
@@ -230,18 +244,14 @@ public class HiFiToyPresetManager {
         return getOfficialPresetSize() + getUserPresetSize();
     }
 
-    public void removePreset(String name) {
-        for (int i = 0; i < presetList.size(); i++) {
-            HiFiToyPreset p = presetList.get(i);
-
-            if (p.getName().equals(name)) {
-                presetList.remove(i);
-
-                //store();
-                description();
-                break;
-            }
+    public boolean deletePreset(String presetName) {
+        File f = getUserPresetFile(presetName);
+        if ( (f != null) && (f.delete()) ) {
+            return true;
         }
+
+        Log.d(TAG, "Delete preset is unsuccessful");
+        return false;
     }
 
     public void setPreset(HiFiToyPreset preset) {

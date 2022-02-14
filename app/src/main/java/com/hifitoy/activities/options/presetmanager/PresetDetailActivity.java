@@ -222,7 +222,7 @@ public class PresetDetailActivity extends BaseActivity implements View.OnClickLi
                         dev.setActiveKeyPreset("No processing");
                     }
                 }
-                HiFiToyPresetManager.getInstance().removePreset(preset.getName());
+                HiFiToyPresetManager.getInstance().deletePreset(preset.getName());
                 finish();
 
             }
