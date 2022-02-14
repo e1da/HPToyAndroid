@@ -139,6 +139,17 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         importFromXml(is);
     }
 
+    public HiFiToyPreset(String presetName, List<HiFiToyDataBuf> dataBufs, byte[] biquadTypes) throws IOException {
+        this(presetName);
+
+        if (filters.setBiquadTypes(biquadTypes)) {
+            if (!importFromDataBufs(dataBufs)) {
+                throw new IOException("Import from data bufs error in Preset contructor.");
+            }
+        }
+        throw new IOException("Biquad type length error.");
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -350,14 +361,6 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         //update checksum
         updateChecksum(dataBufs);
         return true;
-    }
-
-
-    public boolean importFromDataBufs(List<HiFiToyDataBuf> dataBufs, byte[] biquadTypes) {
-        if (filters.setBiquadTypes(biquadTypes)) {
-            return importFromDataBufs(dataBufs);
-        }
-        return false;
     }
 
     @Override

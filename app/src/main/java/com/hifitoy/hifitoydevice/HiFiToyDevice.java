@@ -167,20 +167,24 @@ public class HiFiToyDevice implements Serializable {
 
             @Override
             public void onPostProcess() {
-                HiFiToyPreset importPreset = new HiFiToyPreset();
-                importPreset.setName(Calendar.getInstance().getTime().toString());
+                try {
+                    HiFiToyPreset importPreset = new HiFiToyPreset(
+                            Calendar.getInstance().getTime().toString(),
+                            pd.getDataBufs(),
+                            pd.getBiquadTypes());
 
-                if (importPreset.importFromDataBufs(pd.getDataBufs(), pd.getBiquadTypes())) {
-                    HiFiToyPresetManager.getInstance().setPreset(importPreset);
+                    importPreset.save(true);
                     setActiveKeyPreset(importPreset.getName());
 
                     Log.d(TAG, "Preset import success.");
-                } else {
-                    Log.d(TAG, "Preset import unsuccess.");
-                }
 
-                if (postProcess != null) {
-                    postProcess.onPostProcess();
+                    if (postProcess != null) {
+                        postProcess.onPostProcess();
+                    }
+
+                } catch (IOException e) {
+                    Log.d(TAG, "Preset import unsuccess.");
+                    Log.d(TAG, e.toString());
                 }
             }
         });
