@@ -84,17 +84,16 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         setDefault();
     }
 
-    public HiFiToyPreset(String presetName) throws IOException {
+    public HiFiToyPreset(String presetName) {
         this();
-        this.name = checkPresetName(presetName);
+        this.name = presetName;
     }
 
     public HiFiToyPreset(File file) throws XmlPullParserException, IOException {
         this();
         if (file == null) throw new IOException("File is null.");
         //get preset name
-        String presetName = getPresetName(file);
-        this.name = checkPresetName(presetName);
+        this.name = getPresetName(file);
 
         FileInputStream fis = new FileInputStream(file);
         importFromXml(fis);
@@ -104,8 +103,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         this();
         if (uri == null) throw new IOException("Uri is null.");
         //get preset name
-        String presetName = getPresetName(uri);
-        this.name = checkPresetName(presetName);
+        this.name = getPresetName(uri);
 
         //get scheme
         String scheme = uri.getScheme();
@@ -119,10 +117,8 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     }
 
     public HiFiToyPreset(String presetName, String xmlData) throws XmlPullParserException, IOException {
-        this();
+        this(presetName);
         if (xmlData == null) throw new IOException("Xml data is not correct.");
-
-        this.name = checkPresetName(presetName);
 
         InputStream is = new ByteArrayInputStream(xmlData.getBytes(StandardCharsets.UTF_8));
         importFromXml(is);
@@ -133,8 +129,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         if (is == null) throw new IOException("InputStream is null.");
 
         //get preset name
-        String presetName = getPresetName(filename);
-        this.name = presetName;//checkPresetName(presetName);
+        this.name = getPresetName(filename);
 
         importFromXml(is);
     }
@@ -279,20 +274,15 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
             throw new IOException("Preset with this name already exist!");
         }
 
-        if (file.canWrite()){
-            //get xml string of preset
-            String xmlString = toXmlData().toString();
+        //get xml string of preset
+        String xmlString = toXmlData().toString();
 
-            //write to file
-            FileWriter fw = new FileWriter(file);
-            fw.write(xmlString);
-            fw.close();
+        //write to file
+        FileWriter fw = new FileWriter(file);
+        fw.write(xmlString);
+        fw.close();
 
-            Log.d(TAG, "Save preset.");
-
-        } else {
-            throw new IOException(file.getName() + " is not writable.");
-        }
+        Log.d(TAG, "Save preset.");
     }
 
     @Override
