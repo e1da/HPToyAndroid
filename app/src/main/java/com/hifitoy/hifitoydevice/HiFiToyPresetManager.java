@@ -240,27 +240,17 @@ public class HiFiToyPresetManager {
         return false;
     }
 
-    public boolean renamePreset(String oldName, String newName) {
+    public void renamePreset(String oldName, String newName) throws IOException, XmlPullParserException {
         //check if preset with newName exist
-        for (String presetName : getPresetNameList()) {
-            if (presetName.equals(newName)) {
-                return false;
-            }
+        if (isPresetExist(newName)) {
+            throw new IOException("Rename error because preset with this name is exist.");
         }
 
-        try {
-            HiFiToyPreset p = getPreset(oldName);
-            p.setName(newName);
-            p.save(true);
+        HiFiToyPreset p = getUserPreset(oldName);
+        p.setName(newName);
+        p.save(true);
 
-            deletePreset(oldName);
-            return true;
-
-        } catch (IOException | XmlPullParserException e) {
-            Log.d(TAG, e.toString());
-        }
-
-        return false;
+        deletePreset(oldName);
     }
 
     public void importPreset(Uri uri) {

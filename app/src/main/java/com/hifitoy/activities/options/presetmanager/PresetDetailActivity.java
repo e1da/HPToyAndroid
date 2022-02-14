@@ -154,18 +154,23 @@ public class PresetDetailActivity extends BaseActivity implements View.OnClickLi
         }
 
         DialogSystem.OnClickTextDialog dialogListener = new DialogSystem.OnClickTextDialog() {
-            public void onPositiveClick(String name){
-                if (name.length() > 0) {
+            public void onPositiveClick(String newName){
+                if (newName.length() > 0) {
 
-                    if (HiFiToyPresetManager.getInstance().renamePreset(preset.getName(), name)) {
-                        //TODO: not good implemantetion
+                    try {
+                        String oldName = preset.getName();
+                        HiFiToyPresetManager.getInstance().renamePreset(oldName, newName);
+
                         HiFiToyDevice d = HiFiToyControl.getInstance().getActiveDevice();
-                        if (d.getActiveKeyPreset().equals(preset.getName())) {
-                            d.forceSetActiveKeyPreset(name);
+                        if (d.getActiveKeyPreset().equals(oldName)) {
+                            d.setActiveKeyPreset(newName);
                         }
 
-                        preset.setName(name);
-                        presetName_outl.setText(name);
+                        preset = HiFiToyPresetManager.getInstance().getPreset(newName);
+                        presetName_outl.setText(newName);
+
+                    } catch (IOException | XmlPullParserException e) {
+                        DialogSystem.getInstance().showDialog("Error", e.getMessage(), "Ok");
                     }
 
                 } else {
