@@ -265,7 +265,7 @@ public class ToyPreset implements HiFiToyObject, Cloneable, Serializable {
     }
 
     public void save(boolean rewrite) throws IOException {
-        File dir = HiFiToyPresetManager.getInstance().getUserDir();
+        File dir = HiFiToyPresetManager.getUserDir();
         if (dir == null) throw new IOException();
 
         File file = new File(dir, name + ".tpr");

@@ -57,21 +57,26 @@ public class HiFiToyPresetManager {
             Log.d(TAG, "Restore HiFiToyPresetMap.");
 
             for (HiFiToyPreset p : oldPresetList) {
-                if (!isOfficialPresetExist(p.getName())) { // if not official preset
-                    Log.d(TAG, "Old preset: " + p.getName());
+                if (!isPresetExist(p.getName())) {
+                    ToyPreset newPreset = new ToyPreset(p);
+                    newPreset.save(true);
+
+                    Log.d(TAG, "Restore old preset: " + newPreset.getName());
                 }
             }
+
+            context.deleteFile("HiFiToyPresetMap.dat");
 
         } catch(FileNotFoundException e) {
             Log.d(TAG, "HiFiToyPresetMap.dat is not found.");
 
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException | CloneNotSupportedException e) {
             Log.d(TAG, e.toString());
         }
 
     }
 
-    public File getUserDir() {
+    public static File getUserDir() {
         Context context = ApplicationContext.getInstance().getContext();
 
         //get app internal directory
