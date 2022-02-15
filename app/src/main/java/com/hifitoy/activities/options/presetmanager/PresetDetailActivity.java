@@ -10,10 +10,8 @@ import android.app.ActionBar;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -21,17 +19,16 @@ import android.widget.Toast;
 
 import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.dialogsystem.DialogSystem;
-import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
-import com.hifitoy.xml.XmlData;
+
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 
@@ -60,11 +57,13 @@ public class PresetDetailActivity extends BaseActivity implements View.OnClickLi
 
         initOutlets();
 
-        int position = getIntent().getIntExtra("presetPosition", -1);
-        if (position == -1){
-            position = 0;
+        try {
+            String presetName = getIntent().getStringExtra("presetName");
+            preset = HiFiToyPresetManager.getInstance().getPreset(presetName);
+
+        } catch (IOException | XmlPullParserException e) {
+            Log.d(TAG, e.toString());
         }
-        preset = HiFiToyPresetManager.getInstance().getPreset(position);
 
     }
 
@@ -76,10 +75,9 @@ public class PresetDetailActivity extends BaseActivity implements View.OnClickLi
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (data == null) {
-            Log.d(TAG, Integer.toString(requestCode) + " " + Integer.toString(resultCode));
-        } else {
-            Log.d(TAG, Integer.toString(requestCode) + " " + Integer.toString(resultCode) + " " + data.toString());
+        Log.d(TAG, "Request code:" + requestCode + " Result code:" + resultCode);
+        if (data != null) {
+            Log.d(TAG, data.toString());
         }
     }
 
@@ -122,8 +120,6 @@ public class PresetDetailActivity extends BaseActivity implements View.OnClickLi
         } else {
             deletePresetLayout_outl.setVisibility(View.VISIBLE);
         }
-
-
     }
 
     public void onClick(View v) {
@@ -136,7 +132,7 @@ public class PresetDetailActivity extends BaseActivity implements View.OnClickLi
                 setActivePreset();
                 break;
             case R.id.exportPresetToEmail_outl:
-                exportPreset(preset);
+                exportPreset();
                 break;
             case R.id.deletePreset_outl:
                 deletePreset();
@@ -150,18 +146,23 @@ public class PresetDetailActivity extends BaseActivity implements View.OnClickLi
         }
 
         DialogSystem.OnClickTextDialog dialogListener = new DialogSystem.OnClickTextDialog() {
-            public void onPositiveClick(String name){
-                if (name.length() > 0) {
+            public void onPositiveClick(String newName){
+                if (newName.length() > 0) {
 
-                    if (HiFiToyPresetManager.getInstance().renamePreset(preset.getName(), name)) {
-                        //TODO: not good implemantetion
+                    try {
+                        String oldName = preset.getName();
+                        HiFiToyPresetManager.getInstance().renamePreset(oldName, newName);
+
                         HiFiToyDevice d = HiFiToyControl.getInstance().getActiveDevice();
-                        if (d.getActiveKeyPreset().equals(preset.getName())) {
-                            d.forceSetActiveKeyPreset(name);
+                        if (d.getActiveKeyPreset().equals(oldName)) {
+                            d.setActiveKeyPreset(newName);
                         }
 
-                        preset.setName(name);
-                        presetName_outl.setText(name);
+                        preset = HiFiToyPresetManager.getInstance().getPreset(newName);
+                        presetName_outl.setText(newName);
+
+                    } catch (IOException | XmlPullParserException e) {
+                        DialogSystem.getInstance().showDialog("Error", e.getMessage(), "Ok");
                     }
 
                 } else {
@@ -186,8 +187,8 @@ public class PresetDetailActivity extends BaseActivity implements View.OnClickLi
         DialogSystem.OnClickDialog dialogListener = new DialogSystem.OnClickDialog() {
             public void onPositiveClick(){
                 device.setActiveKeyPreset(preset.getName());
-
                 preset.storeToPeripheral();
+                setupOutlets();
             }
             public void onNegativeClick(){
                 //
@@ -218,7 +219,7 @@ public class PresetDetailActivity extends BaseActivity implements View.OnClickLi
                         dev.setActiveKeyPreset("No processing");
                     }
                 }
-                HiFiToyPresetManager.getInstance().removePreset(preset.getName());
+                HiFiToyPresetManager.getInstance().deletePreset(preset.getName());
                 finish();
 
             }
@@ -234,120 +235,18 @@ public class PresetDetailActivity extends BaseActivity implements View.OnClickLi
 
     }
 
-    // Checks if external storage is available for read and write
-    private boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        return (Environment.MEDIA_MOUNTED.equals(state));
-    }
+    private void exportPreset() {
+        File file = HiFiToyPresetManager.getInstance().getUserPresetFile(preset.getName());
 
-    //TargetApi should be > 18
-    private File getExtStorage() {
-
-        if (isExternalStorageWritable()) {
-            Toast.makeText(getApplicationContext(),
-                    "Error. External storage is not writable.", Toast.LENGTH_SHORT).show();
-
-            return null;
-        }
-
-        File extDir = new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
-                                    "ToyExport");
-
-        if ( (!extDir.exists()) && (!extDir.mkdirs()) ) {
-            Toast.makeText(getApplicationContext(),
-                    "Error. External Toy presets directory is not available.", Toast.LENGTH_SHORT).show();
-
-            return null;
-        }
-
-        return extDir;
-    }
-
-    private File getIntStorage() {
-        File intDir = new File(getApplicationContext().getFilesDir() + "/ToyExport");
-
-        if ( (!intDir.exists()) && (!intDir.mkdirs()) ) {
-            Toast.makeText(getApplicationContext(),
-                    "Error. Internal IWoofer_Presets directory is not available.", Toast.LENGTH_SHORT).show();
-
-            return null;
-        }
-
-        return intDir;
-    }
-
-
-    private File savePresetToFile(HiFiToyPreset preset) {
-        //get xml string of preset
-        XmlData xmlData = preset.toXmlData();
-        String xmlString = xmlData.toString();
-
-        //create file to save on internal storage
-        File dir = getIntStorage();
-        if (dir == null) {
-            return null;
-        }
-
-        String filename = preset.getName() + ".tpr";
-        File file = new File(dir, filename);
-
-        Log.d(TAG, "Export directories = " + file.toString());
-
-        try {
-            //create file if he is not exists
-            if (!file.exists()) {
-                if (!file.createNewFile()) {
-                    throw new IOException(filename + " is not create successful.");
-                }
-            }
-
-            if (file.canWrite()){
-                //write to temp file
-                FileWriter fw = new FileWriter(file);
-                fw.write(xmlString);
-                fw.close();
-            } else {
-                throw new IOException(filename + " is not writable.");
-            }
-
-        } catch (IOException e){
-            Log.d(TAG, e.toString());
-
-            Toast.makeText(getApplicationContext(),
-                    e.toString(), Toast.LENGTH_SHORT).show();
-            return null;
-        }
-
-        return file;
-    }
-
-    private void exportPreset(HiFiToyPreset preset){
-        //save preset to file and get pointer
-        File file = savePresetToFile(preset);
-        if (file == null) {
-            return;
-        }
-
-        //get file Uri
-        Uri fileUri = null;
-
-        try {
-            fileUri = FileProvider.getUriForFile(this,
+        if (file != null) {
+            Uri uri = FileProvider.getUriForFile(this,
                     getString(R.string.fileprovider_authority), file);
 
-        } catch (IllegalArgumentException e) {
-            Log.d(TAG, "The selected file can't be shared: " + file.toString());
-        }
-
-        //send Uri to chooser window (email, gmail, bluetooth, etc)
-        if (fileUri != null){
-            //start E-Mail export view
             Intent sendIntent = new Intent(Intent.ACTION_SEND);
             sendIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.export_extra_subject));
-            sendIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+            sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
             sendIntent.setType("application/tpr");
-            //startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.string_to)));
-            startActivityForResult(Intent.createChooser(sendIntent, "String To"), 1);
+            startActivityForResult(Intent.createChooser(sendIntent, "Send To"), 1);
         }
     }
 

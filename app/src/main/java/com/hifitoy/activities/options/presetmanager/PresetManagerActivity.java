@@ -7,7 +7,8 @@
 package com.hifitoy.activities.options.presetmanager;
 
 import android.app.ActionBar;
-import android.app.ListActivity;
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,26 +18,38 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
-import com.hifitoy.activities.options.presetmanager.linkimporttool.LinkImportActivity;
 import com.hifitoy.activities.options.presetmanager.mergetool.MergeToolActivity;
-import com.hifitoy.activities.options.presetmanager.textimporttool.PresetTextImportActivity;
+import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
+import com.hifitoy.hifitoydevice.HiFiToyDevice;
+import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
+import com.hifitoy.widgets.SegmentedControlWidget;
 
-public class PresetManagerActivity extends ListActivity {
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
+public class PresetManagerActivity extends Activity {
     final static String TAG = "HiFiToy";
 
-    private PresetListAdapter mPresetListAdapter;
+    private PresetListAdapter       userPresetListAdapter;
+    private PresetListAdapter       officialPresetListAdapter;
+
+    private ListView                presetListView;
+    private SegmentedControlWidget  presetTypeSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_preset);
 
         //show back button
         ActionBar actionBar = getActionBar();
@@ -57,8 +70,9 @@ public class PresetManagerActivity extends ListActivity {
             }
         });
 
-        // Initializes list view adapter.
-        mPresetListAdapter = new PresetListAdapter();
+        userPresetListAdapter = new PresetListAdapter(PresetListAdapter.Type.USER);
+        officialPresetListAdapter = new PresetListAdapter(PresetListAdapter.Type.OFFICIAL);
+        initOutlets();
     }
 
     @Override
@@ -66,10 +80,7 @@ public class PresetManagerActivity extends ListActivity {
         super.onResume();
         ApplicationContext.getInstance().setContext(this);
 
-        // Set list view adapter.
-        setListAdapter(mPresetListAdapter);
-        mPresetListAdapter.notifyDataSetChanged();
-
+        setupOutlets();
     }
 
     @Override
@@ -115,27 +126,118 @@ public class PresetManagerActivity extends ListActivity {
         }
     }
 
-    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        Intent intent = new Intent(this, PresetDetailActivity.class);
-        intent.putExtra("presetPosition", position);
-        startActivity(intent);
+    private void initOutlets() {
+        presetTypeSwitch = findViewById(R.id.presetTypeWidget_outl);
+
+        presetListView = findViewById(R.id.presetListView_outl);
+        presetListView.setAdapter(userPresetListAdapter);
+
+        //init switch and active adapter
+        String activePresetName = HiFiToyControl.getInstance().getActiveDevice().getActiveKeyPreset();
+        if (HiFiToyPresetManager.getInstance().isUserPresetExist(activePresetName)) {
+            presetTypeSwitch.check(0);
+            presetListView.setAdapter(userPresetListAdapter);
+        } else {
+            presetTypeSwitch.check(1);
+            presetListView.setAdapter(officialPresetListAdapter);
+        }
+
+
+        presetTypeSwitch.setOnCheckedChangeListener(new SegmentedControlWidget.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(SegmentedControlWidget segmentedControl, int checkedIndex) {
+                if (checkedIndex == 1) {
+                    presetListView.setAdapter(officialPresetListAdapter);
+                } else {
+                    presetListView.setAdapter(userPresetListAdapter);
+                }
+                setupOutlets();
+            }
+        });
+
+        presetListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (presetTypeSwitch.getCheckedIndex() == 1) { // official
+                    String presetName
+                            = HiFiToyPresetManager.getInstance().getOfficialPresetNameList().get(position);
+                    setActivePreset(presetName);
+
+                } else { // user
+
+                    String presetName
+                            = HiFiToyPresetManager.getInstance().getUserPresetNameList().get(position);
+
+                    Intent intent = new Intent(PresetManagerActivity.this, PresetDetailActivity.class);
+                    intent.putExtra("presetName", presetName);
+                    startActivity(intent);
+                }
+            }
+        });
+
     }
 
-    // Adapter for holding devices found through scanning.
-    private class PresetListAdapter extends BaseAdapter {
+    public void setupOutlets() {
+        userPresetListAdapter.notifyDataSetChanged();
+        officialPresetListAdapter.notifyDataSetChanged();
+    }
 
-        @Override
-        public int getCount() {
-            return HiFiToyPresetManager.getInstance().size();
+    private void setActivePreset(final String presetName){
+        final HiFiToyDevice device = HiFiToyControl.getInstance().getActiveDevice();
+
+        if (presetName.equals(device.getActiveKeyPreset())){
+            return;
+        }
+
+        DialogSystem.OnClickDialog dialogListener = new DialogSystem.OnClickDialog() {
+            public void onPositiveClick(){
+                try {
+                    HiFiToyPreset preset = HiFiToyPresetManager.getInstance().getPreset(presetName);
+                    preset.storeToPeripheral();
+
+                    device.setActiveKeyPreset(presetName);
+
+                    setupOutlets();
+                } catch (IOException | XmlPullParserException e) {
+                    Log.d(TAG, e.toString());
+                }
+            }
+            public void onNegativeClick(){
+                //
+            }
+        };
+
+        DialogSystem.getInstance().showDialog(dialogListener,
+                "Warning",
+                "Are you sure you want to load '" + presetName + "' preset?",
+                "Ok", "Cancel");
+
+    }
+
+    private static class PresetListAdapter extends BaseAdapter {
+        enum Type {
+            USER, OFFICIAL
+        }
+        private final Type type;
+
+        public PresetListAdapter(Type type) {
+            this.type = type;
         }
 
         @Override
-        public Object getItem(int i) {
-            if (i < HiFiToyPresetManager.getInstance().size()) {
-                return HiFiToyPresetManager.getInstance().getPreset(i);
+        public int getCount() {
+            if (type.equals(Type.USER)) {
+                return HiFiToyPresetManager.getInstance().getUserPresetSize();
             }
-            return null;
+            return HiFiToyPresetManager.getInstance().getOfficialPresetSize();
+        }
+
+        @Override
+        public String getItem(int i) {
+            if (type.equals(Type.USER)) {
+                return HiFiToyPresetManager.getInstance().getUserPresetNameList().get(i);
+            }
+            return HiFiToyPresetManager.getInstance().getOfficialPresetNameList().get(i);
         }
 
         @Override
@@ -145,14 +247,13 @@ public class PresetManagerActivity extends ListActivity {
 
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
-            TextView presetName_outl;
-
             if (view == null) {
-                view = getLayoutInflater().inflate(R.layout.preset_list_item, null);
+                Activity a = (Activity)ApplicationContext.getInstance().getContext();
+                view = a.getLayoutInflater().inflate(R.layout.preset_list_item, null);
             }
-            presetName_outl = view.findViewById(R.id.preset_name);
+            TextView presetName_outl = view.findViewById(R.id.preset_name);
 
-            String presetName = HiFiToyPresetManager.getInstance().getPreset(i).getName();
+            String presetName = getItem(i);
             String activeName = HiFiToyControl.getInstance().getActiveDevice().getActiveKeyPreset();
 
             //set color

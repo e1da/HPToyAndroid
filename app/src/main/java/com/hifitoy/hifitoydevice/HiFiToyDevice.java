@@ -11,6 +11,9 @@ import android.util.Log;
 import com.hifitoy.hifitoyobjects.AMMode;
 import com.hifitoy.hifitoyobjects.PostProcess;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Calendar;
 
@@ -78,12 +81,16 @@ public class HiFiToyDevice implements Serializable {
         return activeKeyPreset;
     }
     public boolean  setActiveKeyPreset(String key){
-        HiFiToyPreset p = HiFiToyPresetManager.getInstance().getPreset(key);
-        if (p != null) {
+        try {
+            HiFiToyPreset p = HiFiToyPresetManager.getInstance().getPreset(key);
+
             activeKeyPreset = key;
             activePreset = p;
             HiFiToyDeviceManager.getInstance().store();
             return true;
+
+        } catch (IOException | XmlPullParserException e) {
+            Log.d(TAG, e.toString());
         }
         return false;
     }
@@ -93,8 +100,10 @@ public class HiFiToyDevice implements Serializable {
     }
     public HiFiToyPreset getActivePreset() {
         if (activePreset == null) {
-            activePreset = HiFiToyPresetManager.getInstance().getPreset(activeKeyPreset);
-            if (activePreset == null) {
+            try {
+                activePreset = HiFiToyPresetManager.getInstance().getPreset(activeKeyPreset);
+
+            } catch (IOException | XmlPullParserException e) {
                 setActiveKeyPreset("No processing");
             }
         }
@@ -158,20 +167,24 @@ public class HiFiToyDevice implements Serializable {
 
             @Override
             public void onPostProcess() {
-                HiFiToyPreset importPreset = new HiFiToyPreset();
-                importPreset.setName(Calendar.getInstance().getTime().toString());
+                try {
+                    HiFiToyPreset importPreset = new HiFiToyPreset(
+                            Calendar.getInstance().getTime().toString(),
+                            pd.getDataBufs(),
+                            pd.getBiquadTypes());
 
-                if (importPreset.importFromDataBufs(pd.getDataBufs(), pd.getBiquadTypes())) {
-                    HiFiToyPresetManager.getInstance().setPreset(importPreset);
+                    importPreset.save(true);
                     setActiveKeyPreset(importPreset.getName());
 
                     Log.d(TAG, "Preset import success.");
-                } else {
-                    Log.d(TAG, "Preset import unsuccess.");
-                }
 
-                if (postProcess != null) {
-                    postProcess.onPostProcess();
+                    if (postProcess != null) {
+                        postProcess.onPostProcess();
+                    }
+
+                } catch (IOException e) {
+                    Log.d(TAG, "Preset import unsuccess.");
+                    Log.d(TAG, e.toString());
                 }
             }
         });

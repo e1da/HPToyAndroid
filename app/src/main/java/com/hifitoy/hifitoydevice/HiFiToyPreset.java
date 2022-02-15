@@ -42,6 +42,8 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -82,17 +84,16 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         setDefault();
     }
 
-    public HiFiToyPreset(String presetName) throws IOException {
+    public HiFiToyPreset(String presetName) {
         this();
-        this.name = checkPresetName(presetName);
+        this.name = presetName;
     }
 
     public HiFiToyPreset(File file) throws XmlPullParserException, IOException {
         this();
         if (file == null) throw new IOException("File is null.");
         //get preset name
-        String presetName = getPresetName(file);
-        this.name = checkPresetName(presetName);
+        this.name = getPresetName(file);
 
         FileInputStream fis = new FileInputStream(file);
         importFromXml(fis);
@@ -102,8 +103,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         this();
         if (uri == null) throw new IOException("Uri is null.");
         //get preset name
-        String presetName = getPresetName(uri);
-        this.name = checkPresetName(presetName);
+        this.name = getPresetName(uri);
 
         //get scheme
         String scheme = uri.getScheme();
@@ -117,10 +117,8 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     }
 
     public HiFiToyPreset(String presetName, String xmlData) throws XmlPullParserException, IOException {
-        this();
+        this(presetName);
         if (xmlData == null) throw new IOException("Xml data is not correct.");
-
-        this.name = checkPresetName(presetName);
 
         InputStream is = new ByteArrayInputStream(xmlData.getBytes(StandardCharsets.UTF_8));
         importFromXml(is);
@@ -131,10 +129,21 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         if (is == null) throw new IOException("InputStream is null.");
 
         //get preset name
-        String presetName = getPresetName(filename);
-        this.name = checkPresetName(presetName);
+        this.name = getPresetName(filename);
 
         importFromXml(is);
+    }
+
+    public HiFiToyPreset(String presetName, List<HiFiToyDataBuf> dataBufs, byte[] biquadTypes) throws IOException {
+        this(presetName);
+
+        if (filters.setBiquadTypes(biquadTypes)) {
+            if (!importFromDataBufs(dataBufs)) {
+                throw new IOException("Import from data bufs error in Preset contructor.");
+            }
+        } else {
+            throw new IOException("Biquad type length error.");
+        }
     }
 
     @Override
@@ -255,6 +264,28 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         peripheralData.exportPresetWithDialog("Sending Preset...");
     }
 
+    public void save(boolean rewrite) throws IOException {
+        File dir = HiFiToyPresetManager.getInstance().getUserDir();
+        if (dir == null) throw new IOException();
+
+        File file = new File(dir, name + ".tpr");
+
+        if ((file.exists()) && (!rewrite)) {
+            Log.d(TAG, "Error. Preset with this name already exist!");
+            throw new IOException("Preset with this name already exist!");
+        }
+
+        //get xml string of preset
+        String xmlString = toXmlData().toString();
+
+        //write to file
+        FileWriter fw = new FileWriter(file);
+        fw.write(xmlString);
+        fw.close();
+
+        Log.d(TAG, "Save preset.");
+    }
+
     @Override
     public byte getAddress() {
         return 0;
@@ -321,14 +352,6 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         //update checksum
         updateChecksum(dataBufs);
         return true;
-    }
-
-
-    public boolean importFromDataBufs(List<HiFiToyDataBuf> dataBufs, byte[] biquadTypes) {
-        if (filters.setBiquadTypes(biquadTypes)) {
-            return importFromDataBufs(dataBufs);
-        }
-        return false;
     }
 
     @Override
