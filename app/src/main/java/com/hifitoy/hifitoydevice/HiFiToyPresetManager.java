@@ -16,8 +16,12 @@ import android.widget.Toast;
 import com.hifitoy.ApplicationContext;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.hifitoy.dialogsystem.DialogSystem;
@@ -36,8 +40,35 @@ public class HiFiToyPresetManager {
     }
 
     private HiFiToyPresetManager(){
-        printOfficialPresets();
+        restoreOldPreset();
+
         printUserPresets();
+    }
+
+    private void restoreOldPreset(){
+        Context context = ApplicationContext.getInstance().getContext();
+
+        try {
+            FileInputStream fis = context.openFileInput("HiFiToyPresetMap.dat");
+            ObjectInputStream is = new ObjectInputStream(fis);
+            List<HiFiToyPreset> oldPresetList = (LinkedList<HiFiToyPreset>)is.readObject();
+
+            is.close();
+            Log.d(TAG, "Restore HiFiToyPresetMap.");
+
+            for (HiFiToyPreset p : oldPresetList) {
+                if (!isOfficialPresetExist(p.getName())) { // if not official preset
+                    Log.d(TAG, "Old preset: " + p.getName());
+                }
+            }
+
+        } catch(FileNotFoundException e) {
+            Log.d(TAG, "HiFiToyPresetMap.dat is not found.");
+
+        } catch (IOException | ClassNotFoundException e) {
+            Log.d(TAG, e.toString());
+        }
+
     }
 
     public File getUserDir() {
