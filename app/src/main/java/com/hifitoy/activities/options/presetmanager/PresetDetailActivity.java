@@ -120,8 +120,6 @@ public class PresetDetailActivity extends BaseActivity implements View.OnClickLi
         } else {
             deletePresetLayout_outl.setVisibility(View.VISIBLE);
         }
-
-
     }
 
     public void onClick(View v) {
@@ -189,8 +187,8 @@ public class PresetDetailActivity extends BaseActivity implements View.OnClickLi
         DialogSystem.OnClickDialog dialogListener = new DialogSystem.OnClickDialog() {
             public void onPositiveClick(){
                 device.setActiveKeyPreset(preset.getName());
-
                 preset.storeToPeripheral();
+                setupOutlets();
             }
             public void onNegativeClick(){
                 //
