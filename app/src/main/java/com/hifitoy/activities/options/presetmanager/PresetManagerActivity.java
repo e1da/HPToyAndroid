@@ -133,9 +133,13 @@ public class PresetManagerActivity extends Activity {
         presetListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(PresetManagerActivity.this, PresetDetailActivity.class);
-                intent.putExtra("presetPosition", position);
-                startActivity(intent);
+
+                    String presetName
+                            = HiFiToyPresetManager.getInstance().getPresetNameList().get(position);
+
+                    Intent intent = new Intent(PresetManagerActivity.this, PresetDetailActivity.class);
+                    intent.putExtra("presetName", presetName);
+                    startActivity(intent);
             }
         });
     }

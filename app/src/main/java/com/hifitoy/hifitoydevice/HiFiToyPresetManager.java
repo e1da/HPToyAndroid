@@ -92,7 +92,7 @@ public class HiFiToyPresetManager {
         return name;
     }
 
-    private List<String> getOfficialPresetNameList() {
+    public List<String> getOfficialPresetNameList() {
         List<String> presetNameList = new ArrayList<>();
         presetNameList.add("No processing");
 

@@ -58,8 +58,8 @@ public class PresetDetailActivity extends BaseActivity implements View.OnClickLi
         initOutlets();
 
         try {
-            int position = getIntent().getIntExtra("presetPosition", -1);
-            preset = HiFiToyPresetManager.getInstance().getPreset(position);
+            String presetName = getIntent().getStringExtra("presetName");
+            preset = HiFiToyPresetManager.getInstance().getPreset(presetName);
 
         } catch (IOException | XmlPullParserException e) {
             Log.d(TAG, e.toString());
