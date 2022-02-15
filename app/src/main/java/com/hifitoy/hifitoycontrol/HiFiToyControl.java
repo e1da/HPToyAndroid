@@ -33,7 +33,6 @@ import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
 import com.hifitoy.hifitoydevice.HiFiToyPreset;
-import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 import com.hifitoy.hifitoydevice.PeripheralData;
 import com.hifitoy.hifitoynumbers.Checksummer;
 import com.hifitoy.hifitoyobjects.AMMode;
@@ -44,7 +43,6 @@ import com.hifitoy.tas5558.IRegResponse;
 import com.hifitoy.tas5558.RegRequest;
 import com.hifitoy.tas5558.RegResponse;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
@@ -537,18 +535,6 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
                                         }
                                         public void onNegativeClick(){
                                             HiFiToyPreset p = activeDevice.getActivePreset();
-
-                                            try {
-                                                //recalc checksum and store
-                                                //[bug fixed]if we import preset, change preset,
-                                                // back to import and store to peripheral
-                                                p.updateChecksum();
-                                                p.save(true);
-
-                                            } catch(IOException e) {
-                                                Log.d(TAG, e.toString());
-                                            }
-
                                             p.storeToPeripheral();
                                         }
                                     };
