@@ -51,12 +51,12 @@ public class HiFiToyPresetManager {
         try {
             FileInputStream fis = context.openFileInput("HiFiToyPresetMap.dat");
             ObjectInputStream is = new ObjectInputStream(fis);
-            List<ToyPreset> oldPresetList = (LinkedList<ToyPreset>)is.readObject();
+            List<HiFiToyPreset> oldPresetList = (LinkedList<HiFiToyPreset>)is.readObject();
 
             is.close();
             Log.d(TAG, "Restore HiFiToyPresetMap.");
 
-            for (ToyPreset p : oldPresetList) {
+            for (HiFiToyPreset p : oldPresetList) {
                 if (!isOfficialPresetExist(p.getName())) { // if not official preset
                     Log.d(TAG, "Old preset: " + p.getName());
                 }
