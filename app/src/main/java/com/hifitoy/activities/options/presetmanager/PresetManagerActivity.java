@@ -7,6 +7,7 @@
 package com.hifitoy.activities.options.presetmanager;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.net.Uri;
@@ -17,26 +18,30 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
-import com.hifitoy.activities.options.presetmanager.linkimporttool.LinkImportActivity;
 import com.hifitoy.activities.options.presetmanager.mergetool.MergeToolActivity;
-import com.hifitoy.activities.options.presetmanager.textimporttool.PresetTextImportActivity;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
+import com.hifitoy.widgets.SegmentedControlWidget;
 
-public class PresetManagerActivity extends ListActivity {
+public class PresetManagerActivity extends Activity {
     final static String TAG = "HiFiToy";
 
-    private PresetListAdapter mPresetListAdapter;
+    private PresetListAdapter       mPresetListAdapter;
+
+    private ListView                presetListView;
+    private SegmentedControlWidget  presetTypeSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_preset);
 
         //show back button
         ActionBar actionBar = getActionBar();
@@ -57,8 +62,8 @@ public class PresetManagerActivity extends ListActivity {
             }
         });
 
-        // Initializes list view adapter.
         mPresetListAdapter = new PresetListAdapter();
+        initOutlets();
     }
 
     @Override
@@ -66,10 +71,7 @@ public class PresetManagerActivity extends ListActivity {
         super.onResume();
         ApplicationContext.getInstance().setContext(this);
 
-        // Set list view adapter.
-        setListAdapter(mPresetListAdapter);
-        mPresetListAdapter.notifyDataSetChanged();
-
+        setupOutlets();
     }
 
     @Override
@@ -115,12 +117,33 @@ public class PresetManagerActivity extends ListActivity {
         }
     }
 
-    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        Intent intent = new Intent(this, PresetDetailActivity.class);
-        intent.putExtra("presetPosition", position);
-        startActivity(intent);
+    private void initOutlets() {
+        presetTypeSwitch = findViewById(R.id.presetTypeWidget_outl);
+
+        presetListView = findViewById(R.id.presetListView_outl);
+        presetListView.setAdapter(mPresetListAdapter);
+
+        presetTypeSwitch.setOnCheckedChangeListener(new SegmentedControlWidget.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(SegmentedControlWidget segmentedControl, int checkedIndex) {
+
+            }
+        });
+
+        presetListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(PresetManagerActivity.this, PresetDetailActivity.class);
+                intent.putExtra("presetPosition", position);
+                startActivity(intent);
+            }
+        });
     }
+
+    public void setupOutlets() {
+        mPresetListAdapter.notifyDataSetChanged();
+    }
+
 
     // Adapter for holding devices found through scanning.
     private class PresetListAdapter extends BaseAdapter {
