@@ -141,8 +141,9 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
             if (!importFromDataBufs(dataBufs)) {
                 throw new IOException("Import from data bufs error in Preset contructor.");
             }
+        } else {
+            throw new IOException("Biquad type length error.");
         }
-        throw new IOException("Biquad type length error.");
     }
 
     @Override
