@@ -40,15 +40,11 @@ import com.hifitoy.dialogsystem.KeyboardDialog;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.AudioSource;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
-import com.hifitoy.hifitoydevice.HiFiToyPreset;
+import com.hifitoy.hifitoydevice.ToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 import com.hifitoy.hifitoyobjects.Volume;
 import com.hifitoy.widgets.AudioSourceWidget;
 import com.hifitoy.widgets.Slider;
-
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 
 
 public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekBarChangeListener,
@@ -280,7 +276,7 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
         discoveryBtn.setBackground(drawable);
 
         HiFiToyDevice dev = HiFiToyControl.getInstance().getActiveDevice();
-        HiFiToyPreset preset = dev.getActivePreset();
+        ToyPreset preset = dev.getActivePreset();
 
         audioSource.setState(dev.getAudioSource().getSource());
 
@@ -292,7 +288,7 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
     public void onClick(View v) {
         Intent intent;
         KeyboardNumber n;
-        HiFiToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
+        ToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
 
         switch (v.getId()) {
             case R.id.audio_source_info:
@@ -355,7 +351,7 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
 
     @Override
     public void onKeyboardResult(String tag, KeyboardNumber result) {
-        HiFiToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
+        ToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
 
         try {
             if (tag.equals("volume")) {
@@ -382,7 +378,7 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (!fromUser) return;
 
-        HiFiToyPreset p = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
+        ToyPreset p = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
 
         if (seekBar.equals(volumeSlider)){
             Volume v = p.getVolume();
@@ -403,7 +399,7 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
 
     DialogSystem.OnClickTextDialog savePresetHandler = new DialogSystem.OnClickTextDialog() {
         HiFiToyDevice device;
-        HiFiToyPreset preset;
+        ToyPreset preset;
 
 
         @Override

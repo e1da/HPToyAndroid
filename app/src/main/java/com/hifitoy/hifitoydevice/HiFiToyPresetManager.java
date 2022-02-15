@@ -51,12 +51,12 @@ public class HiFiToyPresetManager {
         try {
             FileInputStream fis = context.openFileInput("HiFiToyPresetMap.dat");
             ObjectInputStream is = new ObjectInputStream(fis);
-            List<HiFiToyPreset> oldPresetList = (LinkedList<HiFiToyPreset>)is.readObject();
+            List<ToyPreset> oldPresetList = (LinkedList<ToyPreset>)is.readObject();
 
             is.close();
             Log.d(TAG, "Restore HiFiToyPresetMap.");
 
-            for (HiFiToyPreset p : oldPresetList) {
+            for (ToyPreset p : oldPresetList) {
                 if (!isOfficialPresetExist(p.getName())) { // if not official preset
                     Log.d(TAG, "Old preset: " + p.getName());
                 }
@@ -169,9 +169,9 @@ public class HiFiToyPresetManager {
         return presetNameList;
     }
 
-    private HiFiToyPreset getOfficialPreset(String presetName) throws IOException, XmlPullParserException {
+    private ToyPreset getOfficialPreset(String presetName) throws IOException, XmlPullParserException {
         if (presetName.equals("No processing")) {
-            return new HiFiToyPreset();
+            return new ToyPreset();
         }
 
         Context c = ApplicationContext.getInstance().getContext();
@@ -180,13 +180,13 @@ public class HiFiToyPresetManager {
         for (String n : getOfficialPresetNameList()) {
             if (presetName.equals(n)) {
                 String filename = presetName + ".tpr";
-                return new HiFiToyPreset(filename, am.open("base_presets/" + filename));
+                return new ToyPreset(filename, am.open("base_presets/" + filename));
             }
         }
         throw new IOException("Official preset not found.");
     }
 
-    private HiFiToyPreset getUserPreset(String presetName) throws IOException, XmlPullParserException {
+    private ToyPreset getUserPreset(String presetName) throws IOException, XmlPullParserException {
         File dir = getUserDir();
         if (dir == null) {
             throw new IOException("User preset directory not found.");
@@ -200,13 +200,13 @@ public class HiFiToyPresetManager {
         for (File f : files) {
             String n = filenameToPresetName(f.getName());
             if (presetName.equals(n)) {
-                return new HiFiToyPreset(f);
+                return new ToyPreset(f);
             }
         }
         throw new IOException("User preset not found");
     }
 
-    public HiFiToyPreset getPreset(String presetName) throws IOException, XmlPullParserException {
+    public ToyPreset getPreset(String presetName) throws IOException, XmlPullParserException {
         try {
             return getOfficialPreset(presetName);
 
@@ -230,7 +230,7 @@ public class HiFiToyPresetManager {
         return -1;
     }
 
-    public HiFiToyPreset getPreset(int position) throws IOException, XmlPullParserException {
+    public ToyPreset getPreset(int position) throws IOException, XmlPullParserException {
         String presetName = getPresetNameList().get(position);
         return getPreset(presetName);
     }
@@ -286,7 +286,7 @@ public class HiFiToyPresetManager {
             throw new IOException("Rename error because preset with this name is exist.");
         }
 
-        HiFiToyPreset p = getUserPreset(oldName);
+        ToyPreset p = getUserPreset(oldName);
         p.setName(newName);
         p.save(true);
 
@@ -300,7 +300,7 @@ public class HiFiToyPresetManager {
         }
 
         try {
-            HiFiToyPreset importPreset = new HiFiToyPreset(uri);
+            ToyPreset importPreset = new ToyPreset(uri);
             importPreset.save(false);
 
             DialogSystem.getInstance().showDialog("Completed",

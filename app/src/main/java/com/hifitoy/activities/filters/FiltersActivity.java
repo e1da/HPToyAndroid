@@ -7,12 +7,8 @@
 package com.hifitoy.activities.filters;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.FragmentTransaction;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,7 +20,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
 import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.activities.filters.config_fragment.BiquadConfigFragment;
@@ -34,7 +29,6 @@ import com.hifitoy.activities.filters.filter_fragment.FiltersFragment;
 import com.hifitoy.activities.filters.import_fragment.FilterImportFragment;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoydevice.HiFiToyPreset;
 import com.hifitoy.hifitoyobjects.Biquad;
 import com.hifitoy.hifitoyobjects.Filters;
 import com.hifitoy.hifitoyobjects.PassFilter;

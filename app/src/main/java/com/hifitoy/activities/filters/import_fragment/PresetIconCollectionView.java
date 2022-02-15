@@ -12,7 +12,7 @@ import android.util.Log;
 import android.widget.FrameLayout;
 
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoydevice.HiFiToyPreset;
+import com.hifitoy.hifitoydevice.ToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -44,7 +44,7 @@ public class PresetIconCollectionView extends FrameLayout {
         presetViews = new PresetIconView[presetManager.size()];
         for (int i = 0; i < presetManager.size(); i++) {
             try {
-                HiFiToyPreset p = presetManager.getPreset(i);
+                ToyPreset p = presetManager.getPreset(i);
                 presetViews[i] = new PresetIconView(context, p);
 
                 addView(presetViews[i]);

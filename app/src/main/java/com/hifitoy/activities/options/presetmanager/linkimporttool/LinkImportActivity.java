@@ -20,8 +20,7 @@ import com.hifitoy.ApplicationContext;
 import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.R;
 import com.hifitoy.dialogsystem.DialogSystem;
-import com.hifitoy.hifitoydevice.HiFiToyPreset;
-import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
+import com.hifitoy.hifitoydevice.ToyPreset;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -161,7 +160,7 @@ public class LinkImportActivity extends BaseActivity {
 
                     if (name.length() > 0) {
                         try {
-                            HiFiToyPreset importPreset = new HiFiToyPreset(name, presetString);
+                            ToyPreset importPreset = new ToyPreset(name, presetString);
                             importPreset.save(true);
 
                             DialogSystem.getInstance().showDialog("Info",

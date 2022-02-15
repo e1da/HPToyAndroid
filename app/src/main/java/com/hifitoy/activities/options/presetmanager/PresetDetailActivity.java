@@ -23,7 +23,7 @@ import com.hifitoy.R;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
 import com.hifitoy.hifitoydevice.HiFiToyDeviceManager;
-import com.hifitoy.hifitoydevice.HiFiToyPreset;
+import com.hifitoy.hifitoydevice.ToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -35,7 +35,7 @@ import java.util.Collection;
 public class PresetDetailActivity extends BaseActivity implements View.OnClickListener{
     final static String TAG = "HiFiToy";
 
-    HiFiToyPreset preset;
+    ToyPreset preset;
 
     LinearLayout    presetNameLayout_outl;
     TextView        presetName_outl;

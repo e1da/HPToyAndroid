@@ -23,7 +23,7 @@ public class HiFiToyDevice implements Serializable {
     private String                  mac;
     private String                  name;
     private String                  activeKeyPreset;
-    private transient HiFiToyPreset activePreset = null;
+    private transient ToyPreset activePreset = null;
     private int                     pairingCode;
 
     private AudioSource     audioSource;
@@ -82,7 +82,7 @@ public class HiFiToyDevice implements Serializable {
     }
     public boolean  setActiveKeyPreset(String key){
         try {
-            HiFiToyPreset p = HiFiToyPresetManager.getInstance().getPreset(key);
+            ToyPreset p = HiFiToyPresetManager.getInstance().getPreset(key);
 
             activeKeyPreset = key;
             activePreset = p;
@@ -98,7 +98,7 @@ public class HiFiToyDevice implements Serializable {
         activeKeyPreset = key;
         HiFiToyDeviceManager.getInstance().store();
     }
-    public HiFiToyPreset getActivePreset() {
+    public ToyPreset getActivePreset() {
         if (activePreset == null) {
             try {
                 activePreset = HiFiToyPresetManager.getInstance().getPreset(activeKeyPreset);
@@ -168,7 +168,7 @@ public class HiFiToyDevice implements Serializable {
             @Override
             public void onPostProcess() {
                 try {
-                    HiFiToyPreset importPreset = new HiFiToyPreset(
+                    ToyPreset importPreset = new ToyPreset(
                             Calendar.getInstance().getTime().toString(),
                             pd.getDataBufs(),
                             pd.getBiquadTypes());

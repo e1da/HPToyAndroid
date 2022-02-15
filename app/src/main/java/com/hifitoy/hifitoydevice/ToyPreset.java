@@ -11,13 +11,11 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.util.Xml;
 
 import com.hifitoy.ApplicationContext;
-import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoynumbers.ByteUtility;
 import com.hifitoy.hifitoynumbers.Checksummer;
@@ -29,7 +27,6 @@ import com.hifitoy.hifitoyobjects.Filters;
 import com.hifitoy.hifitoyobjects.HiFiToyObject;
 import com.hifitoy.hifitoyobjects.Loudness;
 import com.hifitoy.hifitoyobjects.Volume;
-import com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel;
 import com.hifitoy.hifitoyobjects.drc.DrcCoef;
 import com.hifitoy.hifitoyobjects.drc.DrcTimeConst;
 import com.hifitoy.tas5558.TAS5558;
@@ -39,17 +36,11 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.io.StringReader;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,15 +51,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.BassFreq.BASS_FREQ_125;
-import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.BassTrebleCh.BASS_TREBLE_CH_127;
-import static com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel.TrebleFreq.TREBLE_FREQ_9000;
 import static com.hifitoy.hifitoyobjects.drc.Drc.DrcEvaluation.POST_VOLUME_EVAL;
 import static com.hifitoy.hifitoyobjects.drc.DrcChannel.DRC_CH_1_7;
 import static com.hifitoy.hifitoyobjects.drc.DrcCoef.POINT0_INPUT_DB;
 import static com.hifitoy.hifitoyobjects.drc.DrcCoef.POINT3_INPUT_DB;
 
-public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
+public class ToyPreset implements HiFiToyObject, Cloneable, Serializable {
     private static final String TAG = "HiFiToy";
 
     private String  name;
@@ -80,16 +68,16 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     public Loudness    loudness;
     public Drc         drc;
 
-    public HiFiToyPreset() {
+    public ToyPreset() {
         setDefault();
     }
 
-    public HiFiToyPreset(String presetName) {
+    public ToyPreset(String presetName) {
         this();
         this.name = presetName;
     }
 
-    public HiFiToyPreset(File file) throws XmlPullParserException, IOException {
+    public ToyPreset(File file) throws XmlPullParserException, IOException {
         this();
         if (file == null) throw new IOException("File is null.");
         //get preset name
@@ -99,7 +87,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         importFromXml(fis);
     }
 
-    public HiFiToyPreset(Uri uri) throws XmlPullParserException, IOException {
+    public ToyPreset(Uri uri) throws XmlPullParserException, IOException {
         this();
         if (uri == null) throw new IOException("Uri is null.");
         //get preset name
@@ -116,7 +104,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         importFromXml(in);
     }
 
-    public HiFiToyPreset(String presetName, String xmlData) throws XmlPullParserException, IOException {
+    public ToyPreset(String presetName, String xmlData) throws XmlPullParserException, IOException {
         this(presetName);
         if (xmlData == null) throw new IOException("Xml data is not correct.");
 
@@ -124,7 +112,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         importFromXml(is);
     }
 
-    public HiFiToyPreset(String filename, InputStream is) throws XmlPullParserException, IOException {
+    public ToyPreset(String filename, InputStream is) throws XmlPullParserException, IOException {
         this();
         if (is == null) throw new IOException("InputStream is null.");
 
@@ -134,7 +122,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
         importFromXml(is);
     }
 
-    public HiFiToyPreset(String presetName, List<HiFiToyDataBuf> dataBufs, byte[] biquadTypes) throws IOException {
+    public ToyPreset(String presetName, List<HiFiToyDataBuf> dataBufs, byte[] biquadTypes) throws IOException {
         this(presetName);
 
         if (filters.setBiquadTypes(biquadTypes)) {
@@ -150,7 +138,7 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        HiFiToyPreset that = (HiFiToyPreset) o;
+        ToyPreset that = (ToyPreset) o;
 
         boolean b0 = true;//checkSum == that.checkSum;//!!!Warning
 
@@ -168,8 +156,8 @@ public class HiFiToyPreset implements HiFiToyObject, Cloneable, Serializable {
     }
 
     @Override
-    public HiFiToyPreset clone() throws CloneNotSupportedException{
-        HiFiToyPreset preset = (HiFiToyPreset) super.clone();
+    public ToyPreset clone() throws CloneNotSupportedException{
+        ToyPreset preset = (ToyPreset) super.clone();
 
         preset.filters = filters.clone();
         preset.masterVolume = masterVolume.clone();
