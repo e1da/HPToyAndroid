@@ -134,6 +134,18 @@ public class ToyPreset implements HiFiToyObject, Cloneable, Serializable {
         }
     }
 
+    public ToyPreset(HiFiToyPreset oldPreset) throws CloneNotSupportedException {
+        this(oldPreset.getName());
+
+        filters         = oldPreset.getFilters().clone();
+        masterVolume    = oldPreset.getVolume().clone();
+        bassTreble      = oldPreset.getBassTreble().clone();
+        loudness        = oldPreset.getLoudness().clone();
+        drc             = oldPreset.getDrc().clone();
+
+        updateChecksum();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
