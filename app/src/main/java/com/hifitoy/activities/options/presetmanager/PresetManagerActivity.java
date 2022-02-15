@@ -132,6 +132,17 @@ public class PresetManagerActivity extends Activity {
         presetListView = findViewById(R.id.presetListView_outl);
         presetListView.setAdapter(userPresetListAdapter);
 
+        //init switch and active adapter
+        String activePresetName = HiFiToyControl.getInstance().getActiveDevice().getActiveKeyPreset();
+        if (HiFiToyPresetManager.getInstance().isUserPresetExist(activePresetName)) {
+            presetTypeSwitch.check(0);
+            presetListView.setAdapter(userPresetListAdapter);
+        } else {
+            presetTypeSwitch.check(1);
+            presetListView.setAdapter(officialPresetListAdapter);
+        }
+
+
         presetTypeSwitch.setOnCheckedChangeListener(new SegmentedControlWidget.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(SegmentedControlWidget segmentedControl, int checkedIndex) {
@@ -163,6 +174,7 @@ public class PresetManagerActivity extends Activity {
                 }
             }
         });
+
     }
 
     public void setupOutlets() {

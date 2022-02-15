@@ -16,15 +16,8 @@ import android.widget.Toast;
 import com.hifitoy.ApplicationContext;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.hifitoy.dialogsystem.DialogSystem;
@@ -211,6 +204,22 @@ public class HiFiToyPresetManager {
         return getPreset(presetName);
     }
 
+    public boolean isUserPresetExist(String name) {
+        for (String presetName : getUserPresetNameList()) {
+            if (presetName.equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    public boolean isOfficialPresetExist(String name) {
+        for (String presetName : getOfficialPresetNameList()) {
+            if (presetName.equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
     public boolean isPresetExist(String name) {
         for (String presetName : getPresetNameList()) {
             if (presetName.equals(name)) {
