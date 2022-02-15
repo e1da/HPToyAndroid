@@ -16,8 +16,7 @@ import android.widget.Toast;
 import com.hifitoy.R;
 import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.dialogsystem.DialogSystem;
-import com.hifitoy.hifitoydevice.HiFiToyPreset;
-import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
+import com.hifitoy.hifitoydevice.ToyPreset;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -89,8 +88,8 @@ public class PresetTextImportActivity extends BaseActivity {
             public void onPositiveClick(String name){
                 if (name.length() > 0) {
                     try {
-                        HiFiToyPreset importPreset =
-                                new HiFiToyPreset(name, presetTextData_outl.getText().toString());
+                        ToyPreset importPreset =
+                                new ToyPreset(name, presetTextData_outl.getText().toString());
                         importPreset.save(false);
 
                         DialogSystem.getInstance().showDialog("Info",

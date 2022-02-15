@@ -17,7 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoydevice.HiFiToyPreset;
+import com.hifitoy.hifitoydevice.ToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 import com.hifitoy.hifitoyobjects.Filters;
 
@@ -56,7 +56,7 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
         super.onHiddenChanged(hidden);
 
         if (!hidden) {
-            HiFiToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
+            ToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
             int i = HiFiToyPresetManager.getInstance().getPresetIndex(preset.getName());
             presetCollectionView.setActiveIndex(i);
             presetCollectionView.requestLayout();
@@ -129,7 +129,7 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
     }
 
     private void updateFilters(Filters f) {
-        HiFiToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
+        ToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
         preset.setFilters(f);
         f.sendToPeripheral(true);
     }

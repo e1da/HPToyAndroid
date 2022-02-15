@@ -14,9 +14,8 @@ import android.util.Log;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.ble.BlePacket;
-import com.hifitoy.hifitoycontrol.CommonCommand;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoydevice.HiFiToyPreset;
+import com.hifitoy.hifitoydevice.ToyPreset;
 import com.hifitoy.hifitoydevice.PeripheralData;
 import com.hifitoy.hifitoynumbers.ByteUtility;
 import com.hifitoy.tas5558.TAS5558;
@@ -176,7 +175,7 @@ public class AMMode implements HiFiToyObject, Cloneable, Serializable {
     }
 
     public void storeToPeripheral() {
-        HiFiToyPreset p = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
+        ToyPreset p = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
 
         PeripheralData peripheralData = new PeripheralData(p.getFilters().getBiquadTypes(),
                 p.getDataBufs());

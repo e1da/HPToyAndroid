@@ -16,7 +16,7 @@ import android.widget.Toast;
 import com.hifitoy.R;
 import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.dialogsystem.DialogSystem;
-import com.hifitoy.hifitoydevice.HiFiToyPreset;
+import com.hifitoy.hifitoydevice.ToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -42,11 +42,11 @@ public class MergeToolActivity extends BaseActivity {
 
         private int state;
 
-        private HiFiToyPreset volumeSource;
-        private HiFiToyPreset bassTrebleSource;
-        private HiFiToyPreset loudnessSource;
-        private HiFiToyPreset filtersSource;
-        private HiFiToyPreset compressorSource;
+        private ToyPreset volumeSource;
+        private ToyPreset bassTrebleSource;
+        private ToyPreset loudnessSource;
+        private ToyPreset filtersSource;
+        private ToyPreset compressorSource;
 
         private MergeTool() {
             reset();
@@ -67,13 +67,13 @@ public class MergeToolActivity extends BaseActivity {
         }
 
         private void nextState() {
-            HiFiToyPreset p = getPresetForState();
+            ToyPreset p = getPresetForState();
 
             if (p != null) {
                 if (state < COMPRESSOR_STATE) {
                     state++;
                 } else if (state == COMPRESSOR_STATE) {
-                    HiFiToyPreset mergePreset = merge();
+                    ToyPreset mergePreset = merge();
                     if (mergePreset != null) {
                         //mergePreset.presetName = [[NSDate date] descriptionWithLocale:[NSLocale systemLocale]];
                         //[self showInputNameDialog:mergePreset renameFlag:NO];
@@ -90,11 +90,11 @@ public class MergeToolActivity extends BaseActivity {
             if (state > VOLUME_STATE) state--;
         }
 
-        private HiFiToyPreset merge() {
+        private ToyPreset merge() {
             if ( (volumeSource == null) || (bassTrebleSource == null) || (loudnessSource == null) ||
                     (filtersSource == null) || (compressorSource == null) ) return null;
 
-            HiFiToyPreset mergePreset = new HiFiToyPreset();
+            ToyPreset mergePreset = new ToyPreset();
 
             try {
                 mergePreset.masterVolume = volumeSource.masterVolume.clone();
@@ -114,7 +114,7 @@ public class MergeToolActivity extends BaseActivity {
             return mergePreset;
         }
 
-        private void setPreset(HiFiToyPreset preset) {
+        private void setPreset(ToyPreset preset) {
 
             switch (state) {
                 case VOLUME_STATE:
@@ -134,7 +134,7 @@ public class MergeToolActivity extends BaseActivity {
             }
         }
 
-        private HiFiToyPreset getPresetForState() {
+        private ToyPreset getPresetForState() {
             switch (state) {
                 case VOLUME_STATE:
                     return volumeSource;
@@ -166,7 +166,7 @@ public class MergeToolActivity extends BaseActivity {
             return "err";
         }
 
-        void showInputNameDialog(final HiFiToyPreset mergePreset, boolean renameFlag){
+        void showInputNameDialog(final ToyPreset mergePreset, boolean renameFlag){
             String title;
 
             if (renameFlag) {
@@ -263,7 +263,7 @@ public class MergeToolActivity extends BaseActivity {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton b = group.findViewById(checkedId);
                 if ((b != null) && (b.isChecked()) ) {
-                    mergeTool.setPreset((HiFiToyPreset) b.getTag());
+                    mergeTool.setPreset((ToyPreset) b.getTag());
                     setupOutlets();
                 }
 
@@ -309,7 +309,7 @@ public class MergeToolActivity extends BaseActivity {
         }
     }
 
-    private void setChecked(HiFiToyPreset p){
+    private void setChecked(ToyPreset p){
         for (int i = 0; i < presets.getChildCount(); i++) {
             View b = presets.getChildAt(i);
             if ( (b instanceof RadioButton) && (b.getTag() == p) ) {
@@ -323,7 +323,7 @@ public class MergeToolActivity extends BaseActivity {
     private void fillPresetRadioGroup() {
         for (int i = 0 ; i < HiFiToyPresetManager.getInstance().size(); i++) {
             try {
-                HiFiToyPreset preset = HiFiToyPresetManager.getInstance().getPreset(i);
+                ToyPreset preset = HiFiToyPresetManager.getInstance().getPreset(i);
 
                 RadioButton btn = new RadioButton(this);
                 btn.setText(preset.getName());

@@ -17,7 +17,7 @@ import com.hifitoy.R;
 import com.hifitoy.dialogsystem.KeyboardDialog;
 import com.hifitoy.dialogsystem.KeyboardNumber;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoydevice.HiFiToyPreset;
+import com.hifitoy.hifitoydevice.ToyPreset;
 import com.hifitoy.hifitoyobjects.basstreble.BassTrebleChannel;
 import com.hifitoy.widgets.Slider;
 
@@ -55,7 +55,7 @@ public class BassActivity extends BaseActivity implements KeyboardDialog.OnResul
         bassLabel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HiFiToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
+                ToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
                 BassTrebleChannel bt = preset.getBassTreble().getBassTreble127();
 
                 KeyboardNumber n = new KeyboardNumber(KeyboardNumber.NumberType.INTEGER, bt.getBassDb());
@@ -68,7 +68,7 @@ public class BassActivity extends BaseActivity implements KeyboardDialog.OnResul
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (!fromUser) return;
 
-                HiFiToyPreset p = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
+                ToyPreset p = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
                 BassTrebleChannel bass = p.getBassTreble().getBassTreble127();
 
                 bass.setBassDbPercent(bassSlider.getPercent());
@@ -91,7 +91,7 @@ public class BassActivity extends BaseActivity implements KeyboardDialog.OnResul
 
     @Override
     public void setupOutlets() {
-        HiFiToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
+        ToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
         BassTrebleChannel bassTreble = preset.getBassTreble().getBassTreble127();
 
         bassLabel.setText(String.format(Locale.getDefault(),"%ddB", bassTreble.getBassDb()));
@@ -100,7 +100,7 @@ public class BassActivity extends BaseActivity implements KeyboardDialog.OnResul
 
     @Override
     public void onKeyboardResult(String tag, KeyboardNumber result) {
-        HiFiToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
+        ToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
 
         try {
             if (tag.equals("bass")) {

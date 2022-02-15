@@ -3,11 +3,6 @@ package com.hifitoy.hifitoydevice;
 
 import android.util.Xml;
 
-import com.hifitoy.hifitoyobjects.Biquad;
-import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
-import com.hifitoy.hifitoyobjects.HiFiToyObject;
-import com.hifitoy.hifitoyobjects.Volume;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,21 +12,20 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.List;
 import java.util.Locale;
 
 import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
-public class HiFiToyPresetTest {
-    private HiFiToyPreset p0;
-    private HiFiToyPreset p1;
+public class ToyPresetTest {
+    private ToyPreset p0;
+    private ToyPreset p1;
 
     @Before
     public void setUp() throws Exception {
         System.out.println("setUp");
 
-        p0 = new HiFiToyPreset();
+        p0 = new ToyPreset();
         System.out.println(String.format(Locale.getDefault(), "%f", p0.getVolume().getDb()));
 
         try {

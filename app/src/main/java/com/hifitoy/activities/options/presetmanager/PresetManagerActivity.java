@@ -8,7 +8,6 @@ package com.hifitoy.activities.options.presetmanager;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -29,7 +28,7 @@ import com.hifitoy.activities.options.presetmanager.mergetool.MergeToolActivity;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
-import com.hifitoy.hifitoydevice.HiFiToyPreset;
+import com.hifitoy.hifitoydevice.ToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 import com.hifitoy.widgets.SegmentedControlWidget;
 
@@ -192,7 +191,7 @@ public class PresetManagerActivity extends Activity {
         DialogSystem.OnClickDialog dialogListener = new DialogSystem.OnClickDialog() {
             public void onPositiveClick(){
                 try {
-                    HiFiToyPreset preset = HiFiToyPresetManager.getInstance().getPreset(presetName);
+                    ToyPreset preset = HiFiToyPresetManager.getInstance().getPreset(presetName);
                     preset.storeToPeripheral();
 
                     device.setActiveKeyPreset(presetName);
