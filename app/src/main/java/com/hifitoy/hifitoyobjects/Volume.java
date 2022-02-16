@@ -225,6 +225,5 @@ public class Volume implements HiFiToyObject, Cloneable, Serializable {
             Log.d(TAG, msg);
             throw new IOException(msg);
         }
-        Log.d(TAG, getInfo());
     }
 }

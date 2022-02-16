@@ -585,6 +585,5 @@ public class Filters implements HiFiToyObject, Cloneable, Serializable {
             Log.d(TAG, msg);
             throw new IOException(msg);
         }
-        Log.d(TAG, getInfo());
     }
 }

@@ -400,8 +400,6 @@ public class ToyPreset implements HiFiToyObject, Cloneable, Serializable {
                     if (addrStr == null) continue;
                     byte addr = ByteUtility.parse(addrStr);
 
-                    Log.d(TAG, "addr = " + addrStr);
-
                     //parse hiFiToyObjects
                     for (HiFiToyObject o : getCharacteristics()) {
                         if (o.getAddress() == addr) {
@@ -427,10 +425,10 @@ public class ToyPreset implements HiFiToyObject, Cloneable, Serializable {
         if (count == getCharacteristics().size()){
             updateChecksum();
 
-            Log.d(TAG, "Xml parsing is successfully.");
+            Log.d(TAG, "Preset " + name + " from xml is parsing successfully.");
 
         } else {
-            String msg = "Xml parsing is not success.";
+            String msg = "Preset " + name + " from xml is parsing unsuccessfully.";
             Log.d(TAG, msg);
             throw new IOException(msg);
         }

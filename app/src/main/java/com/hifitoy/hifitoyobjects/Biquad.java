@@ -303,7 +303,6 @@ public class Biquad implements HiFiToyObject, Cloneable, Serializable{
             throw new IOException(msg);
         }
         params.setCoefs(b0, b1, b2 ,a1, a2);
-        Log.d(TAG, getInfo());
 
     }
 
