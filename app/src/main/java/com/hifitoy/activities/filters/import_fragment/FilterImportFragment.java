@@ -28,11 +28,11 @@ import java.io.IOException;
 public class FilterImportFragment extends Fragment implements View.OnTouchListener {
     private final String TAG = "HiFiToy";
 
-    PresetIconCollectionView presetCollectionView;
+    private final FilterCollection filterCollection = new FilterCollection();
+    private PresetIconCollectionView presetCollectionView;
 
     private long prevTime = 0;
     private Point firstTap = new Point(0, 0);
-    private Point prevTranslation;
 
     private Filters tempFilters;
 
@@ -45,7 +45,7 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        presetCollectionView = new PresetIconCollectionView(getActivity());
+        presetCollectionView = new PresetIconCollectionView(getActivity(), filterCollection);
         presetCollectionView.setOnTouchListener(this);
 
         return presetCollectionView;
@@ -56,13 +56,12 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
         super.onHiddenChanged(hidden);
 
         if (!hidden) {
-            ToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
-            int i = HiFiToyPresetManager.getInstance().getPresetIndex(preset.getName());
-            presetCollectionView.setActiveIndex(i);
+            String presetName = HiFiToyControl.getInstance().getActiveDevice().getActiveKeyPreset();
+            filterCollection.setActiveIndex(presetName);
             presetCollectionView.requestLayout();
 
             try {
-                tempFilters = preset.getFilters().clone();
+                tempFilters = filterCollection.getActiveFilter().clone();
 
             } catch (CloneNotSupportedException e) {
                 Log.d(TAG, e.toString());
@@ -83,14 +82,10 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
             int trans = presetCollectionView.getBiggerViewCenterX() - presetCollectionView.getWidth() / 2;
 
             //update active preset
-            presetCollectionView.setActiveIndex(index);
+            filterCollection.setActiveIndex(index);
 
-            try {
-                Filters f = HiFiToyPresetManager.getInstance().getPreset(index).getFilters();
-                updateFilters(f);
-            } catch (IOException | XmlPullParserException e) {
-                Log.d(TAG, e.toString());
-            }
+            Filters f = filterCollection.getFilterList().get(index);
+            updateFilters(f);
 
             //smooth animation
             ValueAnimator animator = ValueAnimator.ofInt(trans, 0);
@@ -109,7 +104,6 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
             currentTap.y = (int)event.getY();
             firstTap.x = currentTap.x;
             firstTap.y = currentTap.y;
-            prevTranslation = new Point(0, 0);
         }
 
         //moved handler

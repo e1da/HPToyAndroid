@@ -14,6 +14,7 @@ import android.widget.FrameLayout;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.ToyPreset;
 import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
+import com.hifitoy.hifitoyobjects.Filters;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -22,35 +23,25 @@ import java.io.IOException;
 public class PresetIconCollectionView extends FrameLayout {
     private final String TAG = "HiFiToy";
 
-    private HiFiToyPresetManager presetManager;
+    private FilterCollection filterCollection;
     private PresetIconView[] presetViews;
 
     private int translateX = 0;
 
-    private int activeIndex;
-
-    public PresetIconCollectionView(Context context) {
+    public PresetIconCollectionView(Context context, FilterCollection filterCollection) {
         super(context);
+        this.filterCollection = filterCollection;
 
-        presetManager = HiFiToyPresetManager.getInstance();
-        String presetName = HiFiToyControl.getInstance().getActiveDevice().getActiveKeyPreset();
-        activeIndex = presetManager.getPresetIndex(presetName);
+        presetViews = new PresetIconView[filterCollection.size()];
+        for (int i = 0; i < filterCollection.size(); i++) {
+            String name = filterCollection.getNameList().get(i);
+            Filters filter = filterCollection.getFilterList().get(i);
+            presetViews[i] = new PresetIconView(context, name, filter);
 
-        setBackgroundColor(0xF0000000);
-
-        presetViews = new PresetIconView[presetManager.size()];
-        for (int i = 0; i < presetManager.size(); i++) {
-            try {
-                ToyPreset p = presetManager.getPreset(i);
-
-                presetViews[i] = new PresetIconView(context, p.getName(), p.getFilters());
-
-                addView(presetViews[i]);
-            } catch (IOException | XmlPullParserException e) {
-                Log.d(TAG, e.toString());
-            }
+            addView(presetViews[i]);
         }
 
+        setBackgroundColor(0xF0000000);
     }
 
     public void setTranslateX(int translateX) {
@@ -61,10 +52,6 @@ public class PresetIconCollectionView extends FrameLayout {
         return translateX;
     }
 
-    public void setActiveIndex(int index) {
-        activeIndex = index;
-    }
-
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         int width = getWidth();
@@ -72,18 +59,16 @@ public class PresetIconCollectionView extends FrameLayout {
 
         int wL = width / 3;
 
-
         for (int i = 0; i < presetViews.length; i++) {
-            //if (center[i].x + wL / 2 < 0) continue;
-            //if (center[i].x - wL / 2 > width) continue;
-
             //set layout
             presetViews[i].setScale((float)getViewWidth(i) / wL);
+
             presetViews[i].layout(
                     getViewCenter(i).x - wL / 2,
                     getViewCenter(i).y - height / 2,
                     getViewCenter(i).x + wL / 2,
                     getViewCenter(i).y + height / 2);
+
 
             //set alpha
             float alpha = getIconAlpha(getWidth(), getViewCenter(i).x);
@@ -94,8 +79,9 @@ public class PresetIconCollectionView extends FrameLayout {
 
     public int getBiggerViewIndex() {
         int index = 0;
-        for (int i = 0; i < presetManager.size(); i++) {
-            if (getViewWidth(i) < getViewWidth(i)) {
+
+        for (int i = 0; i < filterCollection.size(); i++) {
+            if (getViewWidth(index) < getViewWidth(i)) {
                 index = i;
             }
         }
@@ -107,7 +93,7 @@ public class PresetIconCollectionView extends FrameLayout {
     }
 
     private Point getViewCenter(int index) {
-        return new Point(getWidth() / 2 + (index - activeIndex) * getWidth() / 3 + translateX,
+        return new Point(getWidth() / 2 + (index - filterCollection.getActiveIndex()) * getWidth() / 3 + translateX,
                 getHeight() / 2);
     }
 
