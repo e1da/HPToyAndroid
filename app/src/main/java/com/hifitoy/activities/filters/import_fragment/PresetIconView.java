@@ -11,7 +11,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.hifitoy.activities.filters.filter_fragment.FilterView;
-import com.hifitoy.hifitoydevice.ToyPreset;
+import com.hifitoy.hifitoyobjects.Filters;
 
 public class PresetIconView extends FrameLayout {
 
@@ -23,28 +23,25 @@ public class PresetIconView extends FrameLayout {
 
     public PresetIconView(Context context) {
         super(context);
-        init(context, null);
+        init(context, "Null", null);
     }
 
-    public PresetIconView(Context context, ToyPreset preset) {
+    public PresetIconView(Context context, String name, Filters filter) {
         super(context);
-        init(context, preset);
+        init(context, name, filter);
     }
 
-    private void init(Context context, ToyPreset preset) {
-        if (preset != null) {
-            filterView = new FilterView(context, preset.getFilters());
-            filterView.controlLineVisible = false;
-            filterView.unitVisible = false;
-            filterView.allFilterActive = true;
+    private void init(Context context, String name, Filters filter) {
+        filterView = new FilterView(context, filter);
+        filterView.controlLineVisible = false;
+        filterView.unitVisible = false;
+        filterView.allFilterActive = true;
 
-            filterName = new TextView(context);
-            filterName.setText(preset.getName());
+        filterName = new TextView(context);
+        filterName.setText(name);
 
-            addView(filterView);
-            addView(filterName);
-
-        }
+        addView(filterView);
+        addView(filterName);
     }
 
     @Override

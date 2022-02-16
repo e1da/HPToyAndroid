@@ -45,7 +45,8 @@ public class PresetIconCollectionView extends FrameLayout {
         for (int i = 0; i < presetManager.size(); i++) {
             try {
                 ToyPreset p = presetManager.getPreset(i);
-                presetViews[i] = new PresetIconView(context, p);
+
+                presetViews[i] = new PresetIconView(context, p.getName(), p.getFilters());
 
                 addView(presetViews[i]);
             } catch (IOException | XmlPullParserException e) {
