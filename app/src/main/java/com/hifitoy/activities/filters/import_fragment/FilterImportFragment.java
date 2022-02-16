@@ -18,21 +18,16 @@ import android.view.ViewGroup;
 
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.ToyPreset;
-import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 import com.hifitoy.hifitoyobjects.Filters;
-
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 
 public class FilterImportFragment extends Fragment implements View.OnTouchListener {
     private final String TAG = "HiFiToy";
 
-    PresetIconCollectionView presetCollectionView;
+    private final FilterCollection filterCollection = new FilterCollection();
+    private PresetIconCollectionView presetCollectionView;
 
     private long prevTime = 0;
     private Point firstTap = new Point(0, 0);
-    private Point prevTranslation;
 
     private Filters tempFilters;
 
@@ -45,7 +40,7 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        presetCollectionView = new PresetIconCollectionView(getActivity());
+        presetCollectionView = new PresetIconCollectionView(getActivity(), filterCollection);
         presetCollectionView.setOnTouchListener(this);
 
         return presetCollectionView;
@@ -56,13 +51,12 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
         super.onHiddenChanged(hidden);
 
         if (!hidden) {
-            ToyPreset preset = HiFiToyControl.getInstance().getActiveDevice().getActivePreset();
-            int i = HiFiToyPresetManager.getInstance().getPresetIndex(preset.getName());
-            presetCollectionView.setActiveIndex(i);
+            String presetName = HiFiToyControl.getInstance().getActiveDevice().getActiveKeyPreset();
+            filterCollection.setActiveIndex(presetName);
             presetCollectionView.requestLayout();
 
             try {
-                tempFilters = preset.getFilters().clone();
+                tempFilters = filterCollection.getActiveFilter().clone();
 
             } catch (CloneNotSupportedException e) {
                 Log.d(TAG, e.toString());
@@ -79,17 +73,13 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
             v.performClick();
 
             //find index and translate to center of new preset
-            int index = presetCollectionView.getBiggerViewIndex();
-            int trans = presetCollectionView.getBiggerViewCenterX() - presetCollectionView.getWidth() / 2;
+            int oldIndex = filterCollection.getActiveIndex();
+            int newIndex = presetCollectionView.getBiggerViewIndex();
+            int trans = presetCollectionView.getViewCenter(newIndex).x - presetCollectionView.getWidth() / 2;
 
-            //update active preset
-            presetCollectionView.setActiveIndex(index);
-
-            try {
-                Filters f = HiFiToyPresetManager.getInstance().getPreset(index).getFilters();
-                updateFilters(f);
-            } catch (IOException | XmlPullParserException e) {
-                Log.d(TAG, e.toString());
+            if (oldIndex != newIndex) {
+                filterCollection.setActiveIndex(newIndex);
+                updateFilters(filterCollection.getActiveFilter());
             }
 
             //smooth animation
@@ -97,7 +87,8 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
             animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
-                    presetCollectionView.setTranslateX((int)animation.getAnimatedValue());
+                    filterCollection.setTranslateX((int)animation.getAnimatedValue());
+                    presetCollectionView.requestLayout();
                 }
             });
             animator.start();
@@ -109,7 +100,6 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
             currentTap.y = (int)event.getY();
             firstTap.x = currentTap.x;
             firstTap.y = currentTap.y;
-            prevTranslation = new Point(0, 0);
         }
 
         //moved handler
@@ -121,8 +111,8 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
                 currentTap.y = (int)event.getY();
                 Point translation = new Point(currentTap.x - firstTap.x,currentTap.y - firstTap.y);
 
-                presetCollectionView.setTranslateX(translation.x);
-
+                filterCollection.setTranslateX(translation.x);
+                presetCollectionView.requestLayout();
             }
         }
         return true;
