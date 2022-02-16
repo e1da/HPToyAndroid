@@ -98,16 +98,7 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
                 updateFilters(filterCollection.getActiveFilter());
             }
 
-            //smooth animation
-            ValueAnimator animator = ValueAnimator.ofInt(trans, 0);
-            animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    filterCollection.setTranslateX((int)animation.getAnimatedValue());
-                    presetCollectionView.requestLayout();
-                }
-            });
-            animator.start();
+            animateTranslateX(trans);
         }
 
         if (event.getAction() == MotionEvent.ACTION_DOWN){
@@ -139,30 +130,52 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
     class TapGestureListener extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
+            int index = -1;
             doubleTapEvent = true;
 
             float w = presetCollectionView.getWidth();
             float h = presetCollectionView.getHeight();
-
-
+            
             if (    (e.getX() > 0) &&
                     (e.getX() < w / 3) &&
                     (e.getY() > h / 4) &&
-                    (e.getY() < 3 * h / 4))  {
+                    (e.getY() < 3 * h / 4))  { // previous filter
 
-                Log.d(TAG, "Prev");
+                index = filterCollection.getActiveIndex() - 1;
             }
 
             if (    (e.getX() > 2 * w / 3) &&
                     (e.getX() < w) &&
                     (e.getY() > h / 4) &&
-                    (e.getY() < 3 * h / 4))  {
+                    (e.getY() < 3 * h / 4))  { // next filter
 
-                Log.d(TAG, "Next");
+                index = filterCollection.getActiveIndex() + 1;
+            }
+
+            if ((index >= 0) && (index < filterCollection.size())) {
+                int centerIcon = presetCollectionView.getViewCenter(index).x;
+                int trans = centerIcon - presetCollectionView.getWidth() / 2;
+
+                filterCollection.setActiveIndex(index);
+                updateFilters(filterCollection.getActiveFilter());
+
+                animateTranslateX(trans);
             }
 
             return true;
         }
+    }
+
+    private void animateTranslateX(int trans) {
+        ValueAnimator animator = ValueAnimator.ofInt(trans, 0);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                filterCollection.setTranslateX((int) animation.getAnimatedValue());
+                presetCollectionView.requestLayout();
+            }
+        });
+        animator.start();
     }
 
     private void updateFilters(Filters f) {
