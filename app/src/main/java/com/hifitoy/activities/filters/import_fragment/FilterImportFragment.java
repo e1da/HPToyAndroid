@@ -11,6 +11,7 @@ import android.app.Fragment;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -25,6 +26,9 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
 
     private final FilterCollection filterCollection = new FilterCollection();
     private PresetIconCollectionView presetCollectionView;
+
+    private GestureDetector clickDetector;
+    private boolean doubleTapEvent = false;
 
     private long prevTime = 0;
     private Point firstTap = new Point(0, 0);
@@ -42,6 +46,8 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
 
         presetCollectionView = new PresetIconCollectionView(getActivity(), filterCollection);
         presetCollectionView.setOnTouchListener(this);
+
+        clickDetector = new GestureDetector(getActivity(), new TapGestureListener());
 
         return presetCollectionView;
     }
@@ -68,9 +74,19 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
     public boolean onTouch(View v, MotionEvent event) {
         Point currentTap = new Point(0, 0);
 
+        //double tap handler
+        if (clickDetector.onTouchEvent(event)) {
+            return true;
+        }
+
         //action up and down handlers
         if (event.getAction() == MotionEvent.ACTION_UP){
             v.performClick();
+
+            if (doubleTapEvent) {
+                doubleTapEvent = false;
+                return true;
+            }
 
             //find index and translate to center of new preset
             int oldIndex = filterCollection.getActiveIndex();
@@ -104,6 +120,8 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
 
         //moved handler
         if (event.getAction() == MotionEvent.ACTION_MOVE){
+            if (doubleTapEvent) return true;
+
             if (event.getEventTime() - prevTime > 40){//time period should be >= 40ms
                 prevTime = event.getEventTime();
 
@@ -116,6 +134,35 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
             }
         }
         return true;
+    }
+
+    class TapGestureListener extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            doubleTapEvent = true;
+
+            float w = presetCollectionView.getWidth();
+            float h = presetCollectionView.getHeight();
+
+
+            if (    (e.getX() > 0) &&
+                    (e.getX() < w / 3) &&
+                    (e.getY() > h / 4) &&
+                    (e.getY() < 3 * h / 4))  {
+
+                Log.d(TAG, "Prev");
+            }
+
+            if (    (e.getX() > 2 * w / 3) &&
+                    (e.getX() < w) &&
+                    (e.getY() > h / 4) &&
+                    (e.getY() < 3 * h / 4))  {
+
+                Log.d(TAG, "Next");
+            }
+
+            return true;
+        }
     }
 
     private void updateFilters(Filters f) {
