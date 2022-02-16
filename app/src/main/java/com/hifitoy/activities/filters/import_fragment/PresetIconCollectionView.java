@@ -25,9 +25,6 @@ public class PresetIconCollectionView extends FrameLayout {
     private HiFiToyPresetManager presetManager;
     private PresetIconView[] presetViews;
 
-    private Point[] viewCenter;
-    private int[] viewWidth;
-
     private int translateX = 0;
 
     private int activeIndex;
@@ -54,14 +51,6 @@ public class PresetIconCollectionView extends FrameLayout {
             }
         }
 
-
-        viewCenter = new Point[presetManager.size()];
-        for (int i = 0; i < presetManager.size(); i++) {
-            viewCenter[i] = new Point();
-        }
-
-        viewWidth = new int[presetManager.size()];
-
     }
 
     public void setTranslateX(int translateX) {
@@ -81,9 +70,6 @@ public class PresetIconCollectionView extends FrameLayout {
         int width = getWidth();
         int height = getHeight();
 
-        updateViewCenter();
-        updateViewWidth();
-
         int wL = width / 3;
 
 
@@ -92,24 +78,24 @@ public class PresetIconCollectionView extends FrameLayout {
             //if (center[i].x - wL / 2 > width) continue;
 
             //set layout
-            presetViews[i].setScale((float)viewWidth[i] / wL);
-            presetViews[i].layout(viewCenter[i].x - wL / 2, viewCenter[i].y - height / 2,
-                    viewCenter[i].x + wL / 2, viewCenter[i].y + height / 2);
+            presetViews[i].setScale((float)getViewWidth(i) / wL);
+            presetViews[i].layout(
+                    getViewCenter(i).x - wL / 2,
+                    getViewCenter(i).y - height / 2,
+                    getViewCenter(i).x + wL / 2,
+                    getViewCenter(i).y + height / 2);
 
             //set alpha
-            float alpha = getIconAlpha(getWidth(), viewCenter[i].x);
+            float alpha = getIconAlpha(getWidth(), getViewCenter(i).x);
             presetViews[i].setAlpha(alpha);
         }
 
     }
 
     public int getBiggerViewIndex() {
-        updateViewCenter();
-        updateViewWidth();
-
         int index = 0;
-        for (int i = 0; i < viewWidth.length; i++) {
-            if (viewWidth[index] < viewWidth[i]) {
+        for (int i = 0; i < presetManager.size(); i++) {
+            if (getViewWidth(i) < getViewWidth(i)) {
                 index = i;
             }
         }
@@ -117,20 +103,16 @@ public class PresetIconCollectionView extends FrameLayout {
     }
 
     public int getBiggerViewCenterX() {
-        return viewCenter[getBiggerViewIndex()].x;
+        return getViewCenter(getBiggerViewIndex()).x;
     }
 
-    private void updateViewCenter() {
-        for (int i = 0; i < viewCenter.length; i++) {
-            viewCenter[i].set(getWidth() / 2 + (i - activeIndex) * getWidth() / 3 + translateX,
-                    getHeight() / 2);
-        }
+    private Point getViewCenter(int index) {
+        return new Point(getWidth() / 2 + (index - activeIndex) * getWidth() / 3 + translateX,
+                getHeight() / 2);
     }
 
-    private void updateViewWidth() {
-        for (int i = 0; i < viewWidth.length; i++) {
-            viewWidth[i] = getIconWidth(getWidth(), viewCenter[i].x);
-        }
+    private int getViewWidth(int index) {
+        return getIconWidth(getWidth(), getViewCenter(index).x);
     }
 
     private int getIconWidth(int width, int x) {
