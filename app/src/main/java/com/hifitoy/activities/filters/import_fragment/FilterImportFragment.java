@@ -18,12 +18,7 @@ import android.view.ViewGroup;
 
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.ToyPreset;
-import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 import com.hifitoy.hifitoyobjects.Filters;
-
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 
 public class FilterImportFragment extends Fragment implements View.OnTouchListener {
     private final String TAG = "HiFiToy";
@@ -78,14 +73,14 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
             v.performClick();
 
             //find index and translate to center of new preset
-            int index = presetCollectionView.getBiggerViewIndex();
-            int trans = presetCollectionView.getViewCenter(index).x - presetCollectionView.getWidth() / 2;
+            int oldIndex = filterCollection.getActiveIndex();
+            int newIndex = presetCollectionView.getBiggerViewIndex();
+            int trans = presetCollectionView.getViewCenter(newIndex).x - presetCollectionView.getWidth() / 2;
 
-            //update active preset
-            filterCollection.setActiveIndex(index);
-
-            Filters f = filterCollection.getFilterList().get(index);
-            updateFilters(f);
+            if (oldIndex != newIndex) {
+                filterCollection.setActiveIndex(newIndex);
+                updateFilters(filterCollection.getActiveFilter());
+            }
 
             //smooth animation
             ValueAnimator animator = ValueAnimator.ofInt(trans, 0);

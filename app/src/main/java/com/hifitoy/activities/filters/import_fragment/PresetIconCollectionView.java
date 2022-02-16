@@ -8,17 +8,8 @@ package com.hifitoy.activities.filters.import_fragment;
 
 import android.content.Context;
 import android.graphics.Point;
-import android.util.Log;
 import android.widget.FrameLayout;
-
-import com.hifitoy.hifitoycontrol.HiFiToyControl;
-import com.hifitoy.hifitoydevice.ToyPreset;
-import com.hifitoy.hifitoydevice.HiFiToyPresetManager;
 import com.hifitoy.hifitoyobjects.Filters;
-
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 
 public class PresetIconCollectionView extends FrameLayout {
     private final String TAG = "HiFiToy";
