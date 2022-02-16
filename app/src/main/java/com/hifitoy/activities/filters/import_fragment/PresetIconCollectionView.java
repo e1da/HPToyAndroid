@@ -26,8 +26,6 @@ public class PresetIconCollectionView extends FrameLayout {
     private FilterCollection filterCollection;
     private PresetIconView[] presetViews;
 
-    private int translateX = 0;
-
     public PresetIconCollectionView(Context context, FilterCollection filterCollection) {
         super(context);
         this.filterCollection = filterCollection;
@@ -42,14 +40,6 @@ public class PresetIconCollectionView extends FrameLayout {
         }
 
         setBackgroundColor(0xF0000000);
-    }
-
-    public void setTranslateX(int translateX) {
-        this.translateX = translateX;
-        requestLayout();
-    }
-    public int getTranslateX() {
-        return translateX;
     }
 
     @Override
@@ -88,12 +78,11 @@ public class PresetIconCollectionView extends FrameLayout {
         return index;
     }
 
-    public int getBiggerViewCenterX() {
-        return getViewCenter(getBiggerViewIndex()).x;
-    }
-
-    private Point getViewCenter(int index) {
-        return new Point(getWidth() / 2 + (index - filterCollection.getActiveIndex()) * getWidth() / 3 + translateX,
+    public Point getViewCenter(int index) {
+        return new Point(
+                getWidth() / 2 +
+                        (index - filterCollection.getActiveIndex()) * getWidth() / 3 +
+                        filterCollection.getTranslateX(),
                 getHeight() / 2);
     }
 

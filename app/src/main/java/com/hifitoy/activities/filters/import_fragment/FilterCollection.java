@@ -26,6 +26,7 @@ class FilterCollection extends Observable {
     private final List<String> nameList = HiFiToyPresetManager.getInstance().getPresetNameList();
     private final List<Filters> filterList = new LinkedList<>();
     private int activeIndex;
+    private int translateX = 0;
 
     public FilterCollection() {
         for (String name : nameList) {
@@ -58,6 +59,14 @@ class FilterCollection extends Observable {
         setActiveIndex(HiFiToyPresetManager.getInstance().getPresetIndex(presetName));
     }
 
+    public int getTranslateX() {
+        return translateX;
+    }
+    public void setTranslateX(int translateX) {
+        this.translateX = translateX;
+        notifyObservers();
+    }
+
     public List<String> getNameList() {
         return nameList;
     }
@@ -67,5 +76,10 @@ class FilterCollection extends Observable {
     }
     public Filters getActiveFilter() {
         return getFilterList().get(activeIndex);
+    }
+
+    @Override
+    public boolean hasChanged() {
+        return true;
     }
 }

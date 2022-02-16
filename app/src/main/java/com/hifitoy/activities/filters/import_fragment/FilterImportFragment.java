@@ -79,7 +79,7 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
 
             //find index and translate to center of new preset
             int index = presetCollectionView.getBiggerViewIndex();
-            int trans = presetCollectionView.getBiggerViewCenterX() - presetCollectionView.getWidth() / 2;
+            int trans = presetCollectionView.getViewCenter(index).x - presetCollectionView.getWidth() / 2;
 
             //update active preset
             filterCollection.setActiveIndex(index);
@@ -92,7 +92,8 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
             animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
-                    presetCollectionView.setTranslateX((int)animation.getAnimatedValue());
+                    filterCollection.setTranslateX((int)animation.getAnimatedValue());
+                    presetCollectionView.requestLayout();
                 }
             });
             animator.start();
@@ -115,8 +116,8 @@ public class FilterImportFragment extends Fragment implements View.OnTouchListen
                 currentTap.y = (int)event.getY();
                 Point translation = new Point(currentTap.x - firstTap.x,currentTap.y - firstTap.y);
 
-                presetCollectionView.setTranslateX(translation.x);
-
+                filterCollection.setTranslateX(translation.x);
+                presetCollectionView.requestLayout();
             }
         }
         return true;
