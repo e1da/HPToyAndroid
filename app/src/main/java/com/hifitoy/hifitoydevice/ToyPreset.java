@@ -265,7 +265,11 @@ public class ToyPreset implements HiFiToyObject, Cloneable, Serializable {
     }
 
     public void save(boolean rewrite) throws IOException {
-        if ((HiFiToyPresetManager.getInstance().isPresetExist(name)) && (!rewrite)) {
+        if (HiFiToyPresetManager.getInstance().isOfficialPresetExist(name)) {
+            Log.d(TAG, "Error. Official preset with this name already exist!");
+            throw new IOException("Official preset with this name already exist! We can not rewrite it.");
+        }
+        if ((HiFiToyPresetManager.getInstance().isUserPresetExist(name)) && (!rewrite)) {
             Log.d(TAG, "Error. Preset with this name already exist!");
             throw new IOException("Preset with this name already exist!");
         }

@@ -450,7 +450,7 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
 
                 } else {
                     DialogSystem.getInstance().showDialog("Error",
-                            "Exception. Preset was not saved successfully.", "Ok");
+                            e.getMessage(), "Ok");
                 }
             }
         }
