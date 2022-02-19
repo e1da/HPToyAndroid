@@ -174,7 +174,7 @@ public class PresetDetailActivity extends BaseActivity implements View.OnClickLi
             }
         };
 
-        DialogSystem.getInstance().showTextDialog(dialogListener, "Enter new name", "Change", "Cancel");
+        DialogSystem.getInstance().showTextDialog(dialogListener, "Enter new name", preset.getName(), "Change", "Cancel");
     }
 
     private void setActivePreset(){
