@@ -265,15 +265,15 @@ public class ToyPreset implements HiFiToyObject, Cloneable, Serializable {
     }
 
     public void save(boolean rewrite) throws IOException {
+        if ((HiFiToyPresetManager.getInstance().isPresetExist(name)) && (!rewrite)) {
+            Log.d(TAG, "Error. Preset with this name already exist!");
+            throw new IOException("Preset with this name already exist!");
+        }
+        
         File dir = HiFiToyPresetManager.getUserDir();
         if (dir == null) throw new IOException();
 
         File file = new File(dir, name + ".tpr");
-
-        if ((file.exists()) && (!rewrite)) {
-            Log.d(TAG, "Error. Preset with this name already exist!");
-            throw new IOException("Preset with this name already exist!");
-        }
 
         //get xml string of preset
         String xmlString = toXmlData().toString();
