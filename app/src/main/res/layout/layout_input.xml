@@ -20,6 +20,6 @@
         android:layout_height="15dp"
         android:layout_marginRight="20dp"
         android:layout_gravity="end|center_vertical"
-        android:background="@drawable/default_button_delete" />
+        android:background="@drawable/delete_button" />
 
 </FrameLayout>
