@@ -15,7 +15,7 @@
         android:cursorVisible="true" />
 
     <Button
-        android:id="@+id/calc_clear_txt_Prise"
+        android:id="@+id/deleteName_outl"
         android:layout_width="15dp"
         android:layout_height="15dp"
         android:layout_marginRight="20dp"

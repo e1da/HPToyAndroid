@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -189,6 +190,14 @@ public class DialogSystem {
         final EditText input = inputView.findViewById(R.id.nameInput_outl);
         input.setText(defaultText, TextView.BufferType.SPANNABLE);
         input.requestFocus();
+
+        final Button deleteBtn = inputView.findViewById(R.id.deleteName_outl);
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                input.setText("");
+            }
+        });
 
         if (numberType) input.setInputType(InputType.TYPE_CLASS_NUMBER);
 
