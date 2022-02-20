@@ -9,6 +9,8 @@
     <color name="colorActiveMain">#8000FFFF</color>
     <color name="colorSeekBar">#FF00B0B0</color>
     <color name="colorOrange">#FFFF8000</color>
+    <color name="colorAlphaOrange">#80FF8000</color>
+    <color name="colorDeleteButton">#FF996633</color>
     <color name="colorBrown">#FF996633</color>
     <color name="colorAlphaBrown">#20996633</color>
     <color name="colorWhite">#FFC0C0C0</color>

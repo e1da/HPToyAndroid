@@ -333,7 +333,7 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
             case R.id.savePresetBtn_outl:
                 savePresetBtn.setEnabled(false);
                 DialogSystem.getInstance().showTextDialog(savePresetHandler,
-                        "Please input preset name", "Ok", "Cancel");
+                        "Please input preset name", preset.getName(), "Ok", "Cancel");
                 break;
 
             case R.id.settingsActivity_outl:

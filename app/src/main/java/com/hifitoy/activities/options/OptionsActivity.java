@@ -229,7 +229,8 @@ public class OptionsActivity extends BaseActivity implements View.OnClickListene
         };
 
         setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_LOCKED);
-        DialogSystem.getInstance().showTextDialog(dialogListener, "Enter new name", "Change", "Cancel");
+        DialogSystem.getInstance().showTextDialog(
+                dialogListener, "Enter new name", hifiToyDevice.getName(), "Change", "Cancel");
     }
 
 }

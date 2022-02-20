@@ -15,12 +15,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
+import android.os.Build;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -157,6 +159,11 @@ public class DialogSystem {
         d.show();
     }
 
+    public void showTextDialog(final OnClickTextDialog onClickDialog, String title, String defaultText,
+                               String posButton, String negButton){
+        showEditTextDialog(false, onClickDialog, title, defaultText, posButton, negButton);
+    }
+
     public void showTextDialog(final OnClickTextDialog onClickDialog, String title,
                                String posButton, String negButton){
         showEditTextDialog(false, onClickDialog, title, posButton, negButton);
@@ -167,8 +174,12 @@ public class DialogSystem {
         showEditTextDialog(true, onClickDialog, title, posButton, negButton);
     }
 
-    private void showEditTextDialog(boolean numberType, final OnClickTextDialog onClickDialog, String title,
-                               String posButton, String negButton){
+    private void showEditTextDialog(boolean numberType,
+                                    final OnClickTextDialog onClickDialog,
+                                    String title,
+                                    String defaultText,
+                                    String posButton,
+                                    String negButton){
         final Context context = ApplicationContext.getInstance().getContext();
 
         BaseDialog dialog = new BaseDialog(context);
@@ -177,6 +188,17 @@ public class DialogSystem {
         LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View inputView = inflater.inflate(R.layout.layout_input, null);
         final EditText input = inputView.findViewById(R.id.nameInput_outl);
+        input.setText(defaultText, TextView.BufferType.SPANNABLE);
+        input.requestFocus();
+
+        final Button deleteBtn = inputView.findViewById(R.id.deleteName_outl);
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                input.setText("");
+            }
+        });
+
         if (numberType) input.setInputType(InputType.TYPE_CLASS_NUMBER);
 
         dialog.setView(inputView);
@@ -203,6 +225,14 @@ public class DialogSystem {
             dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         }
         dialog.show();
+    }
+
+    private void showEditTextDialog(boolean numberType,
+                                    final OnClickTextDialog onClickDialog,
+                                    String title,
+                                    String posButton,
+                                    String negButton) {
+        showEditTextDialog(numberType, onClickDialog, title, "", posButton, negButton);
     }
 
     /*-------------------------------- Show base progress dialog --------------------------------*/

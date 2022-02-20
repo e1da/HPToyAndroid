@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item>
+        <shape android:shape="rectangle">
+            <stroke android:width="1dp" android:color="@color/colorDeleteButton" />
+            <corners
+                android:topLeftRadius="3dp"
+                android:bottomLeftRadius="3dp"
+                android:topRightRadius="3dp"
+                android:bottomRightRadius="3dp"/>
+
+            <solid android:color="@color/colorBrown"/>
+
+        </shape>
+
+    </item>
+
+    <item>
+        <rotate android:fromDegrees="135">
+            <shape android:shape="line" >
+                <stroke android:width="2dp" android:color="@color/colorDeleteButton" />
+                <size android:height="20dp" android:width="20dp"/>
+
+            </shape>
+        </rotate>
+
+    </item>
+    <item>
+        <rotate android:fromDegrees="45">
+            <shape android:shape="line">
+                <stroke android:width="2dp" android:color="@color/colorDeleteButton" />
+
+            </shape>
+        </rotate>
+
+    </item>
+</layer-list>
