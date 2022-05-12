@@ -18,6 +18,7 @@ import com.hifitoy.ApplicationContext;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
@@ -45,6 +46,21 @@ public class HiFiToyPresetManager {
         printUserPresets();
     }
 
+    private void temp_save(ToyPreset preset) throws IOException {
+        File dir = getUserDir();
+        if (dir == null) throw new IOException("User dir not found.");
+
+        File file = new File(dir, preset.getName() + ".tpr");
+
+        //get xml string of preset
+        String xmlString = preset.toXmlData().toString();
+
+        //write to file
+        FileWriter fw = new FileWriter(file);
+        fw.write(xmlString);
+        fw.close();
+    }
+
     private void restoreOldPreset(){
         Context context = ApplicationContext.getInstance().getContext();
 
@@ -58,10 +74,14 @@ public class HiFiToyPresetManager {
 
             for (HiFiToyPreset p : oldPresetList) {
                 if (!isPresetExist(p.getName())) {
-                    ToyPreset newPreset = new ToyPreset(p);
-                    newPreset.save(true);
+                    try {
+                        ToyPreset newPreset = new ToyPreset(p);
+                        temp_save(newPreset);
 
-                    Log.d(TAG, "Restore old preset: " + newPreset.getName());
+                        Log.d(TAG, "Restore old preset: " + newPreset.getName());
+                    } catch (IOException e) {
+                        Log.d(TAG, e.toString());
+                    }
                 }
             }
 
