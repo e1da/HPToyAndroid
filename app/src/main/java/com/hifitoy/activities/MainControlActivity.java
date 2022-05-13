@@ -82,9 +82,19 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
 
         ApplicationContext.getInstance().setContext(this);
 
-        if (Build.VERSION.SDK_INT >= 23) {
+        int sdk = Build.VERSION.SDK_INT;
+
+        if ((sdk >= 23) && (sdk < 31)) {
             requestPermissions(new String[]{Manifest.permission.BLUETOOTH,
                             Manifest.permission.BLUETOOTH_ADMIN,
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.READ_EXTERNAL_STORAGE},
+                    1);
+
+        } else if (sdk >= 31) {
+            requestPermissions(new String[]{Manifest.permission.BLUETOOTH_SCAN,
+                            Manifest.permission.BLUETOOTH_CONNECT,
                             Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION,
                             Manifest.permission.READ_EXTERNAL_STORAGE},
@@ -106,7 +116,6 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
             boolean blePermission = true;
 
             for (int i = 0; i < permissions.length; i++) {
-
 
                 switch (permissions[i]) {
                     case Manifest.permission.BLUETOOTH:
@@ -136,6 +145,18 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
                     case Manifest.permission.READ_EXTERNAL_STORAGE:
                         if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                             Log.d(TAG, "permission.READ_EXTERNAL_STORAGE is not granted.");
+                        }
+                        break;
+                    case Manifest.permission.BLUETOOTH_SCAN:
+                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                            blePermission = false;
+                            Log.d(TAG, "permission.BLUETOOTH_SCAN is not granted.");
+                        }
+                        break;
+                    case Manifest.permission.BLUETOOTH_CONNECT:
+                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                            blePermission = false;
+                            Log.d(TAG, "permission.BLUETOOTH_CONNECT is not granted.");
                         }
                         break;
 
