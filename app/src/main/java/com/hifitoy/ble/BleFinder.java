@@ -7,6 +7,7 @@
 
 package com.hifitoy.ble;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.ScanCallback;
@@ -54,6 +55,7 @@ public class BleFinder {
         return discovering;
     }
 
+    @SuppressLint("MissingPermission")
     public void startDiscovery() {
         clear();
         if ( (!Ble.getInstance().isEnabled()) || (discovering) ) return;
@@ -72,6 +74,7 @@ public class BleFinder {
         Log.d(TAG, "BLE Scanning...");
     }
 
+    @SuppressLint("MissingPermission")
     public void stopDiscovery() {
         if (!Ble.getInstance().isEnabled()) return;
 
@@ -82,6 +85,7 @@ public class BleFinder {
         Log.d(TAG, "BLE Stop Scanning");
     }
 
+    @SuppressLint("MissingPermission")
     private void addDeviceToList(BluetoothDevice bd) {
         String peripheralName = bd.getName();
 

@@ -6,6 +6,7 @@
  */
 package com.hifitoy.ble;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -71,6 +72,7 @@ public class Ble {
         return null;
     }
 
+    @SuppressLint("MissingPermission")
     public List<BluetoothDevice> getConnectedDevices() {
         return getBluetoothManager().getConnectedDevices(GATT);
     }
