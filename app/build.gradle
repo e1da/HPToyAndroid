@@ -16,9 +16,6 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
-    lintOptions {
-        checkReleaseBuilds false
-    }
     flavorDimensions "version"
     productFlavors {
         hifitoy {
@@ -34,6 +31,10 @@ android {
             applicationId "com.hptoy"
         }
     }
+    lint {
+        checkReleaseBuilds false
+    }
+    namespace 'com.hifitoy'
 }
 
 dependencies {
