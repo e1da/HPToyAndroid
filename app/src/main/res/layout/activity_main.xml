@@ -39,7 +39,7 @@
                     android:paddingRight="10dp"
                     android:text="Audio Source" />
 
-                <android.support.v7.widget.AppCompatImageView
+                <ImageView
                     android:id="@+id/audio_source_info"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
