@@ -6,7 +6,7 @@
  */
 package com.hifitoy.hifitoynumbers;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public class Complex {
     private double real;

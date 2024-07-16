@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 31
+        targetSdkVersion 33
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -16,9 +16,6 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
-    lintOptions {
-        checkReleaseBuilds false
-    }
     flavorDimensions "version"
     productFlavors {
         hifitoy {
@@ -28,20 +25,23 @@ android {
             applicationId "com.hifitoy"
         }
         hptoy {
-            versionCode 31
-            versionName "1.6.4"
+            versionCode 33
+            versionName "1.7.1"
             dimension "version"
             applicationId "com.hptoy"
         }
     }
+    lint {
+        checkReleaseBuilds false
+    }
+    namespace 'com.hifitoy'
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support.constraint:constraint-layout:2.0.4'
-    implementation 'com.android.support:support-annotations:28.0.0'
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'org.robolectric:robolectric:3.1.4'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.robolectric:robolectric:4.9'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
