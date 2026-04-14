@@ -8,7 +8,6 @@ package com.hifitoy.activities;
 
 import android.Manifest;
 import android.app.ActionBar;
-import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,11 +17,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.activity.ComponentActivity;
+
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
 import com.hifitoy.dialogsystem.DiscoveryDialog;
 
-public abstract class BaseActivity extends Activity {
+public abstract class BaseActivity extends ComponentActivity {
     private TextView title;
 
     @Override

@@ -22,6 +22,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import androidx.activity.OnBackPressedCallback;
+
 import com.hifitoy.R;
 import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.activities.filters.config_fragment.BiquadConfigFragment;
@@ -48,6 +50,18 @@ import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_USER;
 
 public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilterUpdateView, FiltersFragment.OnSetBackgroundListener {
     private static String TAG = "HiFiToy";
+    private final OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            if (state.isFilterImportVisible()) {
+                return;
+            }
+
+            setEnabled(false);
+            getOnBackPressedDispatcher().onBackPressed();
+            setEnabled(true);
+        }
+    };
 
     private Filters filters;
 
@@ -170,6 +184,7 @@ public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilter
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getOnBackPressedDispatcher().addCallback(this, backPressedCallback);
 
         //show back button
         ActionBar actionBar = getActionBar();
@@ -198,13 +213,6 @@ public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilter
         fTrans.add(fl.getId(), filterImportFragment,    "filterImportFragment").commit();
 
         setContentView(fl);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (!state.isFilterImportVisible()) {
-            super.onBackPressed();
-        }
     }
 
     @Override
