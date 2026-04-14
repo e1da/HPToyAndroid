@@ -81,9 +81,7 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
 
         ApplicationContext.getInstance().setContext(this);
 
-        int sdk = Build.VERSION.SDK_INT;
-
-        if ((sdk >= 23) && (sdk < 31)) {
+        if (Build.VERSION.SDK_INT < 31) {
             requestPermissions(new String[]{Manifest.permission.BLUETOOTH,
                             Manifest.permission.BLUETOOTH_ADMIN,
                             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -91,15 +89,13 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
                             Manifest.permission.READ_EXTERNAL_STORAGE},
                     1);
 
-        } else if (sdk >= 31) {
+        } else {
             requestPermissions(new String[]{Manifest.permission.BLUETOOTH_SCAN,
                             Manifest.permission.BLUETOOTH_CONNECT,
                             Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION,
                             Manifest.permission.READ_EXTERNAL_STORAGE},
                     1);
-        } else {
-            checkBleEnabled();
         }
 
         initActionBar();

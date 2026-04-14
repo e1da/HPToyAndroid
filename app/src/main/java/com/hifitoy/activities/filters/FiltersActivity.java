@@ -10,9 +10,11 @@ import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.ImageDecoder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,6 +37,7 @@ import com.hifitoy.hifitoyobjects.PassFilter;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
 
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_ALLPASS;
@@ -331,7 +334,7 @@ public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilter
                 Log.d(TAG, selectedImagePath);
 
                 try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
+                    Bitmap bitmap = loadBitmap(selectedImageUri);
                     FiltersBackground.getInstance().setBitmap(bitmap);
 
                     state.setBackConfigVisible(true);
@@ -392,6 +395,25 @@ public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilter
 
         } else {
             setTitle("Filters menu");
+        }
+    }
+
+    private Bitmap loadBitmap(Uri imageUri) throws IOException {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            ImageDecoder.Source source = ImageDecoder.createSource(getContentResolver(), imageUri);
+            return ImageDecoder.decodeBitmap(source);
+        }
+
+        try (InputStream inputStream = getContentResolver().openInputStream(imageUri)) {
+            if (inputStream == null) {
+                throw new FileNotFoundException("Unable to open image stream.");
+            }
+
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+            if (bitmap == null) {
+                throw new IOException("Unable to decode bitmap.");
+            }
+            return bitmap;
         }
     }
 
