@@ -7,6 +7,9 @@ android {
         targetSdkVersion 36
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+    buildFeatures {
+        buildConfig = true
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -32,9 +35,13 @@ android {
         }
     }
     lint {
-        checkReleaseBuilds false
+        checkReleaseBuilds = false
     }
-    namespace 'com.hifitoy'
+    namespace = 'com.hifitoy'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += ['-Xlint:deprecation', '-Xlint:unchecked']
 }
 
 dependencies {
