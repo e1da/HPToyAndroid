@@ -6,81 +6,49 @@
  */
 package com.hifitoy.dialogsystem;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
-import android.content.res.Resources;
-import android.view.View;
-import android.widget.TextView;
+import android.util.TypedValue;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
-import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
 
-public class BaseProgressDialog extends ProgressDialog {
-    private Context context;
-    private int tempOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+public class BaseProgressDialog extends BaseDialog {
+    private final ProgressBar progressBar;
 
     public BaseProgressDialog(Context context) {
         super(context);
-        this.context = context;
+
+        LinearLayout container = new LinearLayout(context);
+        int padding = (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 24, context.getResources().getDisplayMetrics());
+        container.setOrientation(LinearLayout.VERTICAL);
+        container.setPadding(padding, padding, padding, padding);
+
+        progressBar = new ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal);
+        progressBar.setIndeterminate(false);
+        progressBar.setProgressDrawable(context.getDrawable(R.drawable.progress_bar));
+        progressBar.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        container.addView(progressBar);
+        setView(container);
     }
 
-    @Override
-    public void show() {
-        Activity activity = (Activity)context;
-
-        tempOrientation = activity.getRequestedOrientation();
-        activity.setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_LOCKED);
-
-        setProgressDrawable(context.getDrawable(R.drawable.progress_bar));
-
-
-        super.show();
-
-        setColor();
+    public void setMax(int max) {
+        progressBar.setMax(max);
     }
 
-    @Override
-    public void dismiss() {
-        setProgress(0);
-        super.dismiss();
-
-        Activity activity = (Activity)context;
-        activity.setRequestedOrientation(tempOrientation);
+    public void setProgress(int progress) {
+        progressBar.setProgress(progress);
     }
 
-    public String getTitle(){
-        Resources res = context.getResources();
-        TextView title = findViewById(res.getIdentifier("alertTitle", "id", "android"));
-
-        if (title != null) {
-            return title.getText().toString();
-        }
-
-        return null;
+    public void setSecondaryProgress(int progress) {
+        progressBar.setSecondaryProgress(progress);
     }
 
-    private void setColor() {
-        Context c = ApplicationContext.getInstance().getContext();
-        int colorTitle = c.getColor(R.color.colorWhite);
-        int colorDivider = c.getColor(R.color.colorAlphaWhite);
-
-        setColor(colorTitle, colorDivider);
-    }
-
-    private void setColor(int colorTitle, int colorDivider) {
-        Context c = ApplicationContext.getInstance().getContext();
-
-        int titleDividerId = c.getResources().getIdentifier("titleDivider", "id", "android");
-        View titleDivider = findViewById(titleDividerId);
-        if (titleDivider != null) {
-
-            titleDivider.setBackgroundColor(colorDivider);
-        }
-        int textViewId = getContext().getResources().getIdentifier("android:id/alertTitle", null, null);
-        TextView tv = findViewById(textViewId);
-        tv.setTextColor(colorTitle);
+    public void incrementProgressBy(int diff) {
+        progressBar.incrementProgressBy(diff);
     }
 }
