@@ -77,7 +77,7 @@ public class HiFiToyDeviceManager {
             FileInputStream fis = context.openFileInput("HiFiToyDeviceMap.dat");
             ObjectInputStream is = new ObjectInputStream(fis);
             Object o = is.readObject();
-            deviceMap = (HashMap<String, HiFiToyDevice>)o;
+            deviceMap = readDeviceMap(o);
 
             is.close();
         } catch(FileNotFoundException f) {
@@ -93,6 +93,21 @@ public class HiFiToyDeviceManager {
             Log.d(TAG, e.toString());
         }
 
+    }
+
+    private Map<String, HiFiToyDevice> readDeviceMap(Object serialized) throws IOException {
+        if (!(serialized instanceof Map<?, ?>)) {
+            throw new IOException("Unexpected device map data type.");
+        }
+
+        Map<String, HiFiToyDevice> restoredMap = new HashMap<>();
+        for (Map.Entry<?, ?> entry : ((Map<?, ?>) serialized).entrySet()) {
+            if (!(entry.getKey() instanceof String) || !(entry.getValue() instanceof HiFiToyDevice)) {
+                throw new IOException("Unexpected device map entry type.");
+            }
+            restoredMap.put((String) entry.getKey(), (HiFiToyDevice) entry.getValue());
+        }
+        return restoredMap;
     }
 
     public void store(){
