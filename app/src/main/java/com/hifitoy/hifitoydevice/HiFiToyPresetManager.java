@@ -67,7 +67,7 @@ public class HiFiToyPresetManager {
         try {
             FileInputStream fis = context.openFileInput("HiFiToyPresetMap.dat");
             ObjectInputStream is = new ObjectInputStream(fis);
-            List<HiFiToyPreset> oldPresetList = (LinkedList<HiFiToyPreset>)is.readObject();
+            List<HiFiToyPreset> oldPresetList = readOldPresetList(is.readObject());
 
             is.close();
             Log.d(TAG, "Restore HiFiToyPresetMap.");
@@ -94,6 +94,21 @@ public class HiFiToyPresetManager {
             Log.d(TAG, e.toString());
         }
 
+    }
+
+    private List<HiFiToyPreset> readOldPresetList(Object serialized) throws IOException {
+        if (!(serialized instanceof List<?>)) {
+            throw new IOException("Unexpected preset list data type.");
+        }
+
+        List<HiFiToyPreset> restoredPresets = new LinkedList<>();
+        for (Object item : (List<?>) serialized) {
+            if (!(item instanceof HiFiToyPreset)) {
+                throw new IOException("Unexpected preset entry type.");
+            }
+            restoredPresets.add((HiFiToyPreset) item);
+        }
+        return restoredPresets;
     }
 
     public static File getUserDir() {
