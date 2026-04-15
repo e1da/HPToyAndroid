@@ -22,6 +22,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.activity.OnBackPressedCallback;
 
 import com.hifitoy.R;
@@ -64,6 +66,8 @@ public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilter
     };
 
     private Filters filters;
+    private final ActivityResultLauncher<String> selectImageLauncher =
+            registerForActivityResult(new ActivityResultContracts.GetContent(), this::handleSelectedImage);
 
     MenuItem enabledParam_outl;
     MenuItem typeScale_outl;
@@ -320,47 +324,12 @@ public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilter
 
     @Override
     public void onSetBackground() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(android.content.Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), 1);
+        selectImageLauncher.launch("image/*");
     }
 
     @Override
     public void onFilterImport() {
         state.setFilterImportVisible(true);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if ( (resultCode == RESULT_OK) && (requestCode == 1) ) {
-
-            Uri selectedImageUri = data.getData();
-            if (selectedImageUri != null) {
-
-                String selectedImagePath = selectedImageUri.getPath();
-                Log.d(TAG, selectedImagePath);
-
-                try {
-                    Bitmap bitmap = loadBitmap(selectedImageUri);
-                    FiltersBackground.getInstance().setBitmap(bitmap);
-
-                    state.setBackConfigVisible(true);
-                    ViewUpdater.getInstance().update();
-
-                } catch (FileNotFoundException e) {
-                    Log.d(TAG, "File not found exception");
-                } catch (IOException e) {
-                    Log.d(TAG, "IO exception");
-                }
-
-            } else {
-                Log.d(TAG, "Not select image.");
-            }
-
-        } else {
-            Log.d(TAG, "Not get result");
-        }
     }
 
     public void setTitleInfo() {
@@ -422,6 +391,29 @@ public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilter
                 throw new IOException("Unable to decode bitmap.");
             }
             return bitmap;
+        }
+    }
+
+    private void handleSelectedImage(Uri selectedImageUri) {
+        if (selectedImageUri == null) {
+            Log.d(TAG, "Not select image.");
+            return;
+        }
+
+        String selectedImagePath = selectedImageUri.getPath();
+        Log.d(TAG, selectedImagePath);
+
+        try {
+            Bitmap bitmap = loadBitmap(selectedImageUri);
+            FiltersBackground.getInstance().setBitmap(bitmap);
+
+            state.setBackConfigVisible(true);
+            ViewUpdater.getInstance().update();
+
+        } catch (FileNotFoundException e) {
+            Log.d(TAG, "File not found exception");
+        } catch (IOException e) {
+            Log.d(TAG, "IO exception");
         }
     }
 
