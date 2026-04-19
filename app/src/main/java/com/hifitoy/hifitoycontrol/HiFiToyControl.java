@@ -25,7 +25,7 @@ import android.widget.Toast;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
-import com.hifitoy.ble.Ble;
+import com.hifitoy.ble.Service;
 import com.hifitoy.ble.BlePacket;
 import com.hifitoy.ble.BlePacketQueue;
 import com.hifitoy.ble.BleFinder;
@@ -194,7 +194,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     public void startDiscovery(DiscoveryDelegate discoveryDelegate) {
         this.discoveryDelegate = discoveryDelegate;
 
-        if ( (!Ble.getInstance().isEnabled()) || (bleFinder.isDiscovering()) ) {
+        if ( (!Service.getInstance().isEnabled()) || (bleFinder.isDiscovering()) ) {
             bleFinder.clear();
             return;
         }
@@ -221,7 +221,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         Context context = ApplicationContext.getInstance().getContext();
 
         //check if ble disabled or demo connect
-        if ( (!Ble.getInstance().isEnabled()) || (device == null) || (device.getMac().equals("demo")) ) {
+        if ( (!Service.getInstance().isEnabled()) || (device == null) || (device.getMac().equals("demo")) ) {
             disconnect();
             activeDevice = device;
             Toast.makeText(context, R.string.demo_mode, Toast.LENGTH_SHORT).show();
@@ -243,7 +243,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
 
         //get device from macAddress
-        BluetoothDevice d = Ble.getInstance().getRemoteDevice(activeDevice.getMac());
+        BluetoothDevice d = Service.getInstance().getRemoteDevice(activeDevice.getMac());
         if (d == null) {
             Log.d(TAG, "Device not found.  Unable to connect.");
             return false;
@@ -261,7 +261,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         return connect(activeDevice);
     }
     public void disconnect() {
-        if ( (Ble.getInstance().isEnabled()) && (mBluetoothGatt != null)) {
+        if ( (Service.getInstance().isEnabled()) && (mBluetoothGatt != null)) {
 
             mBluetoothGatt.disconnect();
             mBluetoothGatt.close();

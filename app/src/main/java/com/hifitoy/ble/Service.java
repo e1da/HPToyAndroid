@@ -21,19 +21,19 @@ import java.util.List;
 
 import static android.bluetooth.BluetoothProfile.GATT;
 
-public class Ble {
-    private static Ble instance;
+public class Service {
+    private static Service instance;
 
     private BluetoothAdapter bluetoothAdapter;
 
-    public static synchronized Ble getInstance() {
+    public static synchronized Service getInstance() {
         if (instance == null) {
-            instance = new Ble();
+            instance = new Service();
         }
         return instance;
     }
 
-    public Ble() {
+    public Service() {
         Context context = ApplicationContext.getInstance().getContext();
 
         if (!context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {

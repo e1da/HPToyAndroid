@@ -58,16 +58,16 @@ public class BleFinder {
     @SuppressLint("MissingPermission")
     public void startDiscovery() {
         clear();
-        if ( (!Ble.getInstance().isEnabled()) || (discovering) ) return;
+        if ( (!Service.getInstance().isEnabled()) || (discovering) ) return;
 
         //add to list connected devices
-        List<BluetoothDevice> bdList = Ble.getInstance().getConnectedDevices();
+        List<BluetoothDevice> bdList = Service.getInstance().getConnectedDevices();
         for (BluetoothDevice bd : bdList) {
             addDeviceToList(bd);
         }
 
         //start scanning
-        BluetoothAdapter ba = Ble.getInstance().getBluetoothAdapter();
+        BluetoothAdapter ba = Service.getInstance().getBluetoothAdapter();
         ba.getBluetoothLeScanner().startScan(new BleScanCallBack());
 
         discovering = true;
@@ -76,9 +76,9 @@ public class BleFinder {
 
     @SuppressLint("MissingPermission")
     public void stopDiscovery() {
-        if (!Ble.getInstance().isEnabled()) return;
+        if (!Service.getInstance().isEnabled()) return;
 
-        BluetoothAdapter ba = Ble.getInstance().getBluetoothAdapter();
+        BluetoothAdapter ba = Service.getInstance().getBluetoothAdapter();
         ba.getBluetoothLeScanner().stopScan(new BleScanCallBack());
 
         discovering = false;
