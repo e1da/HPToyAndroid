@@ -39,6 +39,7 @@ import com.hifitoy.hifitoyobjects.AMMode;
 import com.hifitoy.hifitoyobjects.BinaryOperation;
 import com.hifitoy.hifitoyobjects.HiFiToyDataBuf;
 import com.hifitoy.hifitoyobjects.PostProcess;
+import com.hifitoy.permission.PermissionService;
 import com.hifitoy.tas5558.IRegResponse;
 import com.hifitoy.tas5558.RegRequest;
 import com.hifitoy.tas5558.RegResponse;
@@ -64,6 +65,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     private DiscoveryDelegate   discoveryDelegate = null;
     private ConnectionDelegate  connectionDelegate = null;
 
+    private PermissionService   permissionService;
     private BleService          bleService;
     private BleFinder           bleFinder;
     private HiFiToyDevice       activeDevice = null;
@@ -184,7 +186,9 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
     }
 
     public HiFiToyControl() {
-        bleService = new BleService(ApplicationContext.getInstance().getContext());
+        Context context = ApplicationContext.getInstance().getContext();
+        permissionService = new PermissionService(context);
+        bleService = new BleService(context, permissionService);
         bleFinder = new BleFinder(bleService);
         activeDevice = HiFiToyDeviceManager.getInstance().getDevice("demo");
     }
