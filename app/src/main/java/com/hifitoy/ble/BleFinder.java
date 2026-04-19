@@ -85,12 +85,22 @@ public class BleFinder {
         Log.d(TAG, "BLE Scanning...");
     }
 
-    @SuppressLint("MissingPermission")
     public void stopDiscovery() {
         if (!bleService.isEnabled()) return;
+        if (!permissionService.hasBluetoothScanPermission()) {
+            Log.w(TAG, "BLE stop scan permission denied.");
+            return;
+        }
 
-        BluetoothAdapter ba = bleService.getBluetoothAdapter();
-        ba.getBluetoothLeScanner().stopScan(new BleScanCallBack());
+        BluetoothAdapter adapter = bleService.getBluetoothAdapter();
+        if (adapter == null || adapter.getBluetoothLeScanner() == null) return;
+
+        try {
+            adapter.getBluetoothLeScanner().stopScan(new BleScanCallBack());
+        } catch (SecurityException e) {
+            Log.w(TAG, "BLE stop scan permission denied.");
+            return;
+        }
 
         discovering = false;
         Log.d(TAG, "BLE Stop Scanning");
