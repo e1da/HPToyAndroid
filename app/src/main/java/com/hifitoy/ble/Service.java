@@ -48,12 +48,8 @@ public class Service {
         }
     }
 
-    public boolean isSupported() {
-        return bluetoothAdapter != null;
-    }
-
     public boolean isEnabled() {
-        return (isSupported() && bluetoothAdapter.isEnabled());
+        return ((bluetoothAdapter != null) && bluetoothAdapter.isEnabled());
     }
 
     public BluetoothManager getBluetoothManager() {

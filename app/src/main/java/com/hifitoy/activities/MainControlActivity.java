@@ -168,16 +168,10 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
     }
 
     private void checkBleEnabled() {
-        if (Service.getInstance().isSupported()) {
-            if (!Service.getInstance().isEnabled()) {
-                //show ble enable request dialog
-                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(enableBtIntent, 1);
-
-            } else {
-                //HiFiToyControl.getInstance().startDiscovery(this);
-
-            }
+        if (!Service.getInstance().isEnabled()) {
+            //show ble enable request dialog
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, 1);
         }
     }
 
