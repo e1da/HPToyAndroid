@@ -14,38 +14,24 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.widget.Toast;
 
-import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
 
 import java.util.List;
 
 import static android.bluetooth.BluetoothProfile.GATT;
 
-public class Service {
-    private static Service instance;
+public class BleService {
+    private final Context context;
+    private final BluetoothAdapter bluetoothAdapter;
 
-    private BluetoothAdapter bluetoothAdapter;
+    public BleService(Context context) {
+        this.context = context.getApplicationContext();
 
-    public static synchronized Service getInstance() {
-        if (instance == null) {
-            instance = new Service();
-        }
-        return instance;
-    }
-
-    public Service() {
-        Context context = ApplicationContext.getInstance().getContext();
-
-        if (!context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(context, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+        if (!this.context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(this.context, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
         }
 
-        final BluetoothManager bluetoothManager = getBluetoothManager();
-        if (bluetoothManager != null) {
-            bluetoothAdapter = bluetoothManager.getAdapter();
-        } else {
-            bluetoothAdapter = null;
-        }
+        bluetoothAdapter = (getBluetoothManager() != null) ? getBluetoothManager().getAdapter() : null;
     }
 
     public boolean isEnabled() {
@@ -53,7 +39,6 @@ public class Service {
     }
 
     public BluetoothManager getBluetoothManager() {
-        Context context = ApplicationContext.getInstance().getContext();
         return (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
     }
 

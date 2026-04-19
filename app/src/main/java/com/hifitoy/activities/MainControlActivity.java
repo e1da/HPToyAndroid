@@ -30,7 +30,6 @@ import com.hifitoy.activities.compressor.CompressorActivity;
 import com.hifitoy.activities.filters.FiltersActivity;
 import com.hifitoy.activities.options.OptionsActivity;
 import com.hifitoy.activities.options.presetmanager.PresetManagerActivity;
-import com.hifitoy.ble.Service;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.dialogsystem.DiscoveryDialog;
 import com.hifitoy.dialogsystem.KeyboardNumber;
@@ -168,7 +167,7 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
     }
 
     private void checkBleEnabled() {
-        if (!Service.getInstance().isEnabled()) {
+        if (!HiFiToyControl.getInstance().isBleEnabled()) {
             //show ble enable request dialog
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, 1);
@@ -178,7 +177,7 @@ public class MainControlActivity extends BaseActivity implements SeekBar.OnSeekB
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) { // ble enabled dialog result
-            if (Service.getInstance().isEnabled()) {
+            if (HiFiToyControl.getInstance().isBleEnabled()) {
                 //HiFiToyControl.getInstance().startDiscovery(this);
             }
         }

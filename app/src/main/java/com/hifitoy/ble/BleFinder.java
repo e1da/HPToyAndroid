@@ -12,11 +12,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
-import android.content.Context;
 import android.util.Log;
-
-import com.hifitoy.ApplicationContext;
-import com.hifitoy.R;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -24,16 +20,17 @@ import java.util.List;
 public class BleFinder {
     private static final String TAG = "HiFiToy";
 
-    private IBleFinderDelegate  delegate;
-    private List<String>        deviceAddressList;
-    private boolean             discovering;
-
+    private final BleService bleService;
+    private IBleFinderDelegate delegate;
+    private final List<String> deviceAddressList;
+    private boolean discovering;
 
     public interface IBleFinderDelegate {
         void didFindNewPeripheral(String macAddress, String peripheralName);
     }
 
-    public BleFinder() {
+    public BleFinder(BleService bleService) {
+        this.bleService = bleService;
         deviceAddressList = new LinkedList<>();
         this.delegate = null;
         this.discovering = false;
@@ -58,16 +55,16 @@ public class BleFinder {
     @SuppressLint("MissingPermission")
     public void startDiscovery() {
         clear();
-        if ( (!Service.getInstance().isEnabled()) || (discovering) ) return;
+        if ((!bleService.isEnabled()) || discovering) return;
 
         //add to list connected devices
-        List<BluetoothDevice> bdList = Service.getInstance().getConnectedDevices();
+        List<BluetoothDevice> bdList = bleService.getConnectedDevices();
         for (BluetoothDevice bd : bdList) {
             addDeviceToList(bd);
         }
 
         //start scanning
-        BluetoothAdapter ba = Service.getInstance().getBluetoothAdapter();
+        BluetoothAdapter ba = bleService.getBluetoothAdapter();
         ba.getBluetoothLeScanner().startScan(new BleScanCallBack());
 
         discovering = true;
@@ -76,9 +73,9 @@ public class BleFinder {
 
     @SuppressLint("MissingPermission")
     public void stopDiscovery() {
-        if (!Service.getInstance().isEnabled()) return;
+        if (!bleService.isEnabled()) return;
 
-        BluetoothAdapter ba = Service.getInstance().getBluetoothAdapter();
+        BluetoothAdapter ba = bleService.getBluetoothAdapter();
         ba.getBluetoothLeScanner().stopScan(new BleScanCallBack());
 
         discovering = false;
@@ -89,7 +86,7 @@ public class BleFinder {
     private void addDeviceToList(BluetoothDevice bd) {
         String peripheralName = bd.getName();
 
-        if ( (peripheralName != null) && (!deviceAddressList.contains(bd.getAddress())) ) {
+        if ((peripheralName != null) && (!deviceAddressList.contains(bd.getAddress()))) {
             deviceAddressList.add(bd.getAddress());
 
             Log.d(TAG, "Find ble device: " + peripheralName + " " + bd.getAddress());
