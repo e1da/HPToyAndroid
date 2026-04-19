@@ -27,7 +27,7 @@ public class Ble {
     private BluetoothAdapter bluetoothAdapter;
 
     public static synchronized Ble getInstance() {
-        if (instance == null){
+        if (instance == null) {
             instance = new Ble();
         }
         return instance;
@@ -53,7 +53,7 @@ public class Ble {
     }
 
     public boolean isEnabled() {
-        return ( (isSupported()) && (bluetoothAdapter.isEnabled()) );
+        return (isSupported() && bluetoothAdapter.isEnabled());
     }
 
     public BluetoothManager getBluetoothManager() {
