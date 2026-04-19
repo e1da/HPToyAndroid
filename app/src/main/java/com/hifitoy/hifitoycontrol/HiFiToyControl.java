@@ -189,7 +189,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         Context context = ApplicationContext.getInstance().getContext();
         permissionService = new PermissionService(context);
         bleService = new BleService(context, permissionService);
-        bleFinder = new BleFinder(bleService);
+        bleFinder = new BleFinder(bleService, permissionService);
         activeDevice = HiFiToyDeviceManager.getInstance().getDevice("demo");
     }
 

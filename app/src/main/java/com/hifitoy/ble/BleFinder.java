@@ -14,6 +14,8 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.util.Log;
 
+import com.hifitoy.permission.PermissionService;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,6 +23,7 @@ public class BleFinder {
     private static final String TAG = "HiFiToy";
 
     private final BleService bleService;
+    private final PermissionService permissionService;
     private IBleFinderDelegate delegate;
     private final List<String> deviceAddressList;
     private boolean discovering;
@@ -29,8 +32,9 @@ public class BleFinder {
         void didFindNewPeripheral(String macAddress, String peripheralName);
     }
 
-    public BleFinder(BleService bleService) {
+    public BleFinder(BleService bleService, PermissionService permissionService) {
         this.bleService = bleService;
+        this.permissionService = permissionService;
         deviceAddressList = new LinkedList<>();
         this.delegate = null;
         this.discovering = false;
@@ -52,10 +56,13 @@ public class BleFinder {
         return discovering;
     }
 
-    @SuppressLint("MissingPermission")
     public void startDiscovery() {
         clear();
         if ((!bleService.isEnabled()) || discovering) return;
+        if (!permissionService.hasBluetoothScanPermission()) {
+            Log.w(TAG, "BLE scan permission denied.");
+            return;
+        }
 
         //add to list connected devices
         List<BluetoothDevice> bdList = bleService.getConnectedDevices();
@@ -64,8 +71,15 @@ public class BleFinder {
         }
 
         //start scanning
-        BluetoothAdapter ba = bleService.getBluetoothAdapter();
-        ba.getBluetoothLeScanner().startScan(new BleScanCallBack());
+        BluetoothAdapter adapter = bleService.getBluetoothAdapter();
+        if (adapter == null || adapter.getBluetoothLeScanner() == null) return;
+
+        try {
+            adapter.getBluetoothLeScanner().startScan(new BleScanCallBack());
+        } catch (SecurityException e) {
+            Log.w(TAG, "BLE scan permission denied.");
+            return;
+        }
 
         discovering = true;
         Log.d(TAG, "BLE Scanning...");
