@@ -30,8 +30,44 @@ jobs:
       - name: Build hptoy release
         run: bash ./gradlew assembleHptoyRelease --no-daemon
 
+      - name: Sign hptoy release APK for emulator smoke tests
+        run: |
+          set -euo pipefail
+
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)"
+          UNSIGNED_APK="app/build/outputs/apk/hptoy/release/app-hptoy-release-unsigned.apk"
+          SIGNED_APK="app/build/outputs/apk/hptoy/release/app-hptoy-release-smoke.apk"
+          DEBUG_KEYSTORE="$RUNNER_TEMP/debug.keystore"
+
+          rm -f "$SIGNED_APK"
+          keytool -genkeypair \
+            -keystore "$DEBUG_KEYSTORE" \
+            -storepass android \
+            -keypass android \
+            -alias androiddebugkey \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
+
+          "$APKSIGNER" sign \
+            --ks "$DEBUG_KEYSTORE" \
+            --ks-key-alias androiddebugkey \
+            --ks-pass pass:android \
+            --key-pass pass:android \
+            --out "$SIGNED_APK" \
+            "$UNSIGNED_APK"
+          "$APKSIGNER" verify "$SIGNED_APK"
+
       - name: Unit tests
         run: bash ./gradlew testHptoyDebugUnitTest testHptoyReleaseUnitTest --no-daemon
+
+      - name: Upload hptoy release APK for emulator smoke tests
+        uses: actions/upload-artifact@v4
+        with:
+          name: hptoy-release-smoke-apk
+          path: app/build/outputs/apk/hptoy/release/app-hptoy-release-smoke.apk
+          if-no-files-found: error
 
       - name: Publish unit test report
         uses: dorny/test-reporter@v2
@@ -54,3 +90,41 @@ jobs:
           path: |
             app/build/test-results/testHptoy*UnitTest/**/*.xml
             app/build/reports/tests/testHptoy*UnitTest/**
+
+  emulator-smoke:
+    name: Run release on API ${{ matrix.api-level }}
+    runs-on: ubuntu-latest
+    needs: hptoy
+    strategy:
+      fail-fast: false
+      matrix:
+        api-level: [23, 28, 31, 36]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Download hptoy release APK
+        uses: actions/download-artifact@v4
+        with:
+          name: hptoy-release-smoke-apk
+          path: app/build/outputs/apk/hptoy/release
+
+      - name: Start release APK
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          EXPECTED_API_LEVEL: ${{ matrix.api-level }}
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: google_apis
+          arch: x86_64
+          profile: pixel
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: bash .github/scripts/emulator-smoke.sh
