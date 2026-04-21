@@ -1,6 +1,7 @@
 <resources>
-    <string name="app_name">HiFiToy</string>
-    <string name="ble_device_name">HiFiToyPeripheral</string>
+    <string name="app_name">HPToy</string>
+    <string name="ble_device_name">HPToyPeripheral</string>
+    <string name="ble_device_name_1">PDV21Peripheral</string>
     <string name="ble_not_supported">BLE is not supported</string>
 
     <string name="demo_mode">Demo mode!</string>
@@ -10,8 +11,9 @@
     <string name="energy_sync">Energy manager is syncronized.</string>
 
     <string name="discovery_info">
-        This window shows all available online HiFi Toy devices, which you may choose to control.
-        Also you can rename UUID number for any simple name in the Options/Name menu.
+        Сlicking on the icon opens the discovery menu window.
+        This window shows all available online HP Toy devices, which you may choose to control.
+        Also you can rename UUID number for any simple name in the Settings/Name menu.
     </string>
     <string name="audio_source_info">
         If the USB input selected, the amp is ready for 16-24/44.1-192 USB high-res audio,
@@ -45,12 +47,22 @@
 
     <string name="right_arrow">\u232A</string>
 
-    <string name="auto_off_title">Auto Off and Clipping</string>
+    <string name="auto_off_title">Clip threshold</string>
 
-    <string name="fileprovider_authority">com.hifitoy.fileprovider</string>
-    <string name="export_extra_subject">Preset from HiFiToy</string>
+    <string name="fileprovider_authority">com.hptoy.fileprovider</string>
+    <string name="export_extra_subject">Preset from HPToy</string>
 
     <string name="balance_warning">Please be careful.
         Using unbalance headphone with PDV2 in balance mode is dangerous.
         Are you sure want to set balance output mode?</string>
+
+    <string-array name="inputtype">
+        <item name="gui">GUI</item>
+        <item name="text">TEXT</item>
+    </string-array>
+
+    <string-array name="preset_type_strings">
+        <item name="preset_type_user">User</item>
+        <item name="preset_type_official">Official</item>
+    </string-array>
 </resources>
