@@ -9,8 +9,6 @@
 /captures
 .externalNativeBuild
 .idea
-gradlew*
-gradle/
 keystore/
 app/hifitoy/
 app/hptoy/
