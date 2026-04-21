@@ -1,0 +1,29 @@
+name: Android CI
+
+on:
+  pull_request:
+
+jobs:
+  hptoy:
+    name: Build and test hptoy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 11
+          cache: gradle
+
+      - name: Build hptoy debug
+        run: bash ./gradlew assembleHptoyDebug --no-daemon
+
+      - name: Build hptoy release
+        run: bash ./gradlew assembleHptoyRelease --no-daemon
+
+      - name: Unit tests
+        run: bash ./gradlew testHptoyDebugUnitTest testHptoyReleaseUnitTest --no-daemon
