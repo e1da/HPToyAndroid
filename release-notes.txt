@@ -1,3 +1,4 @@
 1.8.0:
 
 - ci: added build and unit test steps;
+- updated Android sdk version: 33 -> 36;
