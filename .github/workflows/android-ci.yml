@@ -3,6 +3,11 @@ name: Android CI
 on:
   pull_request:
 
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
 jobs:
   hptoy:
     name: Build and test hptoy
@@ -27,3 +32,25 @@ jobs:
 
       - name: Unit tests
         run: bash ./gradlew testHptoyDebugUnitTest testHptoyReleaseUnitTest --no-daemon
+
+      - name: Publish unit test report
+        uses: dorny/test-reporter@v2
+        if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository }}
+        with:
+          name: hptoy unit tests
+          path: app/build/test-results/testHptoy*UnitTest/**/*.xml
+          reporter: java-junit
+          list-suites: all
+          list-tests: all
+          use-actions-summary: true
+          fail-on-error: true
+          fail-on-empty: true
+
+      - name: Upload unit test reports
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: hptoy-unit-test-reports
+          path: |
+            app/build/test-results/testHptoy*UnitTest/**/*.xml
+            app/build/reports/tests/testHptoy*UnitTest/**
