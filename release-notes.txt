@@ -1,2 +1,3 @@
 1.8.0:
 
+- ci: added build and unit test steps;
