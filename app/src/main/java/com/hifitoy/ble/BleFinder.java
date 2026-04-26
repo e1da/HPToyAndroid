@@ -23,6 +23,7 @@ public class BleFinder {
 
     private final BleService bleService;
     private final PermissionService permissionService;
+    private final BleScanCallBack scanCallback;
     private IBleFinderDelegate delegate;
     private final List<String> deviceAddressList;
     private boolean discovering;
@@ -34,6 +35,7 @@ public class BleFinder {
     public BleFinder(BleService bleService, PermissionService permissionService) {
         this.bleService = bleService;
         this.permissionService = permissionService;
+        this.scanCallback = new BleScanCallBack();
         deviceAddressList = new LinkedList<>();
         this.delegate = null;
         this.discovering = false;
@@ -74,7 +76,7 @@ public class BleFinder {
         if (adapter == null || adapter.getBluetoothLeScanner() == null) return;
 
         try {
-            adapter.getBluetoothLeScanner().startScan(new BleScanCallBack());
+            adapter.getBluetoothLeScanner().startScan(scanCallback);
         } catch (SecurityException e) {
             Log.w(TAG, "BLE scan permission denied.");
             return;
@@ -95,7 +97,7 @@ public class BleFinder {
         if (adapter == null || adapter.getBluetoothLeScanner() == null) return;
 
         try {
-            adapter.getBluetoothLeScanner().stopScan(new BleScanCallBack());
+            adapter.getBluetoothLeScanner().stopScan(scanCallback);
         } catch (SecurityException e) {
             Log.w(TAG, "BLE stop scan permission denied.");
             return;
