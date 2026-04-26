@@ -208,6 +208,10 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
             bleFinder.clear();
             return;
         }
+        if (!permissionService.ensureBluetoothScanPermission(true)) {
+            bleFinder.clear();
+            return;
+        }
 
         bleFinder.setBleFinderDelegate(this);
         bleFinder.startDiscovery();
@@ -249,6 +253,10 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
             disconnect();
         }
 
+        if (!permissionService.ensureBluetoothConnectPermission(true)) {
+            return false;
+        }
+
         activeDevice = device;
 
         //get device from macAddress
@@ -261,7 +269,13 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         Toast.makeText(context, R.string.connecting, Toast.LENGTH_SHORT).show();
 
         // we want to directly connect to the device, because it is fast method
-        mBluetoothGatt = d.connectGatt(context, false, mGattCallback);
+        try {
+            mBluetoothGatt = d.connectGatt(context, false, mGattCallback);
+        } catch (SecurityException e) {
+            Log.w(TAG, "BLE connect permission denied.", e);
+            permissionService.ensureBluetoothConnectPermission(true);
+            return false;
+        }
 
         state.setState(ConnectionState.CONNECTING);
         return true;
@@ -270,9 +284,17 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         return connect(activeDevice);
     }
     public void disconnect() {
-        if (bleService.isEnabled() && (mBluetoothGatt != null)) {
-            mBluetoothGatt.disconnect();
-            mBluetoothGatt.close();
+        if ((mBluetoothGatt != null) && bleService.isEnabled()) {
+            if (permissionService.ensureBluetoothConnectPermission(false)) {
+                try {
+                    mBluetoothGatt.disconnect();
+                    mBluetoothGatt.close();
+                } catch (SecurityException e) {
+                    Log.w(TAG, "BLE disconnect permission denied.", e);
+                }
+            } else {
+                Log.w(TAG, "BLE disconnect skipped because BLUETOOTH_CONNECT is missing.");
+            }
             mBluetoothGatt = null;
         }
 
@@ -289,8 +311,19 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 // Attempts to discover services after successful connection.
-                Log.d(TAG, "Attempting to start service discovery:" +
-                        mBluetoothGatt.discoverServices());
+                if (!permissionService.ensureBluetoothConnectPermission(false)) {
+                    Log.w(TAG, "BLE service discovery skipped because BLUETOOTH_CONNECT is missing.");
+                    disconnect();
+                    return;
+                }
+
+                try {
+                    Log.d(TAG, "Attempting to start service discovery:" +
+                            mBluetoothGatt.discoverServices());
+                } catch (SecurityException e) {
+                    Log.w(TAG, "BLE service discovery permission denied.", e);
+                    disconnect();
+                }
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 disconnect();
@@ -314,7 +347,20 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                List<BluetoothGattService> gattServices = mBluetoothGatt.getServices();
+                if (!permissionService.ensureBluetoothConnectPermission(false)) {
+                    Log.w(TAG, "BLE getServices skipped because BLUETOOTH_CONNECT is missing.");
+                    disconnect();
+                    return;
+                }
+
+                List<BluetoothGattService> gattServices;
+                try {
+                    gattServices = mBluetoothGatt.getServices();
+                } catch (SecurityException e) {
+                    Log.w(TAG, "BLE getServices permission denied.", e);
+                    disconnect();
+                    return;
+                }
 
                 for (BluetoothGattService gattService : gattServices) {
                     List<BluetoothGattCharacteristic> gattCharacteristics =
@@ -641,14 +687,21 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         if ((mBluetoothGatt == null) ||
                 (state.getState() == ConnectionState.DISCONNECTED) ||
                 (state.getState() == ConnectionState.CONNECTING)) return;
+        if ((characteristic == null) || (!permissionService.ensureBluetoothConnectPermission(false))) return;
 
-        mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
+        try {
+            mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
-        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CLIENT_CHAR_CFG);
-        byte[] value = (enabled) ? (BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE) :
-                (BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
-        descriptor.setValue(value);
-        mBluetoothGatt.writeDescriptor(descriptor);
+            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CLIENT_CHAR_CFG);
+            if (descriptor == null) return;
+
+            byte[] value = (enabled) ? (BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE) :
+                    (BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
+            descriptor.setValue(value);
+            mBluetoothGatt.writeDescriptor(descriptor);
+        } catch (SecurityException e) {
+            Log.w(TAG, "BLE notification permission denied.", e);
+        }
     }
     private void writeFFF1Characterstic(BlePacket packet) {
         if ((mBluetoothGatt == null) ||
@@ -670,19 +723,29 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
         if ((mBluetoothGatt == null) ||
                 (state.getState() == ConnectionState.DISCONNECTED) ||
                 (state.getState() == ConnectionState.CONNECTING)) return;
+        if (!permissionService.ensureBluetoothConnectPermission(false)) return;
 
-        if (!mBluetoothGatt.writeCharacteristic(characteristic)){
-            Log.d(TAG, "Write characteristic is unsuccesful!");
-        } else {
-            Log.d(TAG, "writeCharacteristic");
+        try {
+            if (!mBluetoothGatt.writeCharacteristic(characteristic)){
+                Log.d(TAG, "Write characteristic is unsuccesful!");
+            } else {
+                Log.d(TAG, "writeCharacteristic");
+            }
+        } catch (SecurityException e) {
+            Log.w(TAG, "BLE writeCharacteristic permission denied.", e);
         }
     }
     private void readCharacteristic(BluetoothGattCharacteristic characteristic) {
         if ((mBluetoothGatt == null) ||
                 (state.getState() == ConnectionState.DISCONNECTED) ||
                 (state.getState() == ConnectionState.CONNECTING)) return;
+        if (!permissionService.ensureBluetoothConnectPermission(false)) return;
 
-        mBluetoothGatt.readCharacteristic(characteristic);
+        try {
+            mBluetoothGatt.readCharacteristic(characteristic);
+        } catch (SecurityException e) {
+            Log.w(TAG, "BLE readCharacteristic permission denied.", e);
+        }
     }
 
     //base send command
