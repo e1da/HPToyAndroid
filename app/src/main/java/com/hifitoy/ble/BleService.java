@@ -46,10 +46,15 @@ public class BleService {
     }
 
     public BluetoothDevice getRemoteDevice(String mac) {
-        if (bluetoothAdapter != null) {
-            return bluetoothAdapter.getRemoteDevice(mac);
+        if ((bluetoothAdapter == null) || (!permissionService.hasBluetoothConnectPermission())) {
+            return null;
         }
-        return null;
+
+        try {
+            return bluetoothAdapter.getRemoteDevice(mac);
+        } catch (SecurityException e) {
+            return null;
+        }
     }
 
     public List<BluetoothDevice> getConnectedDevices() {
