@@ -26,6 +26,7 @@ public class BaseProgressDialog extends BaseDialog {
         container.setPadding(padding, padding, padding, padding);
 
         progressBar = new ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal);
+        progressBar.setId(R.id.progress_dialog_bar);
         progressBar.setIndeterminate(false);
         progressBar.setProgressDrawable(context.getDrawable(R.drawable.progress_bar));
         progressBar.setLayoutParams(new LinearLayout.LayoutParams(
