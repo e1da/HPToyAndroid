@@ -826,7 +826,7 @@ public class HiFiToyControl implements BleFinder.IBleFinderDelegate {
      */
     public void getDspReg(RegRequest req, final IRegResponse onRegResponse) {
         final Context c = ApplicationContext.getInstance().getContext();
-        c.registerReceiver(new BroadcastReceiver() {
+        ApplicationContext.getInstance().registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
 

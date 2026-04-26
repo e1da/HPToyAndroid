@@ -145,7 +145,7 @@ public class AMMode implements HiFiToyObject, Cloneable, Serializable {
 
         final Context c = ApplicationContext.getInstance().getContext();
 
-        c.registerReceiver(new BroadcastReceiver() {
+        ApplicationContext.getInstance().registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 final String action = intent.getAction();

@@ -21,6 +21,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.content.ContextCompat;
+
 import com.hifitoy.activities.BaseActivity;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
 import com.hifitoy.hifitoydevice.HiFiToyDevice;
@@ -63,6 +65,10 @@ public class ApplicationContext {
         final Intent intent = new Intent(action);
         intent.putExtra(EXTRA_DATA, data);
         context.sendBroadcast(intent);
+    }
+
+    public void registerReceiver(BroadcastReceiver receiver, IntentFilter filter) {
+        ContextCompat.registerReceiver(context, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
     }
 
     public void setupOutlets() {

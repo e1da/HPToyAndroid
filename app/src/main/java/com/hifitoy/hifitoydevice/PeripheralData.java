@@ -235,7 +235,7 @@ public class PeripheralData {
         if (!HiFiToyControl.getInstance().isConnected()) return;
 
         final Context c = ApplicationContext.getInstance().getContext();
-        c.registerReceiver(new BroadcastReceiver() {
+        ApplicationContext.getInstance().registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 final String action = intent.getAction();
@@ -275,7 +275,7 @@ public class PeripheralData {
         if (!HiFiToyControl.getInstance().isConnected()) return;
 
         final Context c = ApplicationContext.getInstance().getContext();
-        c.registerReceiver(new BroadcastReceiver() {
+        ApplicationContext.getInstance().registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 final String action = intent.getAction();
@@ -328,7 +328,7 @@ public class PeripheralData {
         if (!HiFiToyControl.getInstance().isConnected()) return;
 
         final Context c = ApplicationContext.getInstance().getContext();
-        c.registerReceiver(new BroadcastReceiver() {
+        ApplicationContext.getInstance().registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
 
@@ -374,7 +374,7 @@ public class PeripheralData {
                 }
 
                 final Context c = ApplicationContext.getInstance().getContext();
-                c.registerReceiver(new BroadcastReceiver() {
+                ApplicationContext.getInstance().registerReceiver(new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
                         if (HiFiToyControl.DID_GET_PARAM_DATA.equals(intent.getAction())) {
