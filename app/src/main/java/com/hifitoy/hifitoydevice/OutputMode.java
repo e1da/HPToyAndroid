@@ -89,7 +89,7 @@ public class OutputMode implements Serializable {
         if (!HiFiToyControl.getInstance().isConnected()) return;
 
         final Context c = ApplicationContext.getInstance().getContext();
-        c.registerReceiver(new BroadcastReceiver() {
+        ApplicationContext.getInstance().registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 final String action = intent.getAction();

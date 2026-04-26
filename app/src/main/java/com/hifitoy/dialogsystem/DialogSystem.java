@@ -15,6 +15,8 @@ import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
@@ -62,19 +64,37 @@ public class DialogSystem {
         return progressDialog;
     }
 
+    private void runOnMainThread(Runnable runnable) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            runnable.run();
+            return;
+        }
+        new Handler(Looper.getMainLooper()).post(runnable);
+    }
+
     /*---------------------------------- Close dialogs -------------------------------------*/
     public void closeDialog(){
-        if (dialog != null){
-            dialog.dismiss();
-            dialog = null;
-        }
+        runOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                if (dialog != null){
+                    dialog.dismiss();
+                    dialog = null;
+                }
+            }
+        });
     }
 
     public void closeProgressDialog(){
-        if (progressDialog != null){
-            progressDialog.dismiss();
-            progressDialog = null;
-        }
+        runOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                if (progressDialog != null){
+                    progressDialog.dismiss();
+                    progressDialog = null;
+                }
+            }
+        });
     }
 
     /*---------------------------------- Utility. Get message from dialog -------------------------------------*/
@@ -241,28 +261,41 @@ public class DialogSystem {
             return;
         }
 
-        closeProgressDialog();
-        progressDialog = new BaseProgressDialog(ApplicationContext.getInstance().getContext());
+        final String dialogTitle = title;
+        final int dialogMaxPackets = maxPackets;
+        runOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                closeProgressDialog();
+                progressDialog = new BaseProgressDialog(ApplicationContext.getInstance().getContext());
 
-        progressDialog.setMax(maxPackets);
+                progressDialog.setMax(dialogMaxPackets);
 
-        //set the icon and title..
-        progressDialog.setTitle(title);
+                //set the icon and title..
+                progressDialog.setTitle(dialogTitle);
 
-        progressDialog.setCancelable(false);
-        //initialize the dialog..
-        progressDialog.setProgress(0);
-        progressDialog.setSecondaryProgress(0);
+                progressDialog.setCancelable(false);
+                //initialize the dialog..
+                progressDialog.setProgress(0);
+                progressDialog.setSecondaryProgress(0);
 
-        //show the dialog
-        progressDialog.show();
+                //show the dialog
+                progressDialog.show();
+            }
+        });
     }
 
 
     public void updateProgressDialog(int value){
-        if (progressDialog != null) {
-            progressDialog.incrementProgressBy(value);
-        }
+        final int progressValue = value;
+        runOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                if (progressDialog != null) {
+                    progressDialog.incrementProgressBy(progressValue);
+                }
+            }
+        });
     }
 
     /*---------------------------- Show pairing code dialog -----------------------------*/
