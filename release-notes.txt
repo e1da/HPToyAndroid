@@ -5,3 +5,4 @@
 - updated Android sdk version: 33 -> 36;
 - removed HiFiToy product flavor (target);
 - added Permission service;
+- fixed progress dialog visibility bug for new android sdk;
