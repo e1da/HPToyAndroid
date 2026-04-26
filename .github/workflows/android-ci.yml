@@ -128,3 +128,6 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: bash .github/scripts/emulator-smoke.sh
+
+  instrumentation-tests:
+    uses: ./.github/workflows/android-instrumentation.yml

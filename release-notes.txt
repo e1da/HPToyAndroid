@@ -6,3 +6,5 @@
 - removed HiFiToy product flavor (target);
 - added Permission service;
 - fixed progress dialog visibility bug for new android sdk;
+- implemented progress bar instrument test;
+- ci: adds instrument job;
