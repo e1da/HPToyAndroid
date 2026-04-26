@@ -1,3 +1,4 @@
 1.8.0:
 
 - ci: added build and unit test steps;
+- ci: implemented smoke tests on emulators with sdk versions: 23, 28, 31, 36;
