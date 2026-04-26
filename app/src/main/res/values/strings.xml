@@ -3,6 +3,8 @@
     <string name="ble_device_name">HPToyPeripheral</string>
     <string name="ble_device_name_1">PDV21Peripheral</string>
     <string name="ble_not_supported">BLE is not supported</string>
+    <string name="bluetooth_scan_permission_required">Bluetooth scan permission is required.</string>
+    <string name="bluetooth_connect_permission_required">Bluetooth connect permission is required.</string>
 
     <string name="demo_mode">Demo mode!</string>
     <string name="connecting">Connecting&#8230;</string>

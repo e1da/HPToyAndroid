@@ -4,3 +4,4 @@
 - ci: implemented smoke tests on emulators with sdk versions: 23, 28, 31, 36;
 - updated Android sdk version: 33 -> 36;
 - removed HiFiToy product flavor (target);
+- added Permission service;
