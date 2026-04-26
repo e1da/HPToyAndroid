@@ -54,15 +54,18 @@ public class ApplicationContext {
 
     public void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
+        intent.setPackage(context.getPackageName());
         context.sendBroadcast(intent);
     }
     public void broadcastUpdate(final String action, int value) {
         final Intent intent = new Intent(action);
+        intent.setPackage(context.getPackageName());
         intent.putExtra(EXTRA_DATA, value);
         context.sendBroadcast(intent);
     }
     public void broadcastUpdate(final String action, byte[] data) {
         final Intent intent = new Intent(action);
+        intent.setPackage(context.getPackageName());
         intent.putExtra(EXTRA_DATA, data);
         context.sendBroadcast(intent);
     }
