@@ -51,8 +51,8 @@ public class BaseDialog extends AlertDialog {
 
     private void setColor() {
         Context c = ApplicationContext.getInstance().getContext();
-        int colorTitle = c.getResources().getColor(R.color.colorWhite);
-        int colorDivider = c.getResources().getColor(R.color.colorAlphaWhite);
+        int colorTitle = c.getColor(R.color.colorWhite);
+        int colorDivider = c.getColor(R.color.colorAlphaWhite);
 
         setColor(colorTitle, colorDivider);
     }

@@ -10,6 +10,5 @@
 
 
     <style name="MyAlertDialogStyle" parent="android:Theme.Holo.Dialog">
-        <item name="colorAccent">@color/colorOrange</item>
     </style>
 </resources>

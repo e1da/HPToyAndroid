@@ -10,7 +10,6 @@ package com.hifitoy.dialogsystem;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
@@ -59,7 +58,7 @@ public class DialogSystem {
         return dialog;
     }
 
-    public ProgressDialog getProgressDialog(){
+    public BaseProgressDialog getProgressDialog(){
         return progressDialog;
     }
 
@@ -74,6 +73,7 @@ public class DialogSystem {
     public void closeProgressDialog(){
         if (progressDialog != null){
             progressDialog.dismiss();
+            progressDialog = null;
         }
     }
 
@@ -246,9 +246,8 @@ public class DialogSystem {
 
         progressDialog.setMax(maxPackets);
 
-        //set the icon, title and progress style..
+        //set the icon and title..
         progressDialog.setTitle(title);
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 
         progressDialog.setCancelable(false);
         //initialize the dialog..

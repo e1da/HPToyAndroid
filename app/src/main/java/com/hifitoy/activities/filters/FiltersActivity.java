@@ -10,15 +10,21 @@ import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.ImageDecoder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.activity.OnBackPressedCallback;
 
 import com.hifitoy.R;
 import com.hifitoy.activities.BaseActivity;
@@ -35,6 +41,7 @@ import com.hifitoy.hifitoyobjects.PassFilter;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
 
 import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_ALLPASS;
@@ -45,8 +52,22 @@ import static com.hifitoy.hifitoyobjects.Biquad.BiquadParam.Type.BIQUAD_USER;
 
 public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilterUpdateView, FiltersFragment.OnSetBackgroundListener {
     private static String TAG = "HiFiToy";
+    private final OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            if (state.isFilterImportVisible()) {
+                return;
+            }
+
+            setEnabled(false);
+            getOnBackPressedDispatcher().onBackPressed();
+            setEnabled(true);
+        }
+    };
 
     private Filters filters;
+    private final ActivityResultLauncher<String> selectImageLauncher =
+            registerForActivityResult(new ActivityResultContracts.GetContent(), this::handleSelectedImage);
 
     MenuItem enabledParam_outl;
     MenuItem typeScale_outl;
@@ -167,6 +188,7 @@ public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilter
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getOnBackPressedDispatcher().addCallback(this, backPressedCallback);
 
         //show back button
         ActionBar actionBar = getActionBar();
@@ -195,13 +217,6 @@ public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilter
         fTrans.add(fl.getId(), filterImportFragment,    "filterImportFragment").commit();
 
         setContentView(fl);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (!state.isFilterImportVisible()) {
-            super.onBackPressed();
-        }
     }
 
     @Override
@@ -309,47 +324,12 @@ public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilter
 
     @Override
     public void onSetBackground() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(android.content.Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), 1);
+        selectImageLauncher.launch("image/*");
     }
 
     @Override
     public void onFilterImport() {
         state.setFilterImportVisible(true);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if ( (resultCode == RESULT_OK) && (requestCode == 1) ) {
-
-            Uri selectedImageUri = data.getData();
-            if (selectedImageUri != null) {
-
-                String selectedImagePath = selectedImageUri.getPath();
-                Log.d(TAG, selectedImagePath);
-
-                try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
-                    FiltersBackground.getInstance().setBitmap(bitmap);
-
-                    state.setBackConfigVisible(true);
-                    ViewUpdater.getInstance().update();
-
-                } catch (FileNotFoundException e) {
-                    Log.d(TAG, "File not found exception");
-                } catch (IOException e) {
-                    Log.d(TAG, "IO exception");
-                }
-
-            } else {
-                Log.d(TAG, "Not select image.");
-            }
-
-        } else {
-            Log.d(TAG, "Not get result");
-        }
     }
 
     public void setTitleInfo() {
@@ -392,6 +372,48 @@ public class FiltersActivity extends BaseActivity implements ViewUpdater.IFilter
 
         } else {
             setTitle("Filters menu");
+        }
+    }
+
+    private Bitmap loadBitmap(Uri imageUri) throws IOException {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            ImageDecoder.Source source = ImageDecoder.createSource(getContentResolver(), imageUri);
+            return ImageDecoder.decodeBitmap(source);
+        }
+
+        try (InputStream inputStream = getContentResolver().openInputStream(imageUri)) {
+            if (inputStream == null) {
+                throw new FileNotFoundException("Unable to open image stream.");
+            }
+
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+            if (bitmap == null) {
+                throw new IOException("Unable to decode bitmap.");
+            }
+            return bitmap;
+        }
+    }
+
+    private void handleSelectedImage(Uri selectedImageUri) {
+        if (selectedImageUri == null) {
+            Log.d(TAG, "Not select image.");
+            return;
+        }
+
+        String selectedImagePath = selectedImageUri.getPath();
+        Log.d(TAG, selectedImagePath);
+
+        try {
+            Bitmap bitmap = loadBitmap(selectedImageUri);
+            FiltersBackground.getInstance().setBitmap(bitmap);
+
+            state.setBackConfigVisible(true);
+            ViewUpdater.getInstance().update();
+
+        } catch (FileNotFoundException e) {
+            Log.d(TAG, "File not found exception");
+        } catch (IOException e) {
+            Log.d(TAG, "IO exception");
         }
     }
 
