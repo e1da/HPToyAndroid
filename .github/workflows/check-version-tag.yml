@@ -1,0 +1,39 @@
+name: Check version tag
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  version-tag-check:
+    name: Ensure version tag does not exist
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Verify current version tag is absent
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          VERSION="$(perl -ne 'print "$1\n" and exit if /versionName\s+"(\d+\.\d+\.\d+)"/' app/build.gradle)"
+
+          if [[ -z "$VERSION" ]]; then
+            echo "Failed to read versionName in major.minor.patch format from app/build.gradle"
+            exit 1
+          fi
+
+          git fetch --tags --force
+
+          if git rev-parse --verify --quiet "refs/tags/$VERSION" >/dev/null; then
+            echo "Git tag '$VERSION' already exists for current app version."
+            exit 1
+          fi
+
+          echo "Version tag '$VERSION' does not exist."
