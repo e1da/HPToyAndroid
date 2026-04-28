@@ -5,12 +5,24 @@ configurations.configureEach {
     exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
 }
 
+def resolveGitHash() {
+    try {
+        def hash = providers.exec {
+            commandLine 'git', 'rev-parse', '--short=8', 'HEAD'
+        }.standardOutput.asText.get().trim().toUpperCase(java.util.Locale.US)
+        return (hash ==~ /[0-9A-F]{8}/) ? "0x${hash}" : "0x00000000"
+    } catch (Exception ignored) {
+        return "0x00000000"
+    }
+}
+
 android {
     compileSdkVersion 36
     defaultConfig {
         minSdkVersion 23
         targetSdkVersion 36
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField "String", "GIT_HASH", "\"${resolveGitHash()}\""
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
