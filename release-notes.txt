@@ -7,4 +7,5 @@
 - added Permission service;
 - fixed progress dialog visibility bug for new android sdk;
 - implemented progress bar instrument test;
-- ci: adds instrument job;
+- ci: added instrument job;
+- ci: added check version tag job;
