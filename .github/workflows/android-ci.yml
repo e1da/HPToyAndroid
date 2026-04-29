@@ -73,6 +73,13 @@ jobs:
           path: app/build/outputs/apk/hptoy/release/app-hptoy-release-smoke.apk
           if-no-files-found: error
 
+      - name: Upload unsigned hptoy release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: hptoy-release-unsigned-apk
+          path: app/build/outputs/apk/hptoy/release/app-hptoy-release-unsigned.apk
+          if-no-files-found: error
+
       - name: Publish unit test report
         uses: dorny/test-reporter@v2
         if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository }}
@@ -132,6 +139,59 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: bash .github/scripts/emulator-smoke.sh
+
+  signed-release:
+    name: Build signed release APK
+    runs-on: ubuntu-latest
+    needs: hptoy
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+
+    steps:
+      - name: Download unsigned hptoy release APK
+        uses: actions/download-artifact@v4
+        with:
+          name: hptoy-release-unsigned-apk
+          path: app/build/outputs/apk/hptoy/release
+
+      - name: Sign release APK
+        shell: bash
+        env:
+          ANDROID_SIGNING_KEYSTORE_BASE64: ${{ secrets.ANDROID_SIGNING_KEYSTORE_BASE64 }}
+          ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
+          ANDROID_SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
+          ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$ANDROID_SIGNING_KEYSTORE_BASE64" || -z "$ANDROID_SIGNING_STORE_PASSWORD" || -z "$ANDROID_SIGNING_KEY_ALIAS" || -z "$ANDROID_SIGNING_KEY_PASSWORD" ]]; then
+            echo "Signing secrets are not configured."
+            exit 1
+          fi
+
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)"
+          KEYSTORE_PATH="$RUNNER_TEMP/release.keystore"
+          UNSIGNED_APK="app/build/outputs/apk/hptoy/release/app-hptoy-release-unsigned.apk"
+          SIGNED_APK="app/build/outputs/apk/hptoy/release/app-hptoy-release.apk"
+
+          echo "$ANDROID_SIGNING_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
+          rm -f "$SIGNED_APK"
+
+          "$APKSIGNER" sign \
+            --ks "$KEYSTORE_PATH" \
+            --ks-key-alias "$ANDROID_SIGNING_KEY_ALIAS" \
+            --ks-pass "pass:$ANDROID_SIGNING_STORE_PASSWORD" \
+            --key-pass "pass:$ANDROID_SIGNING_KEY_PASSWORD" \
+            --out "$SIGNED_APK" \
+            "$UNSIGNED_APK"
+
+          "$APKSIGNER" verify "$SIGNED_APK"
+
+      - name: Upload signed hptoy release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: hptoy-release-signed-apk
+          path: app/build/outputs/apk/hptoy/release/app-hptoy-release.apk
+          if-no-files-found: error
 
   instrumentation-tests:
     needs: hptoy
