@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 import com.hifitoy.ApplicationContext;
 import com.hifitoy.R;
+import com.hifitoy.activities.SystemBarInsetsHelper;
 import com.hifitoy.activities.options.presetmanager.mergetool.MergeToolActivity;
 import com.hifitoy.dialogsystem.DialogSystem;
 import com.hifitoy.hifitoycontrol.HiFiToyControl;
@@ -49,6 +50,7 @@ public class PresetManagerActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preset);
+        SystemBarInsetsHelper.applyTopInsetPadding(this);
 
         //show back button
         ActionBar actionBar = getActionBar();
