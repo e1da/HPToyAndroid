@@ -1,13 +1,3 @@
-1.8.0:
+1.8.1:
 
-- ci: added build and unit test steps;
-- ci: implemented smoke tests on emulators with sdk versions: 23, 28, 31, 36;
-- updated Android sdk version: 33 -> 36;
-- removed HiFiToy product flavor (target);
-- added Permission service;
-- fixed progress dialog visibility bug for new android sdk;
-- implemented progress bar instrument test;
-- ci: added instrument job;
-- ci: added check version tag job;
-- ci: added signed app artifact;
-- ci: added release page generator;
+

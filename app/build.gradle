@@ -31,8 +31,8 @@ android {
     flavorDimensions "version"
     productFlavors {
         hptoy {
-            versionCode 34
-            versionName "1.8.0"
+            versionCode 35
+            versionName "1.8.1"
             dimension "version"
             applicationId "com.hptoy"
         }
