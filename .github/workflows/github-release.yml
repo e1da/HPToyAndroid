@@ -1,0 +1,127 @@
+name: GitHub Release
+
+on:
+  push:
+    branches:
+      - master
+      - ci-test
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Build signed APK and publish release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+
+      - name: Resolve release metadata
+        shell: bash
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          VERSION="$(perl -ne 'print "$1\n" and exit if /versionName\s+"(\d+\.\d+\.\d+)"/' app/build.gradle)"
+          GIT_HASH="${GITHUB_SHA:0:8}"
+          APK_NAME="hptoy-$VERSION-$GIT_HASH.apk"
+
+          if [[ -z "$VERSION" || -z "$GIT_HASH" ]]; then
+            echo "Failed to resolve version or git hash."
+            exit 1
+          fi
+
+          if [[ ! -f release-notes.txt ]]; then
+            echo "release-notes.txt is missing."
+            exit 1
+          fi
+
+          if [[ "$REF_NAME" == "ci-test" ]]; then
+            echo "RELEASE_TAG=ci-test-$VERSION-$GIT_HASH" >> "$GITHUB_ENV"
+            echo "RELEASE_NAME=CI Test $VERSION ($GIT_HASH)" >> "$GITHUB_ENV"
+            echo "RELEASE_IS_PRERELEASE=true" >> "$GITHUB_ENV"
+          else
+            echo "RELEASE_TAG=$VERSION" >> "$GITHUB_ENV"
+            echo "RELEASE_NAME=$VERSION" >> "$GITHUB_ENV"
+            echo "RELEASE_IS_PRERELEASE=false" >> "$GITHUB_ENV"
+          fi
+
+          echo "SIGNED_APK_NAME=$APK_NAME" >> "$GITHUB_ENV"
+
+      - name: Verify release tag is absent
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git fetch --tags --force
+
+          if git rev-parse --verify --quiet "refs/tags/$RELEASE_TAG" >/dev/null; then
+            echo "Release tag '$RELEASE_TAG' already exists."
+            exit 1
+          fi
+
+      - name: Build hptoy release
+        run: bash ./gradlew assembleHptoyRelease --no-daemon
+
+      - name: Sign release APK
+        shell: bash
+        env:
+          ANDROID_SIGNING_KEYSTORE_BASE64: ${{ secrets.ANDROID_SIGNING_KEYSTORE_BASE64 }}
+          ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
+          ANDROID_SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
+          ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$ANDROID_SIGNING_KEYSTORE_BASE64" || -z "$ANDROID_SIGNING_STORE_PASSWORD" || -z "$ANDROID_SIGNING_KEY_ALIAS" || -z "$ANDROID_SIGNING_KEY_PASSWORD" ]]; then
+            echo "Signing secrets are not configured."
+            exit 1
+          fi
+
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)"
+          KEYSTORE_PATH="$RUNNER_TEMP/release.keystore"
+          UNSIGNED_APK="app/build/outputs/apk/hptoy/release/app-hptoy-release-unsigned.apk"
+          SIGNED_APK="app/build/outputs/apk/hptoy/release/$SIGNED_APK_NAME"
+
+          echo "$ANDROID_SIGNING_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
+          rm -f "$SIGNED_APK"
+
+          "$APKSIGNER" sign \
+            --ks "$KEYSTORE_PATH" \
+            --ks-key-alias "$ANDROID_SIGNING_KEY_ALIAS" \
+            --ks-pass "pass:$ANDROID_SIGNING_STORE_PASSWORD" \
+            --key-pass "pass:$ANDROID_SIGNING_KEY_PASSWORD" \
+            --out "$SIGNED_APK" \
+            "$UNSIGNED_APK"
+
+          "$APKSIGNER" verify "$SIGNED_APK"
+
+      - name: Upload signed APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.SIGNED_APK_NAME }}
+          path: app/build/outputs/apk/hptoy/release/${{ env.SIGNED_APK_NAME }}
+          if-no-files-found: error
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: ${{ env.RELEASE_NAME }}
+          target_commitish: ${{ github.sha }}
+          body_path: release-notes.txt
+          prerelease: ${{ env.RELEASE_IS_PRERELEASE }}
+          files: app/build/outputs/apk/hptoy/release/${{ env.SIGNED_APK_NAME }}
