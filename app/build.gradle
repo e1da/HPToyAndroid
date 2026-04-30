@@ -32,7 +32,7 @@ android {
     productFlavors {
         hptoy {
             versionCode 34
-            versionName "1.8.0"
+            versionName "test-1"
             dimension "version"
             applicationId "com.hptoy"
         }
