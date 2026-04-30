@@ -49,13 +49,12 @@ jobs:
             exit 1
           fi
 
+          echo "RELEASE_TAG=$VERSION" >> "$GITHUB_ENV"
+          echo "RELEASE_NAME=HPToy release $VERSION" >> "$GITHUB_ENV"
+
           if [[ "$REF_NAME" == "ci-test" ]]; then
-            echo "RELEASE_TAG=ci-test-$VERSION-$GIT_HASH" >> "$GITHUB_ENV"
-            echo "RELEASE_NAME=CI Test $VERSION ($GIT_HASH)" >> "$GITHUB_ENV"
             echo "RELEASE_IS_PRERELEASE=true" >> "$GITHUB_ENV"
           else
-            echo "RELEASE_TAG=$VERSION" >> "$GITHUB_ENV"
-            echo "RELEASE_NAME=$VERSION" >> "$GITHUB_ENV"
             echo "RELEASE_IS_PRERELEASE=false" >> "$GITHUB_ENV"
           fi
 
