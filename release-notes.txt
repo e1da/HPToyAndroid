@@ -1,4 +1,5 @@
 1.8.1:
 
 - fixed ui for android 15+ (sdk 35+);
+- added About menu (app version and git hash);
 
