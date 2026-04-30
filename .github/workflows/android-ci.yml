@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Set up JDK
         uses: actions/setup-java@v5
@@ -71,6 +73,13 @@ jobs:
         with:
           name: hptoy-release-smoke-apk
           path: app/build/outputs/apk/hptoy/release/app-hptoy-release-smoke.apk
+          if-no-files-found: error
+
+      - name: Upload unsigned hptoy release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: hptoy-release-unsigned-apk
+          path: app/build/outputs/apk/hptoy/release/app-hptoy-release-unsigned.apk
           if-no-files-found: error
 
       - name: Publish unit test report
@@ -132,6 +141,81 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: bash .github/scripts/emulator-smoke.sh
+
+  signed-release:
+    name: Build signed release APK
+    runs-on: ubuntu-latest
+    needs: hptoy
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Download unsigned hptoy release APK
+        uses: actions/download-artifact@v4
+        with:
+          name: hptoy-release-unsigned-apk
+          path: app/build/outputs/apk/hptoy/release
+
+      - name: Resolve signed APK name
+        shell: bash
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+
+          VERSION="$(perl -ne 'print "$1\n" and exit if /versionName\s+"(\d+\.\d+\.\d+)"/' app/build.gradle)"
+          GIT_HASH="${PR_HEAD_SHA:0:8}"
+
+          if [[ -z "$VERSION" || -z "$GIT_HASH" ]]; then
+            echo "Failed to resolve version or git hash."
+            exit 1
+          fi
+
+          echo "SIGNED_APK_NAME=hptoy-$VERSION-$GIT_HASH.apk" >> "$GITHUB_ENV"
+
+      - name: Sign release APK
+        shell: bash
+        env:
+          ANDROID_SIGNING_KEYSTORE_BASE64: ${{ secrets.ANDROID_SIGNING_KEYSTORE_BASE64 }}
+          ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
+          ANDROID_SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
+          ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$ANDROID_SIGNING_KEYSTORE_BASE64" || -z "$ANDROID_SIGNING_STORE_PASSWORD" || -z "$ANDROID_SIGNING_KEY_ALIAS" || -z "$ANDROID_SIGNING_KEY_PASSWORD" ]]; then
+            echo "Signing secrets are not configured."
+            exit 1
+          fi
+
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)"
+          KEYSTORE_PATH="$RUNNER_TEMP/release.keystore"
+          UNSIGNED_APK="app/build/outputs/apk/hptoy/release/app-hptoy-release-unsigned.apk"
+          SIGNED_APK="app/build/outputs/apk/hptoy/release/$SIGNED_APK_NAME"
+
+          echo "$ANDROID_SIGNING_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
+          rm -f "$SIGNED_APK"
+
+          "$APKSIGNER" sign \
+            --ks "$KEYSTORE_PATH" \
+            --ks-key-alias "$ANDROID_SIGNING_KEY_ALIAS" \
+            --ks-pass "pass:$ANDROID_SIGNING_STORE_PASSWORD" \
+            --key-pass "pass:$ANDROID_SIGNING_KEY_PASSWORD" \
+            --out "$SIGNED_APK" \
+            "$UNSIGNED_APK"
+
+          "$APKSIGNER" verify "$SIGNED_APK"
+
+      - name: Upload signed hptoy release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.SIGNED_APK_NAME }}
+          path: app/build/outputs/apk/hptoy/release/${{ env.SIGNED_APK_NAME }}
+          if-no-files-found: error
 
   instrumentation-tests:
     needs: hptoy

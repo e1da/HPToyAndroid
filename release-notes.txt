@@ -9,3 +9,4 @@
 - implemented progress bar instrument test;
 - ci: added instrument job;
 - ci: added check version tag job;
+- ci: added signed app artifact;
