@@ -10,3 +10,4 @@
 - ci: added instrument job;
 - ci: added check version tag job;
 - ci: added signed app artifact;
+- ci: added release page generator;
