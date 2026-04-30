@@ -35,7 +35,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          VERSION="$(perl -ne 'print "$1\n" and exit if /versionName\s+"(\d+\.\d+\.\d+)"/' app/build.gradle)"
+          VERSION="$(perl -ne 'print "$1\n" and exit if /versionName\s+"([^"]+)"/' app/build.gradle)"
           GIT_HASH="${GITHUB_SHA:0:8}"
           APK_NAME="hptoy-$VERSION-$GIT_HASH.apk"
 
